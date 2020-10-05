@@ -11,7 +11,7 @@ import java.io.OutputStream;
 /**
  * BAM codec used to exercise the reader factory infrastructure
  */
-public class BAMV1Codec extends BAMCodec {
+class BAMV1Codec extends BAMCodec {
 
     @Override
     public ReadsReader getReader(InputStream is, String displayName) {

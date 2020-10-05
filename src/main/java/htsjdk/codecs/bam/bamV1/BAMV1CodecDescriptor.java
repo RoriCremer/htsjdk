@@ -65,26 +65,26 @@ public class BAMV1CodecDescriptor extends BAMCodecDescriptor {
     }
 
     @Override
-    public ReadsReader getCodecReader(final IOPath ioResource) {
-        return getCodecReader(ioResource.toPath());
+    public ReadsReader getReader(final IOPath ioResource) {
+        return getReader(ioResource.toPath());
     }
 
     @Override
-    public ReadsReader getCodecReader(final Path resourcePath) {
+    public ReadsReader getReader(final Path resourcePath) {
         try {
-            return getCodecReader(Files.newInputStream(resourcePath), resourcePath.toString());
+            return getReader(Files.newInputStream(resourcePath), resourcePath.toString());
         } catch (IOException e) {
             throw new HtsjdkIOException(e);
         }
     }
 
     @Override
-    public ReadsReader getCodecReader(final InputStream is, final String displayName) {
+    public ReadsReader getReader(final InputStream is, final String displayName) {
         return new BAMV1Reader(is, displayName);
     }
 
     @Override
-    public ReadsWriter getCodecWriter(final IOPath outputPath) {
+    public ReadsWriter getWriter(final IOPath outputPath) {
         return new BAMV1Writer(outputPath.getOutputStream(), outputPath.getRawInputString());
     }
 

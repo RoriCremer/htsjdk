@@ -12,7 +12,7 @@ import java.io.OutputStream;
 //TODO: a writer needs to write several streams (file, index, md5), not one
 // TODO: should this be a REFERENCE_READER from a codec ?
 
-public class BAMV1Writer extends BAMWriter {
+class BAMV1Writer extends BAMWriter {
 
     BAMFileWriter bamFileWriter;
 

@@ -10,7 +10,7 @@ import htsjdk.samtools.SamReaderFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BAMV1Reader extends BAMReader {
+class BAMV1Reader extends BAMReader {
 
     private final SamReader samReader;
     private final SAMFileHeader samFileHeader;

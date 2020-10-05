@@ -88,7 +88,7 @@ public class HtsCodecRegistry {
         // based on version (not just the file extension)
         final Optional<ReadsCodecDescriptor> codecDescriptor = readsDescriptors.getCodecDescriptor(inputPath);
         return (T) (codecDescriptor.isPresent() ?
-                        codecDescriptor.get().getCodecReader(inputPath) :
+                        codecDescriptor.get().getReader(inputPath) :
                         null);
     }
 
@@ -108,7 +108,7 @@ public class HtsCodecRegistry {
             throw new IllegalArgumentException(String.format("No codec available for %s", outputPath));
         }
         return (T) (codecDescriptor.isPresent() ?
-                codecDescriptor.get().getCodecWriter(outputPath) :
+                codecDescriptor.get().getWriter(outputPath) :
                 null);
 
     }
@@ -131,7 +131,7 @@ public class HtsCodecRegistry {
             final HtsCodecVersion codecVersion) {
         final Optional<ReadsCodecDescriptor> codecDescriptor = readsDescriptors.getDescriptorFor(readsFormat, codecVersion);
         return (T) (codecDescriptor.isPresent() ?
-                codecDescriptor.get().getCodecWriter(outputPath) :
+                codecDescriptor.get().getWriter(outputPath) :
                 null);
     }
 

@@ -1,6 +1,8 @@
 package htsjdk.plugin;
 
 import htsjdk.HtsjdkTest;
+import htsjdk.codecs.bam.BAMReader;
+import htsjdk.codecs.bam.BAMWriter;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.reads.ReadsFormat;
@@ -19,7 +21,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
 
     final IOPath TEST_DIR = new HtsPath("src/test/resources/htsjdk/samtools/");
 
-   @Test
+    @Test
     public void testReadsReader() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
@@ -37,16 +39,41 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     }
 
     @Test
+    public void testBAMReader() {
+        final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
+
+        try (final BAMReader bamReader = HtsCodecRegistry.getReadsReader(inputPath)) {
+            Assert.assertNotNull(bamReader);
+
+            final SamReader samReader = bamReader.getRecordReader();
+            Assert.assertNotNull(samReader);
+
+            final SAMFileHeader samFileHeader = samReader.getFileHeader();
+            Assert.assertNotNull(samFileHeader);
+
+            Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.coordinate);
+        }
+    }
+
+    @Test
     public void testReadsWriterForPath() {
-        final IOPath outputPath = new HtsPath("jomama.bam");
+        final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
         try (final ReadsWriter readsWriter = HtsCodecRegistry.getReadsWriter(outputPath)) {
             Assert.assertNotNull(readsWriter);
         }
     }
 
     @Test
+    public void testBAMWriterForPath() {
+        final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
+        try (final BAMWriter bamWriter = HtsCodecRegistry.getReadsWriter(outputPath)) {
+            Assert.assertNotNull(bamWriter);
+        }
+    }
+
+    @Test
     public void testReadsWriterForVersion() {
-        final IOPath outputPath = new HtsPath("jomama.bam");
+        final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
         try (final ReadsWriter readsWriter = HtsCodecRegistry.getReadsWriter(
                 outputPath,
                 ReadsFormat.BAM,

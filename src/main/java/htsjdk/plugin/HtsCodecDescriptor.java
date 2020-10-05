@@ -42,12 +42,12 @@ public interface HtsCodecDescriptor<FORMAT, READER, WRITER> {
 
     // return the reader/writer for this descriptor's specified format/version
 
-    READER getCodecReader(final IOPath resource);
+    READER getReader(final IOPath resource);
 
-    READER getCodecReader(final Path path);
+    READER getReader(final Path path);
 
-    READER getCodecReader(final InputStream is, final String displayName);
+    READER getReader(final InputStream is, final String displayName);
 
-    WRITER getCodecWriter(final IOPath ioPath);
+    WRITER getWriter(final IOPath ioPath);
 
 }
