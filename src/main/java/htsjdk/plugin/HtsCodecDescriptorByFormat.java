@@ -1,7 +1,6 @@
 package htsjdk.plugin;
 
 import htsjdk.io.IOPath;
-import htsjdk.plugin.reads.ReadsWriter;
 import htsjdk.utils.ValidationUtils;
 
 import java.util.HashMap;
@@ -10,7 +9,7 @@ import java.util.Optional;
 
 // TODO: one codec per format/version ??
 
-class CodecByType<FORMAT, READER, WRITER, DESCRIPTOR extends HtsCodecDescriptor<FORMAT, READER, WRITER>> {
+class HtsCodecDescriptorByFormat<FORMAT, READER, WRITER, DESCRIPTOR extends HtsCodecDescriptor<FORMAT, READER, WRITER>> {
 
     private final Map<FORMAT, Map<HtsCodecVersion, DESCRIPTOR>> descriptors = new HashMap<>();
     private final Map<FORMAT, HtsCodecVersion> newestVersion = new HashMap<>();

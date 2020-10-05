@@ -4,8 +4,7 @@ import htsjdk.HtsjdkTest;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.reads.ReadsFormat;
-import htsjdk.codecs.bam.BAMReader;
-import htsjdk.codecs.bam.BAMWriter;
+import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMFileWriter;
@@ -22,9 +21,9 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
 
    @Test
     public void testReadsReader() {
-        final IOPath ioPath = new HtsPath(TEST_DIR + "example.bam");
+        final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
-        try (final BAMReader bamReader = HtsCodecRegistry.getReadsReader(ioPath)) {
+        try (final ReadsReader bamReader = HtsCodecRegistry.getReadsReader(inputPath)) {
             Assert.assertNotNull(bamReader);
 
             final SamReader samReader = bamReader.getRecordReader();
@@ -48,7 +47,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     @Test
     public void testReadsWriterForVersion() {
         final IOPath outputPath = new HtsPath("jomama.bam");
-        try (final BAMWriter readsWriter = HtsCodecRegistry.getReadsWriter(
+        try (final ReadsWriter readsWriter = HtsCodecRegistry.getReadsWriter(
                 outputPath,
                 ReadsFormat.BAM,
                 HtsCodecRegistry.BAM_DEFAULT_VERSION)) {
@@ -58,14 +57,14 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
 
     @Test
     public void testReadsRoundTrip() {
-        final IOPath ioPath = new HtsPath(TEST_DIR + "example.bam");
+        final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
 
         //TODO: where does an upgrade happen ? Who bridges the version incompatibilities ?
-        //TODO: if the output ioPath were a CRAM, how would the BAMWriter cast fail (ie. since it should
-        // be either ReadsWriter or CRAMWriter)
-        try (final BAMReader bamReader = HtsCodecRegistry.getReadsReader(ioPath);
-             final BAMWriter bamWriter = HtsCodecRegistry.getReadsWriter(outputPath)) {
+        //TODO: if the  target type were BAMWriter, but the output ioPath was a CRAM so that a CRAMWriter
+        // were returned, what is the failure mode ?
+        try (final ReadsReader bamReader = HtsCodecRegistry.getReadsReader(inputPath);
+             final ReadsWriter bamWriter = HtsCodecRegistry.getReadsWriter(outputPath)) {
             Assert.assertNotNull(bamReader);
             Assert.assertNotNull(bamWriter);
 

@@ -14,11 +14,10 @@ import java.util.stream.StreamSupport;
 
 // TODO: is this really a descriptor registry ? HtsFormatDescriptor ?
 // TODO: how can we enable errors as warnings for this code/module only...
-// TODO: only one codec per type/version pair is supported
 // TODO: add a descriptor protocol string for lookup (i.e., htsget, or refget ?)
 // TODO: distinguish between FileFormatVersion and codec Version ?
-// TODO: one codec per format/version may be insufficient ? What if we ant to produce an alternative BAMReaders
-// that uses channels ? How do we handle resolving readers if there are multiple implementations ?
+// TODO: one codec per format/version may be insufficient ? What if we want alternative BAMReaders
+// that use channels ? How do we handle resolving readers if there are multiple implementations ?
 // TODO: if this registry becomes mutable (has ANY public mutator), the it needs to be become a
 //  non-singleton (with no statics..)
 /**
@@ -29,8 +28,7 @@ public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
     private static ServiceLoader<HtsCodecDescriptor> serviceLoader = ServiceLoader.load(HtsCodecDescriptor.class);
 
-    private static CodecByType<ReadsFormat, ReadsReader, ReadsWriter, ReadsCodecDescriptor>
-            readsDescriptors = new CodecByType<>();
+    private static HtsCodecDescriptorByFormat<ReadsFormat, ReadsReader, ReadsWriter, ReadsCodecDescriptor> readsDescriptors = new HtsCodecDescriptorByFormat<>();
 
     static {
         discoverCodecs().forEach(htsCodecRegistry::registerCodecDescriptor);
@@ -41,6 +39,7 @@ public class HtsCodecRegistry {
         return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
     }
 
+    //TODO: this doesn't belong here
     public static final HtsCodecVersion BAM_DEFAULT_VERSION = new HtsCodecVersion(1, 0,0);
 
     // minimum number of bytes required to allow any codec to deterministically decide if it can
@@ -84,7 +83,7 @@ public class HtsCodecRegistry {
     //       descriptor ?
 
     @SuppressWarnings("unchecked")
-    public static<T extends ReadsReader> T getReadsReader(final IOPath inputPath) {
+    public static<T extends HtsReader> T getReadsReader(final IOPath inputPath) {
         //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
         // based on version (not just the file extension)
         final Optional<ReadsCodecDescriptor> codecDescriptor = readsDescriptors.getCodecDescriptor(inputPath);
@@ -96,6 +95,7 @@ public class HtsCodecRegistry {
     //TODO: verify the file extension against the readsFormat type (delegate to the descriptor
     // to see if it likes the extension)
 
+    //TODO: this needs an "auto-upgrade" arg
     // get the newest reads writer for the given file extension
     public static<T extends ReadsWriter> T getReadsWriter(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
@@ -119,11 +119,12 @@ public class HtsCodecRegistry {
         if (!outputExtension.isPresent()) {
             return Optional.empty();
         }
-        return FormatExtensions.getReadsFormat(outputPath);
+        return FileExtensions.getReadsFormat(outputPath);
     }
 
     //TODO: verify in the descriptor here that the descriptor selected for the readsFormat matches the
     // extension on this outputPath (which should take precedence ?)
+    // TODO: also that the readsFormat matches extension
     public static <T extends ReadsWriter> T getReadsWriter(
             final IOPath outputPath,
             final ReadsFormat readsFormat,

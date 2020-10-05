@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 //TODO: Move this to CodecByType
-public class FormatExtensions {
+public class FileExtensions {
 
     final static Map<String, ReadsFormat> extensionMap = new HashMap<String, ReadsFormat>() {{
         this.put(".bam", ReadsFormat.BAM);

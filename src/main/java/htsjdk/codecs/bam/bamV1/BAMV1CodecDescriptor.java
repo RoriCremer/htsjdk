@@ -4,7 +4,6 @@ import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodec;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.exception.HtsjdkIOException;
-import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
@@ -19,7 +18,6 @@ import java.nio.file.Path;
 /**
  * BAM codec descriptor.
  */
-//TODO: this should be abstract so there can be a subclass for each version?
 public class BAMV1CodecDescriptor extends BAMCodecDescriptor {
 
     protected static final String BAM_FILE_EXTENSION = FileExtensions.BAM;
