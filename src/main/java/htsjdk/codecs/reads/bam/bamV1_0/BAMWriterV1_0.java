@@ -1,6 +1,6 @@
-package htsjdk.codecs.bam.bamV1;
+package htsjdk.codecs.reads.bam.bamV1_0;
 
-import htsjdk.codecs.bam.BAMWriter;
+import htsjdk.codecs.reads.bam.BAMWriter;
 import htsjdk.samtools.BAMFileWriter;
 import htsjdk.samtools.Defaults;
 import htsjdk.samtools.SAMFileHeader;
@@ -12,11 +12,11 @@ import java.io.OutputStream;
 //TODO: a writer needs to write several streams (file, index, md5), not one
 // TODO: should this be a REFERENCE_READER from a codec ?
 
-class BAMV1Writer extends BAMWriter {
+class BAMWriterV1_0 extends BAMWriter {
 
     BAMFileWriter bamFileWriter;
 
-    public BAMV1Writer(final OutputStream os, final String displayName) {
+    public BAMWriterV1_0(final OutputStream os, final String displayName) {
         super(os, displayName);
     }
 

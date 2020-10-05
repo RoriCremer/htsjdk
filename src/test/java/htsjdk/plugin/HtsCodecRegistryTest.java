@@ -1,8 +1,8 @@
 package htsjdk.plugin;
 
 import htsjdk.HtsjdkTest;
-import htsjdk.codecs.bam.BAMReader;
-import htsjdk.codecs.bam.BAMWriter;
+import htsjdk.codecs.reads.bam.BAMReader;
+import htsjdk.codecs.reads.bam.BAMWriter;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.reads.ReadsCodec;

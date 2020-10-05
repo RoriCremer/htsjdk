@@ -1,9 +1,9 @@
-package htsjdk.codecs.bam.bamV1;
+package htsjdk.codecs.reads.bam.bamV1_0;
 
+import htsjdk.codecs.reads.bam.BAMCodec;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
-import htsjdk.codecs.bam.BAMCodec;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,7 +11,7 @@ import java.io.OutputStream;
 /**
  * BAM codec used to exercise the reader factory infrastructure
  */
-public class BAMV1Codec extends BAMCodec {
+public class BAMCodecV1_0 extends BAMCodec {
 
     protected static final HtsCodecVersion VERSION_1 = new HtsCodecVersion(1, 0, 0);
 
@@ -22,12 +22,12 @@ public class BAMV1Codec extends BAMCodec {
 
     @Override
     public ReadsReader getReader(InputStream is, String displayName) {
-        return new BAMV1Reader(is, displayName);
+        return new BAMReaderV1_0(is, displayName);
     }
 
     @Override
     public ReadsWriter getWriter(OutputStream os, String displayName) {
-        return new BAMV1Writer(os, displayName);
+        return new BAMWriterV1_0(os, displayName);
     }
 
     @Override

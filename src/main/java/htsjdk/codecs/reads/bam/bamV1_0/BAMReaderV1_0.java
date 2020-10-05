@@ -1,7 +1,7 @@
-package htsjdk.codecs.bam.bamV1;
+package htsjdk.codecs.reads.bam.bamV1_0;
 
+import htsjdk.codecs.reads.bam.BAMReader;
 import htsjdk.exception.HtsjdkIOException;
-import htsjdk.codecs.bam.BAMReader;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
@@ -10,12 +10,12 @@ import htsjdk.samtools.SamReaderFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-class BAMV1Reader extends BAMReader {
+class BAMReaderV1_0 extends BAMReader {
 
     private final SamReader samReader;
     private final SAMFileHeader samFileHeader;
 
-    public BAMV1Reader(InputStream is, String displayName) {
+    public BAMReaderV1_0(InputStream is, String displayName) {
         super(is, displayName);
         samReader = SamReaderFactory.makeDefault().open(SamInputResource.of(is));
         samFileHeader = samReader.getFileHeader();

@@ -1,7 +1,6 @@
-package htsjdk.codecs.bam;
+package htsjdk.codecs.reads.bam;
 
 import htsjdk.io.IOPath;
-import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.samtools.util.FileExtensions;
@@ -42,6 +41,5 @@ public abstract class BAMCodec implements ReadsCodec {
     public boolean canDecode(final byte[] signatureBytes) {
         return signatureBytes.equals("BAM");
     }
-
 
 }

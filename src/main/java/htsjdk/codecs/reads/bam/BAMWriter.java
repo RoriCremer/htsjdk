@@ -1,4 +1,4 @@
-package htsjdk.codecs.bam;
+package htsjdk.codecs.reads.bam;
 
 import htsjdk.plugin.reads.ReadsWriter;
 

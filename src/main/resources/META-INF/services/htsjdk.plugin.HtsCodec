@@ -1,2 +1,2 @@
-htsjdk.codecs.bam.bamV1.BAMV1Codec
+htsjdk.codecs.reads.bam.bamV1_0.BAMCodecV1_0
 
