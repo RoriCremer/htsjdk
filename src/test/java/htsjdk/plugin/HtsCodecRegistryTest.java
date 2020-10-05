@@ -5,6 +5,7 @@ import htsjdk.codecs.bam.BAMReader;
 import htsjdk.codecs.bam.BAMWriter;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
+import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
@@ -77,7 +78,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
         try (final ReadsWriter readsWriter = HtsCodecRegistry.getReadsWriter(
                 outputPath,
                 ReadsFormat.BAM,
-                HtsCodecRegistry.BAM_DEFAULT_VERSION)) {
+                ReadsCodec.BAM_DEFAULT_VERSION)) {
             Assert.assertNotNull(readsWriter);
         }
     }

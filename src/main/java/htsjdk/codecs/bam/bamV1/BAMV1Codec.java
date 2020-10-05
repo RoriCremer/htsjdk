@@ -11,7 +11,14 @@ import java.io.OutputStream;
 /**
  * BAM codec used to exercise the reader factory infrastructure
  */
-class BAMV1Codec extends BAMCodec {
+public class BAMV1Codec extends BAMCodec {
+
+    protected static final HtsCodecVersion VERSION_1 = new HtsCodecVersion(1, 0, 0);
+
+    @Override
+    public HtsCodecVersion getVersion() {
+        return VERSION_1;
+    }
 
     @Override
     public ReadsReader getReader(InputStream is, String displayName) {
@@ -22,9 +29,6 @@ class BAMV1Codec extends BAMCodec {
     public ReadsWriter getWriter(OutputStream os, String displayName) {
         return new BAMV1Writer(os, displayName);
     }
-
-    @Override
-    public HtsCodecVersion getVersion() { return new HtsCodecVersion(1, 0, 0); }
 
     @Override
     public boolean runVersionUpgrade(final HtsCodecVersion sourceCodecVersion, final HtsCodecVersion targetCodecVersion) {
