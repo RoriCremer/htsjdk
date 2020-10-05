@@ -12,12 +12,25 @@ import java.io.OutputStream;
  * BAM codec used to exercise the reader factory infrastructure
  */
 public class BAMCodecV1_0 extends BAMCodec {
+    protected static final String BAM_MAGIC = "BAM\1";
 
     protected static final HtsCodecVersion VERSION_1 = new HtsCodecVersion(1, 0, 0);
 
     @Override
     public HtsCodecVersion getVersion() {
         return VERSION_1;
+    }
+
+    @Override
+    public int getFileSignatureSize() {
+        return BAM_MAGIC.length();
+    }
+
+    // uses a byte array rather than a stream to reduce the need to repeatedly mark/reset the
+    // stream for each codec
+    @Override
+    public boolean canDecode(final byte[] signatureBytes) {
+        return signatureBytes.equals(BAM_MAGIC);
     }
 
     @Override

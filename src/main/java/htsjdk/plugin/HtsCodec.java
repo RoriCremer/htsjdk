@@ -1,8 +1,6 @@
 package htsjdk.plugin;
 
 import htsjdk.io.IOPath;
-import htsjdk.plugin.reads.ReadsReader;
-import htsjdk.plugin.reads.ReadsWriter;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,7 +11,7 @@ import java.nio.file.Path;
  *
  * A codec class represents a single file format/version
  */
-public interface HtsCodec<FORMAT, READER, WRITER> extends Upgradeable {
+public interface HtsCodec<FORMAT, READER extends HtsReader, WRITER extends HtsWriter> extends Upgradeable {
 
     HtsCodecType getType();
 

@@ -17,6 +17,10 @@ import java.util.stream.StreamSupport;
 // TODO: distinguish between FileFormatVersion and codec Version ?
 // TODO: if this registry becomes mutable (has ANY public mutator), the it needs to be become a
 //  non-singleton (with no statics..)
+// TODO: where does an upgrade happen ? Who bridges the version incompatibilities ?
+// TODO: need a resource collection to represent siblings (resource, index, dict)
+
+// TODO: does htsget have  version # embedded in the stream
 /**
  * Registry/cache for discovered codecs.
  */
@@ -25,7 +29,7 @@ public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
     private static ServiceLoader<HtsCodec> serviceLoader = ServiceLoader.load(HtsCodec.class);
 
-    private static HtsCodecByFormat<ReadsFormat, ReadsReader, ReadsWriter, ReadsCodec> readsCodecs = new HtsCodecByFormat<>();
+    private static HtsCodecs<ReadsFormat, ReadsReader, ReadsWriter, ReadsCodec> readsCodecs = new HtsCodecs<>();
 
     static {
         discoverCodecs().forEach(htsCodecRegistry::registerCodec);
@@ -76,6 +80,7 @@ public class HtsCodecRegistry {
     // TODO: We dont want this to have to accept all the reader factory arguments, so it should just return the
     //       codec ?
 
+    //TODO: these should catch/transform ClassCastException
     @SuppressWarnings("unchecked")
     public static<T extends HtsReader> T getReadsReader(final IOPath inputPath) {
         //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
@@ -103,7 +108,6 @@ public class HtsCodecRegistry {
         return (T) (codec.isPresent() ?
                 codec.get().getWriter(outputPath) :
                 null);
-
     }
 
     // TODO: Where should this live ? Use generic types! (not ReadsFormat)

@@ -1,6 +1,7 @@
 package htsjdk.plugin;
 
 import htsjdk.HtsjdkTest;
+import htsjdk.codecs.reads.bam.BAMCodec;
 import htsjdk.codecs.reads.bam.BAMReader;
 import htsjdk.codecs.reads.bam.BAMWriter;
 import htsjdk.io.HtsPath;
@@ -23,7 +24,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     final IOPath TEST_DIR = new HtsPath("src/test/resources/htsjdk/samtools/");
 
     @Test
-    public void testReadsReader() {
+    public void testReadsReaderForBAM() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
         try (final ReadsReader bamReader = HtsCodecRegistry.getReadsReader(inputPath)) {
@@ -40,7 +41,24 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     }
 
     @Test
-    public void testBAMReader() {
+    public void testReadsReaderForCRAM() {
+        final IOPath inputPath = new HtsPath(TEST_DIR + "cram/ce#unmap2.3.0.cram");
+
+        try (final ReadsReader cramReader = HtsCodecRegistry.getReadsReader(inputPath)) {
+            Assert.assertNotNull(cramReader);
+
+            final SamReader samReader = cramReader.getRecordReader();
+            Assert.assertNotNull(samReader);
+
+            final SAMFileHeader samFileHeader = samReader.getFileHeader();
+            Assert.assertNotNull(samFileHeader);
+
+            Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.unsorted);
+        }
+    }
+
+    @Test
+    public void testBAMReaderForBAM() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
         try (final BAMReader bamReader = HtsCodecRegistry.getReadsReader(inputPath)) {
@@ -78,7 +96,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
         try (final ReadsWriter readsWriter = HtsCodecRegistry.getReadsWriter(
                 outputPath,
                 ReadsFormat.BAM,
-                ReadsCodec.BAM_DEFAULT_VERSION)) {
+                BAMCodec.BAM_DEFAULT_VERSION)) {
             Assert.assertNotNull(readsWriter);
         }
     }

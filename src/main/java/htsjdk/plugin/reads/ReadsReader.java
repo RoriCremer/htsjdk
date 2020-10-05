@@ -2,10 +2,8 @@ package htsjdk.plugin.reads;
 
 import htsjdk.plugin.HtsReader;
 import htsjdk.samtools.SAMFileHeader;
-import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
+import htsjdk.samtools.SamReaderFactory;
 
-// TODO: interface abstraction over SamReaderFactory/options
-public interface ReadsReader extends HtsReader<SAMFileHeader, SAMRecord, SamReader> {
-
+public interface ReadsReader extends HtsReader<SAMFileHeader, SamReaderFactory, SamReader> {
 }

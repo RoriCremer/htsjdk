@@ -12,18 +12,21 @@ import java.io.InputStream;
 
 class BAMReaderV1_0 extends BAMReader {
 
-    private final SamReader samReader;
-    private final SAMFileHeader samFileHeader;
+    private SamReader samReader;
+    private SAMFileHeader samFileHeader;
 
     public BAMReaderV1_0(InputStream is, String displayName) {
         super(is, displayName);
-        samReader = SamReaderFactory.makeDefault().open(SamInputResource.of(is));
-        samFileHeader = samReader.getFileHeader();
     }
 
     @Override
     public SamReader getRecordReader() {
-        return samReader;
+        return getSamReader(SamReaderFactory.makeDefault());
+    }
+
+    @Override
+    public SamReader getRecordReader(final SamReaderFactory customSamReaderFactory) {
+        return getSamReader(customSamReaderFactory);
     }
 
     @Override
@@ -38,5 +41,11 @@ class BAMReaderV1_0 extends BAMReader {
         } catch (IOException e) {
             throw new HtsjdkIOException(String.format("Exception closing input stream %s", displayName), e);
         }
+    }
+
+    private SamReader getSamReader(final SamReaderFactory samReaderFactory) {
+        samReader = samReaderFactory.open(SamInputResource.of(is));
+        samFileHeader = samReader.getFileHeader();
+        return samReader;
     }
 }
