@@ -6,7 +6,6 @@ import htsjdk.codecs.reads.bam.BAMReader;
 import htsjdk.codecs.reads.bam.BAMWriter;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
-import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
@@ -37,23 +36,6 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
             Assert.assertNotNull(samFileHeader);
 
             Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.coordinate);
-        }
-    }
-
-    @Test
-    public void testReadsReaderForCRAM() {
-        final IOPath inputPath = new HtsPath(TEST_DIR + "cram/ce#unmap2.3.0.cram");
-
-        try (final ReadsReader cramReader = HtsCodecRegistry.getReadsReader(inputPath)) {
-            Assert.assertNotNull(cramReader);
-
-            final SamReader samReader = cramReader.getRecordReader();
-            Assert.assertNotNull(samReader);
-
-            final SAMFileHeader samFileHeader = samReader.getFileHeader();
-            Assert.assertNotNull(samFileHeader);
-
-            Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.unsorted);
         }
     }
 
@@ -102,13 +84,10 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     }
 
     @Test
-    public void testReadsRoundTrip() {
+    public void testBAMReadsRoundTrip() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
 
-        //TODO: where does an upgrade happen ? Who bridges the version incompatibilities ?
-        //TODO: if the  target type were BAMWriter, but the output ioPath was a CRAM so that a CRAMWriter
-        // were returned, what is the failure mode ?
         try (final ReadsReader bamReader = HtsCodecRegistry.getReadsReader(inputPath);
              final ReadsWriter bamWriter = HtsCodecRegistry.getReadsWriter(outputPath)) {
             Assert.assertNotNull(bamReader);
