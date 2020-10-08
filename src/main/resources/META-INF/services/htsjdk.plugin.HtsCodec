@@ -1,2 +1,3 @@
 htsjdk.codecs.reads.bam.bamV1_0.BAMCodecV1_0
 htsjdk.codecs.reads.cram.cramV3_0.CRAMCodecV3_0
+htsjdk.codecs.hapref.fasta.FASTACodecV1_0

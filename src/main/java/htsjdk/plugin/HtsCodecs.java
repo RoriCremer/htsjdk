@@ -26,6 +26,7 @@ class HtsCodecs<FORMAT, READER extends HtsReader, WRITER extends HtsWriter, CODE
         updateNewestVersion(codecFormatType, codec.getVersion());
     }
 
+    //TODO: rename this to getCodecForRead
     public Optional<CODEC> getCodec(final IOPath inputPath) {
         return codecs.values()
                 .stream()
@@ -34,17 +35,18 @@ class HtsCodecs<FORMAT, READER extends HtsReader, WRITER extends HtsWriter, CODE
                 .findFirst();
     }
 
+    //TODO: rename this to getCodecForWrite
     public Optional<CODEC> getCodec(final FORMAT formatType, HtsCodecVersion codecVersion) {
         return codecs.values()
                 .stream()
                 .flatMap(m -> m.values().stream())
-                .filter(codec ->
-                        codec.getFormat().equals(formatType) &&
-                                codec.getVersion().equals(codecVersion))
+                .filter(codec -> codec.getFormat().equals(formatType) &&
+                                    codec.getVersion().equals(codecVersion))
                 .findFirst();
     }
 
-    // get the newest (version) codec for the given file extension
+    //TODO: rename this to getCodecForWrite
+    // get the newest version codec for the given file extension
     public Optional<CODEC> getCodec(final IOPath outputPath, FORMAT format) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         final Optional<HtsCodecVersion> newestFormatVersion = getNewestVersion(format);

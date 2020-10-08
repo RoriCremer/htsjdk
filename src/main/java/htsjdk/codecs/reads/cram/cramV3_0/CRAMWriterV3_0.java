@@ -1,6 +1,7 @@
 package htsjdk.codecs.reads.cram.cramV3_0;
 
 import htsjdk.codecs.reads.cram.CRAMWriter;
+import htsjdk.io.IOPath;
 import htsjdk.plugin.reads.ReadsWriter;
 import htsjdk.samtools.BAMFileWriter;
 import htsjdk.samtools.CRAMFileWriter;
@@ -15,7 +16,11 @@ import java.io.OutputStream;
 
 public class CRAMWriterV3_0 extends CRAMWriter {
 
-    CRAMFileWriter cramFileWriter;
+    private CRAMFileWriter cramFileWriter;
+
+    public CRAMWriterV3_0(final IOPath outputPath) {
+        super(outputPath);
+    }
 
     public CRAMWriterV3_0(final OutputStream os, final String displayName) {
         super(os, displayName);
@@ -24,12 +29,12 @@ public class CRAMWriterV3_0 extends CRAMWriter {
     @Override
     public SAMFileWriter getRecordWriter(final SAMFileHeader samFileHeader) {
         //TODO: fix this reference!
-        cramFileWriter = new CRAMFileWriter(os, new CRAMReferenceSource() {
+        cramFileWriter = new CRAMFileWriter(outputPath.getOutputStream(), new CRAMReferenceSource() {
             @Override
             public byte[] getReferenceBases(SAMSequenceRecord sequenceRecord, boolean tryNameVariants) {
                 return new byte[0];
             }
-        }, samFileHeader, displayName);
+        }, samFileHeader, outputPath.toString());
         cramFileWriter.setHeader(samFileHeader);
         return cramFileWriter;
     }

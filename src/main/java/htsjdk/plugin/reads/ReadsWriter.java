@@ -6,4 +6,7 @@ import htsjdk.samtools.SAMFileWriter;
 import htsjdk.samtools.SAMFileWriterFactory;
 
 public interface ReadsWriter extends HtsWriter<SAMFileHeader, SAMFileWriterFactory, SAMFileWriter> {
+
+    String getDisplayName();
+
 }

@@ -2,10 +2,14 @@ package htsjdk.plugin;
 
 import htsjdk.io.IOPath;
 import htsjdk.exception.HtsjdkPluginException;
+import htsjdk.plugin.hapref.HaploidReferenceCodec;
+import htsjdk.plugin.hapref.HaploidReferenceFormat;
+import htsjdk.plugin.hapref.HaploidReferenceReader;
+import htsjdk.plugin.hapref.HaploidReferenceWriter;
 import htsjdk.plugin.reads.ReadsCodec;
+import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
-import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.utils.ValidationUtils;
 
 import java.util.*;
@@ -29,7 +33,10 @@ public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
     private static ServiceLoader<HtsCodec> serviceLoader = ServiceLoader.load(HtsCodec.class);
 
-    private static HtsCodecs<ReadsFormat, ReadsReader, ReadsWriter, ReadsCodec> readsCodecs = new HtsCodecs<>();
+    private static HtsCodecs<ReadsFormat, ReadsReader, ReadsWriter, ReadsCodec>
+            readsCodecs = new HtsCodecs<>();
+    private static HtsCodecs<HaploidReferenceFormat, HaploidReferenceReader, HaploidReferenceWriter, HaploidReferenceCodec>
+            hapRefCodecs = new HtsCodecs<>();
 
     static {
         discoverCodecs().forEach(htsCodecRegistry::registerCodec);
@@ -52,12 +59,13 @@ public class HtsCodecRegistry {
     private void registerCodec(final HtsCodec codec) {
         switch (codec.getType()) {
             case ALIGNED_READS:
-                readsCodecs.register(
-                        ((ReadsCodec) codec).getFormat(), (ReadsCodec) codec
-                );
+                readsCodecs.register(((ReadsCodec) codec).getFormat(), (ReadsCodec) codec);
                 break;
 
             case REFERENCE:
+                hapRefCodecs.register(((HaploidReferenceCodec) codec).getFormat(), (HaploidReferenceCodec) codec);
+                break;
+
             case VARIANTS:
             case FEATURES:
                 throw new IllegalArgumentException("Codec type not yet implemented");
@@ -81,14 +89,24 @@ public class HtsCodecRegistry {
     //       codec ?
 
     //TODO: these should catch/transform ClassCastException
+    //TODO: these need to throw rather than returning null
     @SuppressWarnings("unchecked")
     public static<T extends HtsReader> T getReadsReader(final IOPath inputPath) {
         //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
         // based on version (not just the file extension)
         final Optional<ReadsCodec> codec = readsCodecs.getCodec(inputPath);
         return (T) (codec.isPresent() ?
-                        codec.get().getReader(inputPath) :
-                        null);
+                codec.get().getReader(inputPath) :
+                null);
+    }
+
+    public static<T extends HtsReader> T getReferenceReader(final IOPath inputPath) {
+        //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
+        // based on version (not just the file extension)
+        final Optional<HaploidReferenceCodec> codec = hapRefCodecs.getCodec(inputPath);
+        return (T) (codec.isPresent() ?
+                codec.get().getReader(inputPath) :
+                null);
     }
 
     //TODO: verify the file extension against the readsFormat type (delegate to the codec

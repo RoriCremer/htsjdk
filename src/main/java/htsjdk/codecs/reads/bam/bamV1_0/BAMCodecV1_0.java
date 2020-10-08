@@ -1,6 +1,7 @@
 package htsjdk.codecs.reads.bam.bamV1_0;
 
 import htsjdk.codecs.reads.bam.BAMCodec;
+import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
@@ -34,8 +35,18 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
+    public ReadsReader getReader(final IOPath inputPath) {
+        return new BAMReaderV1_0(inputPath);
+    }
+
+    @Override
     public ReadsReader getReader(InputStream is, String displayName) {
         return new BAMReaderV1_0(is, displayName);
+    }
+
+    @Override
+    public ReadsWriter getWriter(final IOPath outputPath) {
+        return new BAMWriterV1_0(outputPath);
     }
 
     @Override

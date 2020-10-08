@@ -1,21 +1,27 @@
 package htsjdk.codecs.reads.bam.bamV1_0;
 
 import htsjdk.codecs.reads.bam.BAMWriter;
+import htsjdk.io.IOPath;
 import htsjdk.samtools.BAMFileWriter;
 import htsjdk.samtools.Defaults;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMFileWriter;
 import htsjdk.samtools.SAMFileWriterFactory;
+import htsjdk.samtools.SamFileHeaderMerger;
 import htsjdk.samtools.util.BlockCompressedOutputStream;
 
 import java.io.OutputStream;
 
 //TODO: a writer needs to write several streams (file, index, md5), not one
-// TODO: should this be a REFERENCE_READER from a codec ?
+// TODO: should this take a REFERENCE_READER from a codec ?
 
-class BAMWriterV1_0 extends BAMWriter {
+public class BAMWriterV1_0 extends BAMWriter {
 
-    BAMFileWriter bamFileWriter;
+    private SAMFileWriter samFileWriter;
+
+    public BAMWriterV1_0(final IOPath outputPath) {
+        super(outputPath);
+    }
 
     public BAMWriterV1_0(final OutputStream os, final String displayName) {
         super(os, displayName);
@@ -23,35 +29,41 @@ class BAMWriterV1_0 extends BAMWriter {
 
     @Override
     public SAMFileWriter getRecordWriter(final SAMFileHeader samFileHeader) {
-        final boolean preSorted = true;
-        //TODO: required changing access to protected...
-        bamFileWriter = new BAMFileWriter(
-                os,
-                displayName,
-                Defaults.COMPRESSION_LEVEL,
-                BlockCompressedOutputStream.getDefaultDeflaterFactory());
-        bamFileWriter.setHeader(samFileHeader);
-        return bamFileWriter;
+        samFileWriter = getBAMFileWriter(new SAMFileWriterFactory(), samFileHeader);
+        return samFileWriter;
     }
 
     @Override
     public SAMFileWriter getRecordWriter(final SAMFileHeader samFileHeader, final SAMFileWriterFactory samFileWriterFactory) {
-        //TODO: SAMFileWriterFactory either needs to expose getters for all options (currently most are not exposed),
-        // or it needs to support creating a writer from a stream
-        //TODO: required changing access to protected...
-        bamFileWriter = new BAMFileWriter(
-                os,
-                displayName,
-                samFileWriterFactory.getCompressionLevel(),
-                BlockCompressedOutputStream.getDefaultDeflaterFactory());
-        bamFileWriter.setHeader(samFileHeader);
-        return bamFileWriter;
+        samFileWriter = getBAMFileWriter(samFileWriterFactory, samFileHeader);
+        return samFileWriter;
     }
 
     @Override
     public void close() {
-        if (bamFileWriter != null) {
-            bamFileWriter.close();
+        if (samFileWriter != null) {
+            samFileWriter.close();
+        }
+    }
+
+    private SAMFileWriter getBAMFileWriter(final SAMFileWriterFactory samFileWriterFactory, final SAMFileHeader samFileHeader) {
+        //TODO: expose presorted
+        final boolean preSorted = true;
+
+        if (os != null) {
+            //TODO: SAMFileWriterFactory doesn't expose getters for all options (currently most are not exposed),
+            // so this is currently not fully honoring the SAMFileWriterFactory
+
+            //TODO: this stream constructor required changing the member access to protected...
+            final BAMFileWriter bamFileWriter = new BAMFileWriter(
+                    os,
+                    getDisplayName(),
+                    samFileWriterFactory.getCompressionLevel(),
+                    BlockCompressedOutputStream.getDefaultDeflaterFactory());
+            bamFileWriter.setHeader(samFileHeader);
+            return bamFileWriter;
+        } else {
+            return samFileWriterFactory.makeBAMWriter(samFileHeader, preSorted, outputPath.toPath());
         }
     }
 }

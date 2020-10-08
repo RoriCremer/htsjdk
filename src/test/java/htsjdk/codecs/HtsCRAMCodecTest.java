@@ -1,8 +1,9 @@
-package htsjdk.plugin;
+package htsjdk.codecs;
 
 import htsjdk.HtsjdkTest;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
+import htsjdk.plugin.HtsCodecRegistry;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SamReader;

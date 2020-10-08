@@ -3,6 +3,7 @@ package htsjdk.codecs.reads.cram.cramV3_0;
 import htsjdk.codecs.reads.cram.CRAMCodec;
 import htsjdk.codecs.reads.cram.cramV3_0.CRAMReaderV3_0;
 import htsjdk.codecs.reads.cram.cramV3_0.CRAMWriterV3_0;
+import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
@@ -23,8 +24,18 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     }
 
     @Override
+    public ReadsReader getReader(final IOPath inputPath) {
+        return new CRAMReaderV3_0(inputPath);
+    }
+
+    @Override
     public ReadsReader getReader(InputStream is, String displayName) {
         return new CRAMReaderV3_0(is, displayName);
+    }
+
+    @Override
+    public ReadsWriter getWriter(final IOPath outputPath) {
+        return new CRAMWriterV3_0(outputPath);
     }
 
     @Override
@@ -34,7 +45,7 @@ public class CRAMCodecV3_0 extends CRAMCodec {
 
     @Override
     public boolean runVersionUpgrade(final HtsCodecVersion sourceCodecVersion, final HtsCodecVersion targetCodecVersion) {
-        throw new IllegalStateException("Not yet implemented");
+        throw new IllegalStateException("Not implemented");
     }
 
 }

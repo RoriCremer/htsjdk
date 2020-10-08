@@ -6,4 +6,5 @@ import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
 
 public interface ReadsReader extends HtsReader<SAMFileHeader, SamReaderFactory, SamReader> {
+
 }

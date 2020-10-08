@@ -16,11 +16,6 @@ public abstract class CRAMCodec implements ReadsCodec {
     public ReadsFormat getFormat() { return ReadsFormat.CRAM; }
 
     @Override
-    public String getDisplayName() {
-        return String.format("Codec for BAM version %s", getVersion());
-    }
-
-    @Override
     public int getFileSignatureSize() {
         return CRAM_MAGIC.length();
     }

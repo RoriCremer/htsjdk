@@ -2,6 +2,7 @@ package htsjdk.codecs.reads.bam.bamV1_0;
 
 import htsjdk.codecs.reads.bam.BAMReader;
 import htsjdk.exception.HtsjdkIOException;
+import htsjdk.io.IOPath;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
@@ -10,10 +11,14 @@ import htsjdk.samtools.SamReaderFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-class BAMReaderV1_0 extends BAMReader {
+public class BAMReaderV1_0 extends BAMReader {
 
     private SamReader samReader;
     private SAMFileHeader samFileHeader;
+
+    public BAMReaderV1_0(final IOPath inputPath) {
+        super(inputPath);
+    }
 
     public BAMReaderV1_0(InputStream is, String displayName) {
         super(is, displayName);
@@ -21,7 +26,8 @@ class BAMReaderV1_0 extends BAMReader {
 
     @Override
     public SamReader getRecordReader() {
-        return getSamReader(SamReaderFactory.makeDefault());
+        samReader = getSamReader(SamReaderFactory.makeDefault());
+        return samReader;
     }
 
     @Override
@@ -39,12 +45,12 @@ class BAMReaderV1_0 extends BAMReader {
         try {
             samReader.close();
         } catch (IOException e) {
-            throw new HtsjdkIOException(String.format("Exception closing input stream %s", displayName), e);
+            throw new HtsjdkIOException(String.format("Exception closing input stream %s for", inputPath), e);
         }
     }
 
     private SamReader getSamReader(final SamReaderFactory samReaderFactory) {
-        samReader = samReaderFactory.open(SamInputResource.of(is));
+        samReader = samReaderFactory.open(SamInputResource.of(inputPath.toPath()));
         samFileHeader = samReader.getFileHeader();
         return samReader;
     }

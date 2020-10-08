@@ -17,11 +17,6 @@ public abstract class BAMCodec implements ReadsCodec {
     @Override
     public ReadsFormat getFormat() { return ReadsFormat.BAM; }
 
-    @Override
-    public String getDisplayName() {
-        return String.format("Codec for BAM version %s", getVersion());
-    }
-
     //TODO: this needs to be permissive of multiple extensions
     @Override
     public boolean canDecode(final IOPath ioPath) {
