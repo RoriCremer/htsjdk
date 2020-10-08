@@ -3,38 +3,36 @@ package htsjdk.codecs.reads.cram;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsFormat;
+import htsjdk.samtools.cram.structure.CramHeader;
 import htsjdk.samtools.util.FileExtensions;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class CRAMCodec implements ReadsCodec {
-
-    protected static final String CRAM_FILE_EXTENSION = FileExtensions.CRAM;
-    protected static final String CRAM_MAGIC = "CRAM\1";
+    protected static final String CRAM_MAGIC = new String(CramHeader.MAGIC);
+    private final Set<String> extensionMap = new HashSet(Arrays.asList(FileExtensions.CRAM));
 
     @Override
     public ReadsFormat getFormat() { return ReadsFormat.CRAM; }
 
     @Override
-    public int getFileSignatureSize() {
-        return CRAM_MAGIC.length();
+    public boolean canDecodeExtension(final IOPath ioPath) {
+        return extensionMap.stream().anyMatch(ext-> ioPath.hasExtension(ext));
     }
 
     @Override
-    public boolean canDecode(final IOPath resource) {
-        return resource.hasExtension(CRAM_FILE_EXTENSION);
-    }
-
-    @Override
-    public boolean canDecode(final Path path) {
-        return path.endsWith(CRAM_FILE_EXTENSION);
+    public boolean canDecodeExtension(final Path path) {
+        return extensionMap.stream().anyMatch(ext-> path.endsWith(ext));
     }
 
     // uses a byte array rather than a stream to reduce the need to repeatedly mark/reset the
     // stream for each codec
     @Override
-    public boolean canDecode(final byte[] signatureBytes) {
-        return signatureBytes.equals("CRAM");
+    public boolean canDecodeSignature(final byte[] signatureBytes) {
+        return signatureBytes.equals(CRAM_MAGIC);
     }
 
 }

@@ -26,22 +26,22 @@ public class FASTACodecV1_0 extends HapRefCodec {
     }
 
     @Override
-    public int getFileSignatureSize() {
+    public int getSignatureSize() {
         return 1;
     }
 
     @Override
-    public boolean canDecode(IOPath ioPath) {
+    public boolean canDecodeExtension(IOPath ioPath) {
         return ioPath.hasExtension(".fasta");
     }
 
     @Override
-    public boolean canDecode(Path path) {
+    public boolean canDecodeExtension(Path path) {
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public boolean canDecode(byte[] streamSignature) {
+    public boolean canDecodeSignature(byte[] streamSignature) {
         throw new IllegalStateException("Not implemented");
     }
 

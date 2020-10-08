@@ -23,14 +23,14 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
-    public int getFileSignatureSize() {
+    public int getSignatureSize() {
         return BAM_MAGIC.length();
     }
 
     // uses a byte array rather than a stream to reduce the need to repeatedly mark/reset the
     // stream for each codec
     @Override
-    public boolean canDecode(final byte[] signatureBytes) {
+    public boolean canDecodeSignature(final byte[] signatureBytes) {
         return signatureBytes.equals(BAM_MAGIC);
     }
 

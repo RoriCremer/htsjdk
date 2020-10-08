@@ -26,17 +26,17 @@ class HtsCodecs<FORMAT, READER extends HtsReader, WRITER extends HtsWriter, CODE
         updateNewestVersion(codecFormatType, codec.getVersion());
     }
 
-    //TODO: rename this to getCodecForRead
-    public Optional<CODEC> getCodec(final IOPath inputPath) {
+    //TODO: check for/handle > 1 matches ?
+    public Optional<CODEC> getCodecForIOPath(final IOPath inputPath) {
         return codecs.values()
                 .stream()
                 .flatMap(m -> m.values().stream())
-                .filter(codec -> codec.canDecode(inputPath))
+                .filter(codec -> codec.canDecodeExtension(inputPath))
                 .findFirst();
     }
 
     //TODO: rename this to getCodecForWrite
-    public Optional<CODEC> getCodec(final FORMAT formatType, HtsCodecVersion codecVersion) {
+    public Optional<CODEC> getCodecForFormatAndVersion(final FORMAT formatType, HtsCodecVersion codecVersion) {
         return codecs.values()
                 .stream()
                 .flatMap(m -> m.values().stream())
@@ -45,17 +45,17 @@ class HtsCodecs<FORMAT, READER extends HtsReader, WRITER extends HtsWriter, CODE
                 .findFirst();
     }
 
-    //TODO: rename this to getCodecForWrite
-    // get the newest version codec for the given file extension
-    public Optional<CODEC> getCodec(final IOPath outputPath, FORMAT format) {
-        ValidationUtils.nonNull(outputPath, "Output path must not be null");
-        final Optional<HtsCodecVersion> newestFormatVersion = getNewestVersion(format);
-        if (!newestFormatVersion.isPresent()) {
-            throw new IllegalArgumentException(String.format("No codec versions available for %s", outputPath));
-        }
-        final Optional<CODEC> codec = getCodec(format, newestFormatVersion.get());
-        return codec;
-    }
+//    //TODO: rename this to getCodecForWrite
+//    // get the newest version codec for the given file extension
+//    public Optional<CODEC> getCodecForFormatAndVersion(final IOPath outputPath, FORMAT format) {
+//        ValidationUtils.nonNull(outputPath, "Output path must not be null");
+//        final Optional<HtsCodecVersion> newestFormatVersion = getNewestVersion(format);
+//        if (!newestFormatVersion.isPresent()) {
+//            throw new IllegalArgumentException(String.format("No codec versions available for %s", outputPath));
+//        }
+//        final Optional<CODEC> codec = getCodecForFormatAndVersion(format, newestFormatVersion.get());
+//        return codec;
+//    }
 
     public Optional<HtsCodecVersion> getNewestVersion(final FORMAT format) {
         return Optional.of(newestVersion.get(format));

@@ -24,6 +24,11 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     }
 
     @Override
+    public int getSignatureSize() {
+        return CRAM_MAGIC.length();
+    }
+
+    @Override
     public ReadsReader getReader(final IOPath inputPath) {
         return new CRAMReaderV3_0(inputPath);
     }

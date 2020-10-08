@@ -74,7 +74,7 @@ public class HtsCodecRegistry {
                 throw new IllegalArgumentException("Unknown codec type");
         }
 
-        final int minSignatureBytesRequired = codec.getFileSignatureSize();
+        final int minSignatureBytesRequired = codec.getSignatureSize();
         if (minSignatureBytesRequired < 1) {
             throw new HtsjdkPluginException(
                     String.format("%s: file signature size must be > 0", codec.getDisplayName())
@@ -87,14 +87,13 @@ public class HtsCodecRegistry {
     // TODO: return Optional<ReadsCodec> ?
     // TODO: We dont want this to have to accept all the reader factory arguments, so it should just return the
     //       codec ?
-
     //TODO: these should catch/transform ClassCastException
     //TODO: these need to throw rather than returning null
     @SuppressWarnings("unchecked")
     public static<T extends HtsReader> T getReadsReader(final IOPath inputPath) {
         //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
         // based on version (not just the file extension)
-        final Optional<ReadsCodec> codec = readsCodecs.getCodec(inputPath);
+        final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
         return (T) (codec.isPresent() ?
                 codec.get().getReader(inputPath) :
                 null);
@@ -103,7 +102,7 @@ public class HtsCodecRegistry {
     public static<T extends HtsReader> T getReferenceReader(final IOPath inputPath) {
         //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
         // based on version (not just the file extension)
-        final Optional<HaploidReferenceCodec> codec = hapRefCodecs.getCodec(inputPath);
+        final Optional<HaploidReferenceCodec> codec = hapRefCodecs.getCodecForIOPath(inputPath);
         return (T) (codec.isPresent() ?
                 codec.get().getReader(inputPath) :
                 null);
@@ -115,26 +114,13 @@ public class HtsCodecRegistry {
     // get the newest reads writer for the given file extension
     public static<T extends ReadsWriter> T getReadsWriter(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
-        final Optional<ReadsFormat> readsFormat = getReadsFormatForExtension(outputPath);
-        if (!readsFormat.isPresent()) {
-            throw new IllegalArgumentException(String.format("Can't determine format from extension %s", outputPath));
-        }
-        final Optional<ReadsCodec> codec = readsCodecs.getCodec(outputPath, readsFormat.get());
+        final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(outputPath);
         if (!codec.isPresent()) {
             throw new IllegalArgumentException(String.format("No codec available for %s", outputPath));
         }
         return (T) (codec.isPresent() ?
                 codec.get().getWriter(outputPath) :
                 null);
-    }
-
-    // TODO: Where should this live ? Use generic types! (not ReadsFormat)
-    public static Optional<ReadsFormat> getReadsFormatForExtension(final IOPath outputPath) {
-        final Optional<String> outputExtension = outputPath.getExtension();
-        if (!outputExtension.isPresent()) {
-            return Optional.empty();
-        }
-        return FileExtensions.getReadsFormat(outputPath);
     }
 
     //TODO: verify in the codec here that the codec selected for the readsFormat matches the
@@ -144,7 +130,7 @@ public class HtsCodecRegistry {
             final IOPath outputPath,
             final ReadsFormat readsFormat,
             final HtsCodecVersion codecVersion) {
-        final Optional<ReadsCodec> codec = readsCodecs.getCodec(readsFormat, codecVersion);
+        final Optional<ReadsCodec> codec = readsCodecs.getCodecForFormatAndVersion(readsFormat, codecVersion);
         return (T) (codec.isPresent() ?
                 codec.get().getWriter(outputPath) :
                 null);

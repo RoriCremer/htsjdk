@@ -24,15 +24,13 @@ public interface HtsCodec<FORMAT, READER extends HtsReader, WRITER extends HtsWr
     FORMAT getFormat();
 
     // Get the minimum number of bytes this codec requires to determine whether it can decode a stream.
-    int getFileSignatureSize();
+    int getSignatureSize();
 
-    //TODO: contract should say to first look at the IOPath (extension), if acceptable, delegate to the stream
-    // canDecode
-    boolean canDecode(final IOPath resource);
+    boolean canDecodeExtension(final IOPath resource);
 
-    boolean canDecode(final Path path);
+    boolean canDecodeExtension(final Path path);
 
-    boolean canDecode(final byte[] streamSignature);
+    boolean canDecodeSignature(final byte[] streamSignature);
 
     READER getReader(final IOPath ioPath);
 
