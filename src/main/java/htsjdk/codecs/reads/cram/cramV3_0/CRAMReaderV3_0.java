@@ -2,6 +2,7 @@ package htsjdk.codecs.reads.cram.cramV3_0;
 
 import htsjdk.codecs.reads.cram.CRAMReader;
 import htsjdk.io.IOPath;
+import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.samtools.CRAMFileReader;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMSequenceRecord;
@@ -16,11 +17,16 @@ import htsjdk.samtools.util.RuntimeIOException;
 import java.io.IOException;
 import java.io.InputStream;
 
+// TODO: This should reject CRAM 3.1
 public class CRAMReaderV3_0 extends CRAMReader {
     private final CRAMFileReader cramReader;
     private final SAMFileHeader samFileHeader;
 
     public CRAMReaderV3_0(final IOPath inputPath) {
+        this(inputPath, SamReaderFactory.makeDefault());
+    }
+
+    public CRAMReaderV3_0(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
         super(inputPath);
         try {
             cramReader = new CRAMFileReader(
@@ -42,6 +48,10 @@ public class CRAMReaderV3_0 extends CRAMReader {
     }
 
     public CRAMReaderV3_0(InputStream is, String displayName) {
+        this(is, displayName, SamReaderFactory.makeDefault());
+    }
+
+    public CRAMReaderV3_0(InputStream is, String displayName, final SamReaderFactory samReaderFactory) {
         super(is, displayName);
         try {
             cramReader = new CRAMFileReader(
@@ -63,13 +73,13 @@ public class CRAMReaderV3_0 extends CRAMReader {
     }
 
     @Override
-    public SamReader getRecordReader() {
-        return new SamReader.PrimitiveSamReaderToSamReaderAdapter(cramReader, SamInputResource.of(inputPath.toPath()));
+    public HtsCodecVersion getVersion() {
+        return CRAMCodecV3_0.VERSION_3_0;
     }
 
     @Override
-    public SamReader getRecordReader(SamReaderFactory samReaderFactory) {
-        return null;
+    public SamReader getRecordReader() {
+        return new SamReader.PrimitiveSamReaderToSamReaderAdapter(cramReader, SamInputResource.of(inputPath.toPath()));
     }
 
     @Override

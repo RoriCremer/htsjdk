@@ -1,14 +1,13 @@
 package htsjdk.codecs.reads.cram;
 
 import htsjdk.io.IOPath;
+import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsReader;
 
 import java.io.InputStream;
 
 public abstract class CRAMReader implements ReadsReader {
-
     private final String displayName;
-
     protected IOPath inputPath;
     protected InputStream is;
 
@@ -21,6 +20,9 @@ public abstract class CRAMReader implements ReadsReader {
         this.is = is;
         this.displayName = displayName;
     }
+
+    @Override
+    final public ReadsFormat getFormat() { return ReadsFormat.CRAM; }
 
     @Override
     final public String getDisplayName() { return displayName; }

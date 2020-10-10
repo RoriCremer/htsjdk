@@ -10,6 +10,7 @@ import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
+import htsjdk.samtools.SamReaderFactory;
 import htsjdk.utils.ValidationUtils;
 
 import java.util.*;
@@ -17,14 +18,14 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 // TODO: how can we enable errors as warnings for this code/module only...
-// TODO: add a codec protocol string for lookup (i.e., htsget, or refget ?)
+// TODO: add a codec protocol string (i.e., htsget, or refget ?)
 // TODO: distinguish between FileFormatVersion and codec Version ?
-// TODO: if this registry becomes mutable (has ANY public mutator), the it needs to be become a
-//  non-singleton (with no statics..)
 // TODO: where does an upgrade happen ? Who bridges the version incompatibilities ?
 // TODO: need a resource collection to represent siblings (resource, index, dict)
+// TODO: dummy interface/implementation for no-op type params  ? (ie., hapref has no factory/options)
+// TODO: return Optional<ReadsCodec> ?
 
-// TODO: does htsget have  version # embedded in the stream
+// TODO: does htsget have any (htsget or BAM/CRAM) version # embedded in the stream?
 /**
  * Registry/cache for discovered codecs.
  */
@@ -33,10 +34,8 @@ public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
     private static ServiceLoader<HtsCodec> serviceLoader = ServiceLoader.load(HtsCodec.class);
 
-    private static HtsCodecs<ReadsFormat, ReadsReader, ReadsWriter, ReadsCodec>
-            readsCodecs = new HtsCodecs<>();
-    private static HtsCodecs<HaploidReferenceFormat, HaploidReferenceReader, HaploidReferenceWriter, HaploidReferenceCodec>
-            hapRefCodecs = new HtsCodecs<>();
+    private static HtsCodecs<HaploidReferenceFormat, HaploidReferenceCodec> hapRefCodecs = new HtsCodecs<>();
+    private static HtsCodecs<ReadsFormat, ReadsCodec>                       readsCodecs = new HtsCodecs<>();
 
     static {
         discoverCodecs().forEach(htsCodecRegistry::registerCodec);
@@ -84,34 +83,27 @@ public class HtsCodecRegistry {
     }
 
     // TODO: this should have a name and contract that reflects that its only looking at the URI
-    // TODO: return Optional<ReadsCodec> ?
-    // TODO: We dont want this to have to accept all the reader factory arguments, so it should just return the
-    //       codec ?
-    //TODO: these should catch/transform ClassCastException
-    //TODO: these need to throw rather than returning null
+    // TODO: these should catch/transform ClassCastException, and throw rather than returning null
     @SuppressWarnings("unchecked")
-    public static<T extends HtsReader> T getReadsReader(final IOPath inputPath) {
-        //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
-        // based on version (not just the file extension)
+    public static<T extends ReadsReader> T getReadsReader(final IOPath inputPath) {
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
         return (T) (codec.isPresent() ?
                 codec.get().getReader(inputPath) :
                 null);
     }
 
-    public static<T extends HtsReader> T getReferenceReader(final IOPath inputPath) {
-        //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
-        // based on version (not just the file extension)
-        final Optional<HaploidReferenceCodec> codec = hapRefCodecs.getCodecForIOPath(inputPath);
+    //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
+    // based on version (not just the file extension)
+    public static<T extends ReadsReader> T getReadsReader(final IOPath inputPath, final SamReaderFactory readerFactory) {
+        final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
         return (T) (codec.isPresent() ?
-                codec.get().getReader(inputPath) :
+                 codec.get().getReader(inputPath, readerFactory) :
                 null);
     }
 
-    //TODO: verify the file extension against the readsFormat type (delegate to the codec
+    // TODO: verify the file extension against the readsFormat type (delegate to the codec
     // to see if it likes the extension)
-    //TODO: this needs an "auto-upgrade" arg
-    // get the newest reads writer for the given file extension
+    // TODO: this needs an "auto-upgrade" arg
     public static<T extends ReadsWriter> T getReadsWriter(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(outputPath);
@@ -133,6 +125,15 @@ public class HtsCodecRegistry {
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForFormatAndVersion(readsFormat, codecVersion);
         return (T) (codec.isPresent() ?
                 codec.get().getWriter(outputPath) :
+                null);
+    }
+
+    //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
+    // based on version (not just the file extension)
+    public static<T extends HaploidReferenceReader> T getReferenceReader(final IOPath inputPath) {
+        final Optional<HaploidReferenceCodec> codec = hapRefCodecs.getCodecForIOPath(inputPath);
+        return (T) (codec.isPresent() ?
+                codec.get().getReader(inputPath) :
                 null);
     }
 

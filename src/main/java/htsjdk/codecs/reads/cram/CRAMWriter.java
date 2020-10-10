@@ -1,6 +1,7 @@
 package htsjdk.codecs.reads.cram;
 
 import htsjdk.io.IOPath;
+import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsWriter;
 
 import java.io.OutputStream;
@@ -11,7 +12,6 @@ public abstract class CRAMWriter implements ReadsWriter {
     protected OutputStream os;
     final protected String displayName;
 
-
     public CRAMWriter(final IOPath outputPath) {
         this.outputPath = outputPath;
         this.displayName = outputPath.getRawInputString();
@@ -21,6 +21,9 @@ public abstract class CRAMWriter implements ReadsWriter {
         this.os = os;
         this.displayName = displayName;
     }
+
+    @Override
+    final public ReadsFormat getFormat() { return ReadsFormat.CRAM; }
 
     @Override
     final public String getDisplayName() { return displayName; }

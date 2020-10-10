@@ -10,7 +10,7 @@ import java.util.Optional;
 // TODO: need more than one codec per format/version, ie., we'll need an HtsGetCodec for BAM v1 that
 // uses the same reader/writer as the BAMv1Codec
 
-class HtsCodecs<FORMAT, READER extends HtsReader, WRITER extends HtsWriter, CODEC extends HtsCodec<FORMAT, READER, WRITER>> {
+final class HtsCodecs<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?, ?>> {
 
     private final Map<FORMAT, Map<HtsCodecVersion, CODEC>> codecs = new HashMap<>();
     private final Map<FORMAT, HtsCodecVersion> newestVersion = new HashMap<>();

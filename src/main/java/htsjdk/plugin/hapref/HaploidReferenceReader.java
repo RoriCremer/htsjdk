@@ -1,9 +1,8 @@
 package htsjdk.plugin.hapref;
 
 import htsjdk.plugin.HtsReader;
+import htsjdk.plugin.UnusedType;
 import htsjdk.samtools.reference.ReferenceSequenceFile;
 
-// TODO: reference format has neither a header nor an options factory
-public interface HaploidReferenceReader extends HtsReader<Object, Object, ReferenceSequenceFile> {
-
+public interface HaploidReferenceReader extends HtsReader<UnusedType, HaploidReferenceFormat, ReferenceSequenceFile> {
 }

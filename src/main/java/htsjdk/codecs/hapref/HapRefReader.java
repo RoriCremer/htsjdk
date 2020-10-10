@@ -1,6 +1,7 @@
 package htsjdk.codecs.hapref;
 
 import htsjdk.io.IOPath;
+import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.plugin.hapref.HaploidReferenceReader;
 
 public abstract class HapRefReader implements HaploidReferenceReader {

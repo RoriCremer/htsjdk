@@ -1,7 +1,7 @@
 package htsjdk.codecs;
 
 import htsjdk.HtsjdkTest;
-import htsjdk.codecs.hapref.fasta.FASTAReaderV1_0;
+import htsjdk.codecs.hapref.HapRefReader;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecRegistry;
@@ -19,7 +19,7 @@ public class HtsFASTACodecTest extends HtsjdkTest {
     public void testFASTAReader() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "/hg19mini.fasta");
 
-        try (final FASTAReaderV1_0 fastaReader = HtsCodecRegistry.getReferenceReader(inputPath)) {
+        try (final HapRefReader fastaReader = HtsCodecRegistry.getReferenceReader(inputPath)) {
             Assert.assertNotNull(fastaReader);
 
             final ReferenceSequenceFile referenceReader = fastaReader.getRecordReader();

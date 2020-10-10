@@ -1,6 +1,7 @@
 package htsjdk.codecs.reads.bam;
 
 import htsjdk.io.IOPath;
+import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsReader;
 
 import java.io.InputStream;
@@ -21,6 +22,9 @@ public abstract class BAMReader implements ReadsReader {
         this.is = is;
         this.displayName = displayName;
     }
+
+    @Override
+    final public ReadsFormat getFormat() { return ReadsFormat.BAM; }
 
     @Override
     final public String getDisplayName() { return displayName; }

@@ -60,7 +60,7 @@ public class HtsBAMCodecTest  extends HtsjdkTest {
             Assert.assertNotNull(samFileHeader);
 
             final SAMFileWriter samFileWriter = bamWriter.getRecordWriter(samFileHeader);
-            for (SAMRecord samRec : samReader) {
+            for (final SAMRecord samRec : samReader) {
                 samFileWriter.addAlignment(samRec);
             }
         }

@@ -1,7 +1,11 @@
 package htsjdk.codecs.hapref.fasta;
 
 import htsjdk.codecs.hapref.HapRefReader;
+import htsjdk.codecs.reads.bam.bamV1_0.BAMCodecV1_0;
 import htsjdk.io.IOPath;
+import htsjdk.plugin.HtsCodecVersion;
+import htsjdk.plugin.UnusedType;
+import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.samtools.reference.FastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequenceFile;
 import htsjdk.samtools.util.RuntimeIOException;
@@ -17,6 +21,9 @@ public class FASTAReaderV1_0 extends HapRefReader {
     }
 
     @Override
+    final public HaploidReferenceFormat getFormat() { return HaploidReferenceFormat.FASTA; }
+
+    @Override
     public ReferenceSequenceFile getRecordReader() {
         // TODO: truncateNamesAtWhitespace
         referenceSequenceFile = new FastaSequenceFile(inputPath.toPath(), true);
@@ -24,13 +31,13 @@ public class FASTAReaderV1_0 extends HapRefReader {
     }
 
     @Override
-    public ReferenceSequenceFile getRecordReader(final Object options) {
-        return new FastaSequenceFile(inputPath.toPath(), true);
+    public UnusedType getHeader() {
+        throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public Object getHeader() {
-        throw new IllegalStateException("Not implemented");
+    public HtsCodecVersion getVersion() {
+        return FASTACodecV1_0.VERSION_1;
     }
 
     @Override

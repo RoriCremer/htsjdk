@@ -2,6 +2,9 @@ package htsjdk.codecs.hapref.fasta;
 
 import htsjdk.codecs.hapref.HapRefWriter;
 import htsjdk.io.IOPath;
+import htsjdk.plugin.HtsCodecVersion;
+import htsjdk.plugin.UnusedType;
+import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.samtools.reference.FastaReferenceWriter;
 
 public class FASTAWriterV1_0 extends HapRefWriter {
@@ -11,13 +14,16 @@ public class FASTAWriterV1_0 extends HapRefWriter {
     }
 
     @Override
-    public FastaReferenceWriter getRecordWriter(Object samHeader) {
+    final public HaploidReferenceFormat getFormat() { return HaploidReferenceFormat.FASTA; }
+
+    @Override
+    public FastaReferenceWriter getRecordWriter(final UnusedType unused) {
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public FastaReferenceWriter getRecordWriter(Object samHeader, Object o) {
-        throw new IllegalStateException("Not implemented");
+    public HtsCodecVersion getVersion() {
+        return FASTACodecV1_0.VERSION_1;
     }
 
     @Override

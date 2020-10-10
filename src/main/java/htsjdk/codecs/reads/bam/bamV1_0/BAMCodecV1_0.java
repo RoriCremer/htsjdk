@@ -5,6 +5,8 @@ import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.reads.ReadsReader;
 import htsjdk.plugin.reads.ReadsWriter;
+import htsjdk.samtools.SAMFileWriterFactory;
+import htsjdk.samtools.SamReaderFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,12 +38,22 @@ public class BAMCodecV1_0 extends BAMCodec {
 
     @Override
     public ReadsReader getReader(final IOPath inputPath) {
-        return new BAMReaderV1_0(inputPath);
+        return getReader(inputPath, SamReaderFactory.makeDefault());
     }
 
     @Override
-    public ReadsReader getReader(InputStream is, String displayName) {
-        return new BAMReaderV1_0(is, displayName);
+    public ReadsReader getReader(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
+        return new BAMReaderV1_0(inputPath, samReaderFactory);
+    }
+
+    @Override
+    public ReadsReader getReader(final InputStream is, final String displayName) {
+        return getReader(is, displayName, SamReaderFactory.makeDefault());
+    }
+
+    @Override
+    public ReadsReader getReader(final InputStream is, final String displayName, final SamReaderFactory samReaderFactory) {
+        return new BAMReaderV1_0(is, displayName, samReaderFactory);
     }
 
     @Override
@@ -50,8 +62,18 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
-    public ReadsWriter getWriter(OutputStream os, String displayName) {
+    public ReadsWriter getWriter(final IOPath outputPath, final SAMFileWriterFactory samFileWriterFactory) {
+        return new BAMWriterV1_0(outputPath, samFileWriterFactory);
+    }
+
+    @Override
+    public ReadsWriter getWriter(final OutputStream os, final String displayName) {
         return new BAMWriterV1_0(os, displayName);
+    }
+
+    @Override
+    public ReadsWriter getWriter(final OutputStream os, final String displayName, final SAMFileWriterFactory samFileWriterFactory) {
+        return new BAMWriterV1_0(os, displayName, samFileWriterFactory);
     }
 
     @Override
