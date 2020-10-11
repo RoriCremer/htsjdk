@@ -1,15 +1,15 @@
 package htsjdk.codecs.hapref.fasta;
 
-import htsjdk.codecs.hapref.HapRefWriter;
+import htsjdk.codecs.hapref.HapRefEncoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.UnusedType;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.samtools.reference.FastaReferenceWriter;
 
-public class FASTAWriterV1_0 extends HapRefWriter {
+public class FASTAEncoderV1_0 extends HapRefEncoder {
 
-    public FASTAWriterV1_0(final IOPath outputPath) {
+    public FASTAEncoderV1_0(final IOPath outputPath) {
         super(outputPath);
     }
 

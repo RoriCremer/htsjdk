@@ -1,7 +1,7 @@
 package htsjdk.codecs;
 
 import htsjdk.HtsjdkTest;
-import htsjdk.codecs.hapref.HapRefReader;
+import htsjdk.codecs.hapref.HapRefDecoder;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecRegistry;
@@ -16,13 +16,13 @@ public class HtsFASTACodecTest extends HtsjdkTest {
     final IOPath TEST_DIR = new HtsPath("src/test/resources/htsjdk/samtools/");
 
     @Test
-    public void testFASTAReader() {
+    public void testFASTADecoder() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "/hg19mini.fasta");
 
-        try (final HapRefReader fastaReader = HtsCodecRegistry.getReferenceReader(inputPath)) {
-            Assert.assertNotNull(fastaReader);
+        try (final HapRefDecoder fastaDecoder = HtsCodecRegistry.getReferenceDecoder(inputPath)) {
+            Assert.assertNotNull(fastaDecoder);
 
-            final ReferenceSequenceFile referenceReader = fastaReader.getRecordReader();
+            final ReferenceSequenceFile referenceReader = fastaDecoder.getRecordReader();
             Assert.assertNotNull(referenceReader);
 
             final List<SAMSequenceRecord> sequences = referenceReader.getSequenceDictionary().getSequences();

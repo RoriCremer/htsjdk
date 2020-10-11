@@ -8,9 +8,9 @@ import htsjdk.plugin.UnusedType;
 public interface HaploidReferenceCodec extends HtsCodec<
         HaploidReferenceFormat,
         UnusedType,
-        HaploidReferenceReader,
+        HaploidReferenceEncoder,
         UnusedType,
-        HaploidReferenceWriter> {
+        HaploidReferenceDecoder> {
 
     @Override
     default HtsCodecType getType() { return HtsCodecType.REFERENCE; }

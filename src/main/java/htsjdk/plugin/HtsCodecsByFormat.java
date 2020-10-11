@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Optional;
 
 // TODO: need more than one codec per format/version, ie., we'll need an HtsGetCodec for BAM v1 that
-// uses the same reader/writer as the BAMv1Codec
+// uses the same encoder/decoder as the BAMv1Codec
 
-final class HtsCodecs<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?, ?>> {
+final class HtsCodecsByFormat<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?, ?>> {
 
     private final Map<FORMAT, Map<HtsCodecVersion, CODEC>> codecs = new HashMap<>();
     private final Map<FORMAT, HtsCodecVersion> newestVersion = new HashMap<>();
@@ -45,17 +45,17 @@ final class HtsCodecs<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?, ?>> {
                 .findFirst();
     }
 
-//    //TODO: rename this to getCodecForWrite
-//    // get the newest version codec for the given file extension
-//    public Optional<CODEC> getCodecForFormatAndVersion(final IOPath outputPath, FORMAT format) {
-//        ValidationUtils.nonNull(outputPath, "Output path must not be null");
-//        final Optional<HtsCodecVersion> newestFormatVersion = getNewestVersion(format);
-//        if (!newestFormatVersion.isPresent()) {
-//            throw new IllegalArgumentException(String.format("No codec versions available for %s", outputPath));
-//        }
-//        final Optional<CODEC> codec = getCodecForFormatAndVersion(format, newestFormatVersion.get());
-//        return codec;
-//    }
+    //TODO: rename this to getCodecForWrite
+    // get the newest version codec for the given file extension
+    public Optional<CODEC> getCodecForFormatAndVersion(final IOPath outputPath, FORMAT format) {
+        ValidationUtils.nonNull(outputPath, "Output path must not be null");
+        final Optional<HtsCodecVersion> newestFormatVersion = getNewestVersion(format);
+        if (!newestFormatVersion.isPresent()) {
+            throw new IllegalArgumentException(String.format("No codec versions available for %s", outputPath));
+        }
+        final Optional<CODEC> codec = getCodecForFormatAndVersion(format, newestFormatVersion.get());
+        return codec;
+    }
 
     public Optional<HtsCodecVersion> getNewestVersion(final FORMAT format) {
         return Optional.of(newestVersion.get(format));

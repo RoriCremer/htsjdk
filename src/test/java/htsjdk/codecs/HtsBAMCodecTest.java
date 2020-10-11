@@ -1,13 +1,14 @@
 package htsjdk.codecs;
 
 import htsjdk.HtsjdkTest;
-import htsjdk.codecs.reads.bam.BAMReader;
-import htsjdk.codecs.reads.bam.BAMWriter;
+import htsjdk.codecs.reads.bam.BAMDecoder;
+import htsjdk.codecs.reads.bam.BAMEncoder;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecRegistry;
-import htsjdk.plugin.reads.ReadsReader;
-import htsjdk.plugin.reads.ReadsWriter;
+import htsjdk.plugin.reads.ReadsDecoder;
+import htsjdk.plugin.reads.ReadsEncoder;
+import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMFileWriter;
 import htsjdk.samtools.SAMRecord;
@@ -19,13 +20,14 @@ public class HtsBAMCodecTest  extends HtsjdkTest {
     final IOPath TEST_DIR = new HtsPath("src/test/resources/htsjdk/samtools/");
 
     @Test
-    public void testBAMReaderForBAM() {
+    public void testBAMDecoder() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
-        try (final BAMReader bamReader = HtsCodecRegistry.getReadsReader(inputPath)) {
-            Assert.assertNotNull(bamReader);
+        try (final BAMDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(inputPath)) {
+            Assert.assertNotNull(bamDecoder);
+            Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.BAM);
 
-            final SamReader samReader = bamReader.getRecordReader();
+            final SamReader samReader = bamDecoder.getRecordReader();
             Assert.assertNotNull(samReader);
 
             final SAMFileHeader samFileHeader = samReader.getFileHeader();
@@ -36,30 +38,34 @@ public class HtsBAMCodecTest  extends HtsjdkTest {
     }
 
     @Test
-    public void testBAMWriterForBAM() {
+    public void testBAMEncoder() {
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
-        try (final BAMWriter bamWriter = HtsCodecRegistry.getReadsWriter(outputPath)) {
-            Assert.assertNotNull(bamWriter);
+        try (final BAMEncoder bamEncoder = HtsCodecRegistry.getReadsEncoder(outputPath)) {
+            Assert.assertNotNull(bamEncoder);
+            Assert.assertEquals(bamEncoder.getFormat(), ReadsFormat.BAM);
         }
     }
 
     @Test
-    public void testReadWriteRoundTripForBAM() {
+    public void testRoundTripBAM() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
 
-        try (final ReadsReader bamReader = HtsCodecRegistry.getReadsReader(inputPath);
-             final ReadsWriter bamWriter = HtsCodecRegistry.getReadsWriter(outputPath)) {
-            Assert.assertNotNull(bamReader);
-            Assert.assertNotNull(bamWriter);
+        try (final ReadsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(inputPath);
+             final ReadsEncoder bamEncoder = HtsCodecRegistry.getReadsEncoder(outputPath)) {
 
-            final SamReader samReader = bamReader.getRecordReader();
+            Assert.assertNotNull(bamDecoder);
+            Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.BAM);
+            Assert.assertNotNull(bamEncoder);
+            Assert.assertEquals(bamEncoder.getFormat(), ReadsFormat.BAM);
+
+            final SamReader samReader = bamDecoder.getRecordReader();
             Assert.assertNotNull(samReader);
 
-            final SAMFileHeader samFileHeader = bamReader.getHeader();
+            final SAMFileHeader samFileHeader = bamDecoder.getHeader();
             Assert.assertNotNull(samFileHeader);
 
-            final SAMFileWriter samFileWriter = bamWriter.getRecordWriter(samFileHeader);
+            final SAMFileWriter samFileWriter = bamEncoder.getRecordWriter(samFileHeader);
             for (final SAMRecord samRec : samReader) {
                 samFileWriter.addAlignment(samRec);
             }

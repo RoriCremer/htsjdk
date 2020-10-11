@@ -1,6 +1,6 @@
 package htsjdk.codecs.reads.cram.cramV3_0;
 
-import htsjdk.codecs.reads.cram.CRAMReader;
+import htsjdk.codecs.reads.cram.CRAMDecoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.samtools.CRAMFileReader;
@@ -18,15 +18,15 @@ import java.io.IOException;
 import java.io.InputStream;
 
 // TODO: This should reject CRAM 3.1
-public class CRAMReaderV3_0 extends CRAMReader {
+public class CRAMDecoderV3_0 extends CRAMDecoder {
     private final CRAMFileReader cramReader;
     private final SAMFileHeader samFileHeader;
 
-    public CRAMReaderV3_0(final IOPath inputPath) {
+    public CRAMDecoderV3_0(final IOPath inputPath) {
         this(inputPath, SamReaderFactory.makeDefault());
     }
 
-    public CRAMReaderV3_0(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
+    public CRAMDecoderV3_0(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
         super(inputPath);
         try {
             cramReader = new CRAMFileReader(
@@ -47,11 +47,11 @@ public class CRAMReaderV3_0 extends CRAMReader {
         samFileHeader = cramReader.getFileHeader();
     }
 
-    public CRAMReaderV3_0(InputStream is, String displayName) {
+    public CRAMDecoderV3_0(InputStream is, String displayName) {
         this(is, displayName, SamReaderFactory.makeDefault());
     }
 
-    public CRAMReaderV3_0(InputStream is, String displayName, final SamReaderFactory samReaderFactory) {
+    public CRAMDecoderV3_0(InputStream is, String displayName, final SamReaderFactory samReaderFactory) {
         super(is, displayName);
         try {
             cramReader = new CRAMFileReader(

@@ -4,12 +4,11 @@ import htsjdk.io.IOPath;
 import htsjdk.exception.HtsjdkPluginException;
 import htsjdk.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
-import htsjdk.plugin.hapref.HaploidReferenceReader;
-import htsjdk.plugin.hapref.HaploidReferenceWriter;
+import htsjdk.plugin.hapref.HaploidReferenceDecoder;
 import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsFormat;
-import htsjdk.plugin.reads.ReadsReader;
-import htsjdk.plugin.reads.ReadsWriter;
+import htsjdk.plugin.reads.ReadsDecoder;
+import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.samtools.SamReaderFactory;
 import htsjdk.utils.ValidationUtils;
 
@@ -34,8 +33,8 @@ public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
     private static ServiceLoader<HtsCodec> serviceLoader = ServiceLoader.load(HtsCodec.class);
 
-    private static HtsCodecs<HaploidReferenceFormat, HaploidReferenceCodec> hapRefCodecs = new HtsCodecs<>();
-    private static HtsCodecs<ReadsFormat, ReadsCodec>                       readsCodecs = new HtsCodecs<>();
+    private static HtsCodecsByFormat<HaploidReferenceFormat, HaploidReferenceCodec> hapRefCodecs = new HtsCodecsByFormat<>();
+    private static HtsCodecsByFormat<ReadsFormat, ReadsCodec> readsCodecs = new HtsCodecsByFormat<>();
 
     static {
         discoverCodecs().forEach(htsCodecRegistry::registerCodec);
@@ -82,58 +81,56 @@ public class HtsCodecRegistry {
         minSignatureSize = Integer.max(minSignatureSize, minSignatureBytesRequired);
     }
 
-    // TODO: this should have a name and contract that reflects that its only looking at the URI
     // TODO: these should catch/transform ClassCastException, and throw rather than returning null
+
     @SuppressWarnings("unchecked")
-    public static<T extends ReadsReader> T getReadsReader(final IOPath inputPath) {
+    public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath) {
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
         return (T) (codec.isPresent() ?
-                codec.get().getReader(inputPath) :
+                codec.get().getDecoder(inputPath) :
                 null);
     }
 
-    //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
-    // based on version (not just the file extension)
-    public static<T extends ReadsReader> T getReadsReader(final IOPath inputPath, final SamReaderFactory readerFactory) {
+    public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath, final SamReaderFactory readerFactory) {
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
         return (T) (codec.isPresent() ?
-                 codec.get().getReader(inputPath, readerFactory) :
+                 codec.get().getDecoder(inputPath, readerFactory) :
                 null);
     }
 
     // TODO: verify the file extension against the readsFormat type (delegate to the codec
     // to see if it likes the extension)
     // TODO: this needs an "auto-upgrade" arg
-    public static<T extends ReadsWriter> T getReadsWriter(final IOPath outputPath) {
+    public static<T extends ReadsEncoder> T getReadsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(outputPath);
         if (!codec.isPresent()) {
             throw new IllegalArgumentException(String.format("No codec available for %s", outputPath));
         }
         return (T) (codec.isPresent() ?
-                codec.get().getWriter(outputPath) :
+                codec.get().getEncoder(outputPath) :
                 null);
     }
 
     //TODO: verify in the codec here that the codec selected for the readsFormat matches the
     // extension on this outputPath (which should take precedence ?)
     // TODO: also that the readsFormat matches extension
-    public static <T extends ReadsWriter> T getReadsWriter(
+    public static <T extends ReadsEncoder> T getReadsEncoder(
             final IOPath outputPath,
             final ReadsFormat readsFormat,
             final HtsCodecVersion codecVersion) {
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForFormatAndVersion(readsFormat, codecVersion);
         return (T) (codec.isPresent() ?
-                codec.get().getWriter(outputPath) :
+                codec.get().getEncoder(outputPath) :
                 null);
     }
 
     //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
     // based on version (not just the file extension)
-    public static<T extends HaploidReferenceReader> T getReferenceReader(final IOPath inputPath) {
+    public static<T extends HaploidReferenceDecoder> T getReferenceDecoder(final IOPath inputPath) {
         final Optional<HaploidReferenceCodec> codec = hapRefCodecs.getCodecForIOPath(inputPath);
         return (T) (codec.isPresent() ?
-                codec.get().getReader(inputPath) :
+                codec.get().getDecoder(inputPath) :
                 null);
     }
 

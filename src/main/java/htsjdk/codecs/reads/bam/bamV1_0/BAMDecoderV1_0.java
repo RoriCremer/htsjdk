@@ -1,6 +1,6 @@
 package htsjdk.codecs.reads.bam.bamV1_0;
 
-import htsjdk.codecs.reads.bam.BAMReader;
+import htsjdk.codecs.reads.bam.BAMDecoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
@@ -17,26 +17,26 @@ import htsjdk.samtools.util.zip.InflaterFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BAMReaderV1_0 extends BAMReader {
+public class BAMDecoderV1_0 extends BAMDecoder {
 
     private final SamReader samReader;
     private final SAMFileHeader samFileHeader;
 
-    public BAMReaderV1_0(final IOPath inputPath) {
+    public BAMDecoderV1_0(final IOPath inputPath) {
         this(inputPath, SamReaderFactory.makeDefault());
     }
 
-    public BAMReaderV1_0(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
+    public BAMDecoderV1_0(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
         super(inputPath);
         samReader = getSamReader(samReaderFactory);
         samFileHeader = samReader.getFileHeader();
     }
 
-    public BAMReaderV1_0(final InputStream is, final String displayName) {
+    public BAMDecoderV1_0(final InputStream is, final String displayName) {
         this(is, displayName, SamReaderFactory.makeDefault());
     }
 
-    public BAMReaderV1_0(final InputStream is, final String displayName, final SamReaderFactory samReaderFactory) {
+    public BAMDecoderV1_0(final InputStream is, final String displayName, final SamReaderFactory samReaderFactory) {
         super(is, displayName);
         samReader = getSamReader(samReaderFactory);
         samFileHeader = samReader.getFileHeader();

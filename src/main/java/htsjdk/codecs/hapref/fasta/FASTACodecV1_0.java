@@ -5,8 +5,8 @@ import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.UnusedType;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
-import htsjdk.plugin.hapref.HaploidReferenceReader;
-import htsjdk.plugin.hapref.HaploidReferenceWriter;
+import htsjdk.plugin.hapref.HaploidReferenceDecoder;
+import htsjdk.plugin.hapref.HaploidReferenceEncoder;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
@@ -48,44 +48,44 @@ public class FASTACodecV1_0 extends HapRefCodec {
     }
 
     @Override
-    public HaploidReferenceReader getReader(final IOPath inputPath) {
-        return getReader(inputPath, null);
+    public HaploidReferenceDecoder getDecoder(final IOPath inputPath) {
+        return getDecoder(inputPath, null);
     }
 
     @Override
-    public HaploidReferenceReader getReader(final IOPath inputPath, final UnusedType options) {
+    public HaploidReferenceDecoder getDecoder(final IOPath inputPath, final UnusedType options) {
         ValidationUtils.validateArg(options == null, "reference reader options must be null");
-        return new FASTAReaderV1_0(inputPath);
+        return new FASTADecoderV1_0(inputPath);
     }
 
     @Override
-    public HaploidReferenceReader getReader(final InputStream is, final String displayName) {
+    public HaploidReferenceDecoder getDecoder(final InputStream is, final String displayName) {
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public HaploidReferenceReader getReader(InputStream is, String displayName, UnusedType unusedType) {
+    public HaploidReferenceDecoder getDecoder(InputStream is, String displayName, UnusedType unusedType) {
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public HaploidReferenceWriter getWriter(final IOPath outputPath) {
-        return getWriter(outputPath, null);
+    public HaploidReferenceEncoder getEncoder(final IOPath outputPath) {
+        return getEncoder(outputPath, null);
     }
 
     @Override
-    public HaploidReferenceWriter getWriter(final IOPath outputPath,final UnusedType options) {
+    public HaploidReferenceEncoder getEncoder(final IOPath outputPath, final UnusedType options) {
         ValidationUtils.nonNull(options, "reference reader options must be null");
-        return new FASTAWriterV1_0(outputPath);
+        return new FASTAEncoderV1_0(outputPath);
     }
 
     @Override
-    public HaploidReferenceWriter getWriter(final OutputStream os, final String displayName) {
+    public HaploidReferenceEncoder getEncoder(final OutputStream os, final String displayName) {
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public HaploidReferenceWriter getWriter(final OutputStream os, final String displayName, final UnusedType unusedType) {
+    public HaploidReferenceEncoder getEncoder(final OutputStream os, final String displayName, final UnusedType unusedType) {
         return null;
     }
 

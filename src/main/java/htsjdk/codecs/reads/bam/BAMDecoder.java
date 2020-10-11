@@ -2,23 +2,23 @@ package htsjdk.codecs.reads.bam;
 
 import htsjdk.io.IOPath;
 import htsjdk.plugin.reads.ReadsFormat;
-import htsjdk.plugin.reads.ReadsReader;
+import htsjdk.plugin.reads.ReadsDecoder;
 
 import java.io.InputStream;
 
-public abstract class BAMReader implements ReadsReader {
+public abstract class BAMDecoder implements ReadsDecoder {
 
     private final String displayName;
 
     protected IOPath inputPath;
     protected InputStream is;
 
-    public BAMReader(final IOPath inputPath) {
+    public BAMDecoder(final IOPath inputPath) {
         this.inputPath = inputPath;
         this.displayName = inputPath.getRawInputString();
     }
 
-    public BAMReader(final InputStream is, final String displayName) {
+    public BAMDecoder(final InputStream is, final String displayName) {
         this.is = is;
         this.displayName = displayName;
     }

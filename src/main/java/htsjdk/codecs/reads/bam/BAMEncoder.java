@@ -1,29 +1,31 @@
-package htsjdk.codecs.reads.cram;
+package htsjdk.codecs.reads.bam;
 
 import htsjdk.io.IOPath;
 import htsjdk.plugin.reads.ReadsFormat;
-import htsjdk.plugin.reads.ReadsWriter;
+import htsjdk.plugin.reads.ReadsEncoder;
 
 import java.io.OutputStream;
 
-public abstract class CRAMWriter implements ReadsWriter {
+public abstract class BAMEncoder implements ReadsEncoder {
+
     // TODO: presorted
+
+    final private String displayName;
     protected IOPath outputPath;
     protected OutputStream os;
-    final protected String displayName;
 
-    public CRAMWriter(final IOPath outputPath) {
+    public BAMEncoder(final IOPath outputPath) {
         this.outputPath = outputPath;
         this.displayName = outputPath.getRawInputString();
     }
 
-    public CRAMWriter(final OutputStream os, final String displayName) {
+    public BAMEncoder(final OutputStream os, final String displayName) {
         this.os = os;
         this.displayName = displayName;
     }
 
     @Override
-    final public ReadsFormat getFormat() { return ReadsFormat.CRAM; }
+    final public ReadsFormat getFormat() { return ReadsFormat.BAM; }
 
     @Override
     final public String getDisplayName() { return displayName; }

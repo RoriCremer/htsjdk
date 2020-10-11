@@ -3,8 +3,8 @@ package htsjdk.codecs.reads.bam.bamV1_0;
 import htsjdk.codecs.reads.bam.BAMCodec;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.reads.ReadsReader;
-import htsjdk.plugin.reads.ReadsWriter;
+import htsjdk.plugin.reads.ReadsDecoder;
+import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.samtools.SAMFileWriterFactory;
 import htsjdk.samtools.SamReaderFactory;
 
@@ -37,43 +37,43 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
-    public ReadsReader getReader(final IOPath inputPath) {
-        return getReader(inputPath, SamReaderFactory.makeDefault());
+    public ReadsDecoder getDecoder(final IOPath inputPath) {
+        return getDecoder(inputPath, SamReaderFactory.makeDefault());
     }
 
     @Override
-    public ReadsReader getReader(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
-        return new BAMReaderV1_0(inputPath, samReaderFactory);
+    public ReadsDecoder getDecoder(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
+        return new BAMDecoderV1_0(inputPath, samReaderFactory);
     }
 
     @Override
-    public ReadsReader getReader(final InputStream is, final String displayName) {
-        return getReader(is, displayName, SamReaderFactory.makeDefault());
+    public ReadsDecoder getDecoder(final InputStream is, final String displayName) {
+        return getDecoder(is, displayName, SamReaderFactory.makeDefault());
     }
 
     @Override
-    public ReadsReader getReader(final InputStream is, final String displayName, final SamReaderFactory samReaderFactory) {
-        return new BAMReaderV1_0(is, displayName, samReaderFactory);
+    public ReadsDecoder getDecoder(final InputStream is, final String displayName, final SamReaderFactory samReaderFactory) {
+        return new BAMDecoderV1_0(is, displayName, samReaderFactory);
     }
 
     @Override
-    public ReadsWriter getWriter(final IOPath outputPath) {
-        return new BAMWriterV1_0(outputPath);
+    public ReadsEncoder getEncoder(final IOPath outputPath) {
+        return new BAMEncoderV1_0(outputPath);
     }
 
     @Override
-    public ReadsWriter getWriter(final IOPath outputPath, final SAMFileWriterFactory samFileWriterFactory) {
-        return new BAMWriterV1_0(outputPath, samFileWriterFactory);
+    public ReadsEncoder getEncoder(final IOPath outputPath, final SAMFileWriterFactory samFileWriterFactory) {
+        return new BAMEncoderV1_0(outputPath, samFileWriterFactory);
     }
 
     @Override
-    public ReadsWriter getWriter(final OutputStream os, final String displayName) {
-        return new BAMWriterV1_0(os, displayName);
+    public ReadsEncoder getEncoder(final OutputStream os, final String displayName) {
+        return new BAMEncoderV1_0(os, displayName);
     }
 
     @Override
-    public ReadsWriter getWriter(final OutputStream os, final String displayName, final SAMFileWriterFactory samFileWriterFactory) {
-        return new BAMWriterV1_0(os, displayName, samFileWriterFactory);
+    public ReadsEncoder getEncoder(final OutputStream os, final String displayName, final SAMFileWriterFactory samFileWriterFactory) {
+        return new BAMEncoderV1_0(os, displayName, samFileWriterFactory);
     }
 
     @Override

@@ -1,15 +1,14 @@
 package htsjdk.codecs.hapref;
 
 import htsjdk.io.IOPath;
-import htsjdk.plugin.hapref.HaploidReferenceFormat;
-import htsjdk.plugin.hapref.HaploidReferenceReader;
+import htsjdk.plugin.hapref.HaploidReferenceDecoder;
 
-public abstract class HapRefReader implements HaploidReferenceReader {
+public abstract class HapRefDecoder implements HaploidReferenceDecoder {
     protected final IOPath inputPath;
 
     private final String displayName;
 
-    public HapRefReader(final IOPath inputPath) {
+    public HapRefDecoder(final IOPath inputPath) {
         this.inputPath = inputPath;
         this.displayName = inputPath.getRawInputString();
     }

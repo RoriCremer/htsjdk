@@ -13,10 +13,10 @@ import java.nio.file.Path;
  */
 public interface HtsCodec<
         FORMAT,
-        READ_OPTIONS,
-        READER extends HtsReader<?, ?, ?>,
-        WRITE_OPTIONS,
-        WRITER extends HtsWriter<?, ?, ?>> extends Upgradeable {
+        ENCODER_OPTIONS,
+        ENCODER extends HtsEncoder<?, ?, ?>,
+        DECODER_OPTIONS,
+        DECODER extends HtsDecoder<?, ?, ?>> extends Upgradeable {
 
     HtsCodecType getType();
 
@@ -37,19 +37,20 @@ public interface HtsCodec<
 
     boolean canDecodeSignature(final byte[] streamSignature);
 
-    READER getReader(final IOPath ioPath);
+    // Get a codec that matches this ioPath(Select first by extension, then stream signature)
+    DECODER getDecoder(final IOPath inputPath);
 
-    READER getReader(final IOPath ioPath, final READ_OPTIONS readOptions);
+    DECODER getDecoder(final IOPath inputPath, final DECODER_OPTIONS readOptions);
 
-    READER getReader(final InputStream is, final String displayName);
+    DECODER getDecoder(final InputStream is, final String displayName);
 
-    READER getReader(final InputStream is, final String displayName, final READ_OPTIONS readOptions);
+    DECODER getDecoder(final InputStream is, final String displayName, final DECODER_OPTIONS readOptions);
 
-    WRITER getWriter(final IOPath ioPath);
+    ENCODER getEncoder(final IOPath outputPath);
 
-    WRITER getWriter(final IOPath ioPath, final WRITE_OPTIONS writeOptions);
+    ENCODER getEncoder(final IOPath outputPath, final ENCODER_OPTIONS writeOptions);
 
-    WRITER getWriter(final OutputStream os, final String displayName);
+    ENCODER getEncoder(final OutputStream os, final String displayName);
 
-    WRITER getWriter(final OutputStream os, final String displayName, final WRITE_OPTIONS writeOptions);
+    ENCODER getEncoder(final OutputStream os, final String displayName, final ENCODER_OPTIONS writeOptions);
 }

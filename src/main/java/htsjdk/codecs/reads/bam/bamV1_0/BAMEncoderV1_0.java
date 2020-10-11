@@ -1,6 +1,6 @@
 package htsjdk.codecs.reads.bam.bamV1_0;
 
-import htsjdk.codecs.reads.bam.BAMWriter;
+import htsjdk.codecs.reads.bam.BAMEncoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.samtools.BAMFileWriter;
@@ -15,27 +15,27 @@ import java.io.OutputStream;
 // TODO: should this take a REFERENCE_READER from a codec ? from options
 //TODO: this needs a header to create the
 
-public class BAMWriterV1_0 extends BAMWriter {
+public class BAMEncoderV1_0 extends BAMEncoder {
 
     private final SAMFileWriterFactory samFileWriterFactory;
     private SAMFileWriter samFileWriter;
 
-    public BAMWriterV1_0(final IOPath outputPath) {
+    public BAMEncoderV1_0(final IOPath outputPath) {
         super(outputPath);
         this.samFileWriterFactory = new SAMFileWriterFactory();;
     }
 
-    public BAMWriterV1_0(final IOPath outputPath, final SAMFileWriterFactory samFileWriterFactory) {
+    public BAMEncoderV1_0(final IOPath outputPath, final SAMFileWriterFactory samFileWriterFactory) {
         super(outputPath);
         this.samFileWriterFactory = samFileWriterFactory;
     }
 
-    public BAMWriterV1_0(final OutputStream os, final String displayName) {
+    public BAMEncoderV1_0(final OutputStream os, final String displayName) {
         super(os, displayName);
         this.samFileWriterFactory = new SAMFileWriterFactory();
     }
 
-    public BAMWriterV1_0(final OutputStream os, final String displayName, final SAMFileWriterFactory samFileWriterFactory) {
+    public BAMEncoderV1_0(final OutputStream os, final String displayName, final SAMFileWriterFactory samFileWriterFactory) {
         super(os, displayName);
         this.samFileWriterFactory = samFileWriterFactory;
     }

@@ -1,6 +1,6 @@
 package htsjdk.codecs.reads.cram.cramV3_0;
 
-import htsjdk.codecs.reads.cram.CRAMWriter;
+import htsjdk.codecs.reads.cram.CRAMEncoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.samtools.CRAMFileWriter;
@@ -13,23 +13,23 @@ import htsjdk.samtools.cram.ref.CRAMReferenceSource;
 import java.io.OutputStream;
 
 // TODO: This should reject CRAM 3.1
-public class CRAMWriterV3_0 extends CRAMWriter {
+public class CRAMEncoderV3_0 extends CRAMEncoder {
 
     private CRAMFileWriter cramFileWriter;
 
-    public CRAMWriterV3_0(final IOPath outputPath) {
+    public CRAMEncoderV3_0(final IOPath outputPath) {
         this(outputPath, new SAMFileWriterFactory());
     }
 
-    public CRAMWriterV3_0(final IOPath outputPath, final SAMFileWriterFactory samFileWriterFactory) {
+    public CRAMEncoderV3_0(final IOPath outputPath, final SAMFileWriterFactory samFileWriterFactory) {
         super(outputPath);
     }
 
-    public CRAMWriterV3_0(final OutputStream os, final String displayName) {
+    public CRAMEncoderV3_0(final OutputStream os, final String displayName) {
         super(os, displayName);
     }
 
-    public CRAMWriterV3_0(final OutputStream os, final String displayName, final SAMFileWriterFactory samFileWriterFactory) {
+    public CRAMEncoderV3_0(final OutputStream os, final String displayName, final SAMFileWriterFactory samFileWriterFactory) {
         super(os, displayName);
     }
 

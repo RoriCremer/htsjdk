@@ -1,7 +1,6 @@
 package htsjdk.codecs.hapref.fasta;
 
-import htsjdk.codecs.hapref.HapRefReader;
-import htsjdk.codecs.reads.bam.bamV1_0.BAMCodecV1_0;
+import htsjdk.codecs.hapref.HapRefDecoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.UnusedType;
@@ -12,11 +11,11 @@ import htsjdk.samtools.util.RuntimeIOException;
 
 import java.io.IOException;
 
-public class FASTAReaderV1_0 extends HapRefReader {
+public class FASTADecoderV1_0 extends HapRefDecoder {
 
     private ReferenceSequenceFile referenceSequenceFile;
 
-    public FASTAReaderV1_0(final IOPath inputPath) {
+    public FASTADecoderV1_0(final IOPath inputPath) {
         super(inputPath);
     }
 
