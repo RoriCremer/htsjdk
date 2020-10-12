@@ -4,9 +4,9 @@ import htsjdk.codecs.reads.cram.CRAMCodec;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.reads.ReadsDecoder;
+import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoder;
-import htsjdk.samtools.SAMFileWriterFactory;
-import htsjdk.samtools.SamReaderFactory;
+import htsjdk.plugin.reads.ReadsEncoderOptions;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,32 +31,32 @@ public class CRAMCodecV3_0 extends CRAMCodec {
 
     @Override
     public ReadsDecoder getDecoder(final IOPath inputPath) {
-        return getDecoder(inputPath, SamReaderFactory.makeDefault());
+        return getDecoder(inputPath, new ReadsDecoderOptions());
     }
 
     @Override
-    public ReadsDecoder getDecoder(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
-        return new CRAMDecoderV3_0(inputPath, samReaderFactory);
+    public ReadsDecoder getDecoder(final IOPath inputPath, final ReadsDecoderOptions readsDecoderOptions) {
+        return new CRAMDecoderV3_0(inputPath, readsDecoderOptions);
     }
 
     @Override
     public ReadsDecoder getDecoder(final InputStream is, final String displayName) {
-        return getDecoder(is, displayName, SamReaderFactory.makeDefault());
+        return getDecoder(is, displayName, new ReadsDecoderOptions());
     }
 
     @Override
-    public ReadsDecoder getDecoder(final InputStream is, final String displayName, final SamReaderFactory samReaderFactory) {
-        return new CRAMDecoderV3_0(is, displayName, samReaderFactory);
+    public ReadsDecoder getDecoder(final InputStream is, final String displayName, final ReadsDecoderOptions readsDecoderOptions) {
+        return new CRAMDecoderV3_0(is, displayName, readsDecoderOptions);
     }
 
     @Override
     public ReadsEncoder getEncoder(final IOPath outputPath) {
-        return getEncoder(outputPath, new SAMFileWriterFactory());
+        return getEncoder(outputPath, new ReadsEncoderOptions());
     }
 
     @Override
-    public ReadsEncoder getEncoder(final IOPath outputPath, final SAMFileWriterFactory samFileWriterFactory) {
-        return new CRAMEncoderV3_0(outputPath, samFileWriterFactory);
+    public ReadsEncoder getEncoder(final IOPath outputPath, final ReadsEncoderOptions readsEncoderOptions) {
+        return new CRAMEncoderV3_0(outputPath, readsEncoderOptions);
     }
 
     @Override
@@ -65,8 +65,8 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     }
 
     @Override
-    public ReadsEncoder getEncoder(final OutputStream os, final String displayName, final SAMFileWriterFactory samFileWriterFactory) {
-        return new CRAMEncoderV3_0(os, displayName, samFileWriterFactory);
+    public ReadsEncoder getEncoder(final OutputStream os, final String displayName, final ReadsEncoderOptions readsEncoderOptions) {
+        return new CRAMEncoderV3_0(os, displayName, readsEncoderOptions);
     }
 
     @Override

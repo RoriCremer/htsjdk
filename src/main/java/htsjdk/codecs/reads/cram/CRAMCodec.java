@@ -1,9 +1,14 @@
 package htsjdk.codecs.reads.cram;
 
+import htsjdk.codecs.hapref.HapRefDecoder;
 import htsjdk.io.IOPath;
+import htsjdk.plugin.HtsCodecRegistry;
 import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsFormat;
+import htsjdk.samtools.cram.ref.CRAMReferenceSource;
+import htsjdk.samtools.cram.ref.ReferenceSource;
 import htsjdk.samtools.cram.structure.CramHeader;
+import htsjdk.samtools.reference.ReferenceSequenceFile;
 import htsjdk.samtools.util.FileExtensions;
 
 import java.nio.file.Path;
@@ -35,4 +40,12 @@ public abstract class CRAMCodec implements ReadsCodec {
         return signatureBytes.equals(CRAM_MAGIC);
     }
 
+    public static CRAMReferenceSource getCRAMReferenceSource(final IOPath referencePath) {
+        final HapRefDecoder hapRefDecoder = HtsCodecRegistry.getHapRefDecoder(referencePath);
+        if (hapRefDecoder == null) {
+            throw new RuntimeException(String.format("Unable to get reference codec for %s", referencePath));
+        }
+        final ReferenceSequenceFile refSeqFile = hapRefDecoder.getRecordReader();
+        return new ReferenceSource(refSeqFile);
+    }
 }

@@ -33,11 +33,6 @@ public class FASTACodecV1_0 extends HapRefCodec {
     }
 
     @Override
-    public boolean canDecodeExtension(final IOPath ioPath) {
-        return ioPath.hasExtension(".fasta");
-    }
-
-    @Override
     public boolean canDecodeExtension(final Path path) {
         throw new IllegalStateException("Not implemented");
     }

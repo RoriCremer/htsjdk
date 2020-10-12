@@ -7,6 +7,7 @@ import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
+import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsDecoder;
 import htsjdk.plugin.reads.ReadsEncoder;
@@ -14,7 +15,6 @@ import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMFileWriter;
 import htsjdk.samtools.SAMSequenceRecord;
 import htsjdk.samtools.SamReader;
-import htsjdk.samtools.SamReaderFactory;
 import htsjdk.samtools.ValidationStringency;
 import htsjdk.samtools.reference.ReferenceSequenceFile;
 import org.testng.Assert;
@@ -50,9 +50,10 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     public void testReadsDecoderForBAMWithOptions() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
-        try (final ReadsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(
-                inputPath,
-                SamReaderFactory.makeDefault().validationStringency(ValidationStringency.DEFAULT_STRINGENCY.LENIENT))) {
+        final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions();
+        readsDecoderOptions.getSamReaderFactory().validationStringency(ValidationStringency.DEFAULT_STRINGENCY.LENIENT);
+
+        try (final ReadsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
             Assert.assertNotNull(bamDecoder);
             Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.BAM);
             Assert.assertEquals(bamDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
@@ -97,7 +98,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     public void testHapRefDecoder() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "/hg19mini.fasta");
 
-        try (final HaploidReferenceDecoder hapRefDecoder = HtsCodecRegistry.getReferenceDecoder(inputPath)) {
+        try (final HaploidReferenceDecoder hapRefDecoder = HtsCodecRegistry.getHapRefDecoder(inputPath)) {
             Assert.assertNotNull(hapRefDecoder);
             Assert.assertEquals(hapRefDecoder.getFormat(), HaploidReferenceFormat.FASTA);
             Assert.assertEquals(hapRefDecoder.getVersion(), FASTACodecV1_0.VERSION_1);

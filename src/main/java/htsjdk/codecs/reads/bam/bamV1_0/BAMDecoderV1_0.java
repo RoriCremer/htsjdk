@@ -4,15 +4,16 @@ import htsjdk.codecs.reads.bam.BAMDecoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
+import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.samtools.BAMFileReader;
 import htsjdk.samtools.DefaultSAMRecordFactory;
 import htsjdk.samtools.PrimitiveSamReaderToSamReaderAdapter;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
-import htsjdk.samtools.SamReaderFactory;
 import htsjdk.samtools.util.RuntimeIOException;
 import htsjdk.samtools.util.zip.InflaterFactory;
+import htsjdk.utils.ValidationUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,22 +24,24 @@ public class BAMDecoderV1_0 extends BAMDecoder {
     private final SAMFileHeader samFileHeader;
 
     public BAMDecoderV1_0(final IOPath inputPath) {
-        this(inputPath, SamReaderFactory.makeDefault());
+        this(inputPath, new ReadsDecoderOptions());
     }
 
-    public BAMDecoderV1_0(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
+    public BAMDecoderV1_0(final IOPath inputPath, final ReadsDecoderOptions decoderOptions) {
         super(inputPath);
-        samReader = getSamReader(samReaderFactory);
+        ValidationUtils.nonNull(decoderOptions);
+        samReader = getSamReader(decoderOptions);
         samFileHeader = samReader.getFileHeader();
     }
 
     public BAMDecoderV1_0(final InputStream is, final String displayName) {
-        this(is, displayName, SamReaderFactory.makeDefault());
+        this(is, displayName, new ReadsDecoderOptions());
     }
 
-    public BAMDecoderV1_0(final InputStream is, final String displayName, final SamReaderFactory samReaderFactory) {
+    public BAMDecoderV1_0(final InputStream is, final String displayName, final ReadsDecoderOptions decoderOptions) {
         super(is, displayName);
-        samReader = getSamReader(samReaderFactory);
+        ValidationUtils.nonNull(decoderOptions);
+        samReader = getSamReader(decoderOptions);
         samFileHeader = samReader.getFileHeader();
     }
 
@@ -66,7 +69,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
         }
     }
 
-    private SamReader getSamReader(final SamReaderFactory samReaderFactory) {
+    private SamReader getSamReader(final ReadsDecoderOptions decoderOptions) {
         SamReader reader;
         if (is != null) {
             //TODO: SamReaderFactory doesn't expose getters for all options (currently most are not exposed),
@@ -78,7 +81,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
                         null,
                         false,
                         false,
-                        samReaderFactory.validationStringency(),
+                        decoderOptions.getSamReaderFactory().validationStringency(),
                         new DefaultSAMRecordFactory(),
                         new InflaterFactory());
                 return new PrimitiveSamReaderToSamReaderAdapter(bamReader, SamInputResource.of(is));
@@ -86,7 +89,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
                 throw new RuntimeIOException(e);
             }
         } else {
-            reader = samReaderFactory.open(SamInputResource.of(inputPath.toPath()));
+            reader = decoderOptions.getSamReaderFactory().open(SamInputResource.of(inputPath.toPath()));
         }
         return reader;
     }

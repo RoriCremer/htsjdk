@@ -5,8 +5,13 @@ import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecRegistry;
 import htsjdk.plugin.reads.ReadsDecoder;
+import htsjdk.plugin.reads.ReadsDecoderOptions;
+import htsjdk.plugin.reads.ReadsEncoder;
+import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.samtools.SAMFileHeader;
+import htsjdk.samtools.SAMFileWriter;
+import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -29,6 +34,36 @@ public class HtsCRAMCodecTest extends HtsjdkTest {
             Assert.assertNotNull(samFileHeader);
 
             Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.unsorted);
+        }
+    }
+
+    @Test
+    public void testRoundTripCRAM() {
+        final IOPath cramInputPath = new HtsPath(TEST_DIR + "cram/c2#pad.3.0.cram");
+        final IOPath cramOutputPath = new HtsPath("pluginTestOutput.cram");
+        final IOPath referencePath = new HtsPath(TEST_DIR + "cram/c2.fa");
+
+        final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions().setReferencePath(referencePath);
+        final ReadsEncoderOptions readsEncoderOptions = new ReadsEncoderOptions().setReferencePath(referencePath);
+
+        try (final ReadsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(cramInputPath, readsDecoderOptions);
+             final ReadsEncoder bamEncoder = HtsCodecRegistry.getReadsEncoder(cramOutputPath, readsEncoderOptions)) {
+
+            Assert.assertNotNull(bamDecoder);
+            Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.CRAM);
+            Assert.assertNotNull(bamEncoder);
+            Assert.assertEquals(bamEncoder.getFormat(), ReadsFormat.CRAM);
+
+            final SamReader samReader = bamDecoder.getRecordReader();
+            Assert.assertNotNull(samReader);
+
+            final SAMFileHeader samFileHeader = bamDecoder.getHeader();
+            Assert.assertNotNull(samFileHeader);
+
+            final SAMFileWriter samFileWriter = bamEncoder.getRecordWriter(samFileHeader);
+            for (final SAMRecord samRec : samReader) {
+                samFileWriter.addAlignment(samRec);
+            }
         }
     }
 

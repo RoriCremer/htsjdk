@@ -6,10 +6,11 @@ import htsjdk.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
 import htsjdk.plugin.reads.ReadsCodec;
+import htsjdk.plugin.reads.ReadsDecoderOptions;
+import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsDecoder;
 import htsjdk.plugin.reads.ReadsEncoder;
-import htsjdk.samtools.SamReaderFactory;
 import htsjdk.utils.ValidationUtils;
 
 import java.util.*;
@@ -23,6 +24,7 @@ import java.util.stream.StreamSupport;
 // TODO: need a resource collection to represent siblings (resource, index, dict)
 // TODO: dummy interface/implementation for no-op type params  ? (ie., hapref has no factory/options)
 // TODO: return Optional<ReadsCodec> ?
+// TODO: encoder/decoder need a reference back to the codec
 
 // TODO: does htsget have any (htsget or BAM/CRAM) version # embedded in the stream?
 /**
@@ -91,10 +93,10 @@ public class HtsCodecRegistry {
                 null);
     }
 
-    public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath, final SamReaderFactory readerFactory) {
+    public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath, final ReadsDecoderOptions readsDecoderOptions) {
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
         return (T) (codec.isPresent() ?
-                 codec.get().getDecoder(inputPath, readerFactory) :
+                 codec.get().getDecoder(inputPath, readsDecoderOptions) :
                 null);
     }
 
@@ -109,6 +111,17 @@ public class HtsCodecRegistry {
         }
         return (T) (codec.isPresent() ?
                 codec.get().getEncoder(outputPath) :
+                null);
+    }
+
+    public static<T extends ReadsEncoder> T getReadsEncoder(final IOPath outputPath, final ReadsEncoderOptions readsEncoderOptions) {
+        ValidationUtils.nonNull(outputPath, "Output path must not be null");
+        final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(outputPath);
+        if (!codec.isPresent()) {
+            throw new IllegalArgumentException(String.format("No codec available for %s", outputPath));
+        }
+        return (T) (codec.isPresent() ?
+                codec.get().getEncoder(outputPath, readsEncoderOptions) :
                 null);
     }
 
@@ -127,7 +140,7 @@ public class HtsCodecRegistry {
 
     //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
     // based on version (not just the file extension)
-    public static<T extends HaploidReferenceDecoder> T getReferenceDecoder(final IOPath inputPath) {
+    public static<T extends HaploidReferenceDecoder> T getHapRefDecoder(final IOPath inputPath) {
         final Optional<HaploidReferenceCodec> codec = hapRefCodecs.getCodecForIOPath(inputPath);
         return (T) (codec.isPresent() ?
                 codec.get().getDecoder(inputPath) :

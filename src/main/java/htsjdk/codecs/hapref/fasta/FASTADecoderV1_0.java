@@ -7,6 +7,7 @@ import htsjdk.plugin.UnusedType;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.samtools.reference.FastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequenceFile;
+import htsjdk.samtools.reference.ReferenceSequenceFileFactory;
 import htsjdk.samtools.util.RuntimeIOException;
 
 import java.io.IOException;
@@ -24,8 +25,7 @@ public class FASTADecoderV1_0 extends HapRefDecoder {
 
     @Override
     public ReferenceSequenceFile getRecordReader() {
-        // TODO: truncateNamesAtWhitespace
-        referenceSequenceFile = new FastaSequenceFile(inputPath.toPath(), true);
+        referenceSequenceFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(inputPath.toPath());
         return referenceSequenceFile;
     }
 

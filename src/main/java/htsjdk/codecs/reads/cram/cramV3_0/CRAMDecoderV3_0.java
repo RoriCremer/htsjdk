@@ -1,16 +1,19 @@
 package htsjdk.codecs.reads.cram.cramV3_0;
 
+import htsjdk.codecs.hapref.HapRefDecoder;
+import htsjdk.codecs.reads.cram.CRAMCodec;
 import htsjdk.codecs.reads.cram.CRAMDecoder;
 import htsjdk.io.IOPath;
+import htsjdk.plugin.HtsCodecRegistry;
 import htsjdk.plugin.HtsCodecVersion;
+import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.samtools.CRAMFileReader;
 import htsjdk.samtools.SAMFileHeader;
-import htsjdk.samtools.SAMSequenceRecord;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
-import htsjdk.samtools.SamReaderFactory;
-import htsjdk.samtools.ValidationStringency;
 import htsjdk.samtools.cram.ref.CRAMReferenceSource;
+import htsjdk.samtools.cram.ref.ReferenceSource;
+import htsjdk.samtools.reference.ReferenceSequenceFile;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.util.RuntimeIOException;
 
@@ -19,56 +22,29 @@ import java.io.InputStream;
 
 // TODO: This should reject CRAM 3.1
 public class CRAMDecoderV3_0 extends CRAMDecoder {
+    private final ReadsDecoderOptions readsDecoderOptions;
     private final CRAMFileReader cramReader;
     private final SAMFileHeader samFileHeader;
 
     public CRAMDecoderV3_0(final IOPath inputPath) {
-        this(inputPath, SamReaderFactory.makeDefault());
+        this(inputPath, new ReadsDecoderOptions());
     }
 
-    public CRAMDecoderV3_0(final IOPath inputPath, final SamReaderFactory samReaderFactory) {
+    public CRAMDecoderV3_0(final IOPath inputPath, final ReadsDecoderOptions readsDecoderOptions) {
         super(inputPath);
-        try {
-            cramReader = new CRAMFileReader(
-                    inputPath.getInputStream(),
-                    (SeekableStream) null,
-                    //TODO: fix this reference!
-                    new CRAMReferenceSource() {
-                        @Override
-                        public byte[] getReferenceBases(SAMSequenceRecord sequenceRecord, boolean tryNameVariants) {
-                            return new byte[0];
-                        }
-                    },
-                    ValidationStringency.DEFAULT_STRINGENCY);
-        } catch (IOException e) {
-            throw new RuntimeIOException(String.format("Failure opening reader for %s", inputPath));
-        }
-
+        this.readsDecoderOptions = readsDecoderOptions;
+        cramReader = getCRAMReader();
         samFileHeader = cramReader.getFileHeader();
     }
 
-    public CRAMDecoderV3_0(InputStream is, String displayName) {
-        this(is, displayName, SamReaderFactory.makeDefault());
+    public CRAMDecoderV3_0(final InputStream is, final String displayName) {
+        this(is, displayName, new ReadsDecoderOptions());
     }
 
-    public CRAMDecoderV3_0(InputStream is, String displayName, final SamReaderFactory samReaderFactory) {
+    public CRAMDecoderV3_0(final InputStream is, final String displayName, final ReadsDecoderOptions readsDecoderOptions) {
         super(is, displayName);
-        try {
-            cramReader = new CRAMFileReader(
-                    is,
-                    (SeekableStream) null,
-                    //TODO: fix this reference!
-                    new CRAMReferenceSource() {
-                        @Override
-                        public byte[] getReferenceBases(SAMSequenceRecord sequenceRecord, boolean tryNameVariants) {
-                            return new byte[0];
-                        }
-                    },
-                    ValidationStringency.DEFAULT_STRINGENCY);
-        } catch (IOException e) {
-            throw new RuntimeIOException(String.format("Failure opening reader for %s", displayName));
-        }
-
+        this.readsDecoderOptions = readsDecoderOptions;
+        cramReader = getCRAMReader();
         samFileHeader = cramReader.getFileHeader();
     }
 
@@ -79,6 +55,7 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
 
     @Override
     public SamReader getRecordReader() {
+        //TODO: this resets state, but should be idempotent
         return new SamReader.PrimitiveSamReaderToSamReaderAdapter(cramReader, SamInputResource.of(inputPath.toPath()));
     }
 
@@ -91,4 +68,21 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
     public void close() {
         cramReader.close();
     }
+
+    private CRAMFileReader getCRAMReader() {
+        try {
+            return new CRAMFileReader(
+                    is == null ?
+                        inputPath.getInputStream() :
+                        is,
+                    (SeekableStream) null,
+                    readsDecoderOptions.getReferencePath() == null ?
+                            ReferenceSource.getDefaultCRAMReferenceSource() :
+                            CRAMCodec.getCRAMReferenceSource(readsDecoderOptions.getReferencePath()),
+                    readsDecoderOptions.getSamReaderFactory().validationStringency());
+        } catch (IOException e) {
+            throw new RuntimeIOException(String.format("Failure opening reader for %s", getDisplayName()));
+        }
+    }
+
 }

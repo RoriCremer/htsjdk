@@ -19,7 +19,7 @@ public class HtsFASTACodecTest extends HtsjdkTest {
     public void testFASTADecoder() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "/hg19mini.fasta");
 
-        try (final HapRefDecoder fastaDecoder = HtsCodecRegistry.getReferenceDecoder(inputPath)) {
+        try (final HapRefDecoder fastaDecoder = HtsCodecRegistry.getHapRefDecoder(inputPath)) {
             Assert.assertNotNull(fastaDecoder);
 
             final ReferenceSequenceFile referenceReader = fastaDecoder.getRecordReader();
