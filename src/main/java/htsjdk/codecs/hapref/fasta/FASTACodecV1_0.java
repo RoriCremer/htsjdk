@@ -7,6 +7,7 @@ import htsjdk.plugin.UnusedType;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
 import htsjdk.plugin.hapref.HaploidReferenceEncoder;
+import htsjdk.samtools.util.FileExtensions;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
@@ -33,15 +34,19 @@ public class FASTACodecV1_0 extends HapRefCodec {
     }
 
     @Override
-    public boolean canDecodeExtension(final Path path) {
-        throw new IllegalStateException("Not implemented");
-    }
-
-    @Override
     public boolean canDecodeSignature(final byte[] streamSignature) {
         throw new IllegalStateException("Not implemented");
     }
 
+    @Override
+    public boolean canDecodeExtension(final IOPath ioPath) {
+        return FileExtensions.FASTA.stream().anyMatch(ext-> ioPath.hasExtension(ext));
+    }
+
+    @Override
+    public boolean canDecodeExtension(final Path path) {
+        return FileExtensions.FASTA.stream().anyMatch(ext-> path.endsWith(ext));
+    }
     @Override
     public HaploidReferenceDecoder getDecoder(final IOPath inputPath) {
         return getDecoder(inputPath, null);
