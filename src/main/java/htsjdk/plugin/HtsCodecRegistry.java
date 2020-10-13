@@ -1,7 +1,6 @@
 package htsjdk.plugin;
 
 import htsjdk.io.IOPath;
-
 import htsjdk.exception.HtsjdkPluginException;
 import htsjdk.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
@@ -13,6 +12,13 @@ import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
+
+import htsjdk.plugin.variants.VariantsCodec;
+import htsjdk.plugin.variants.VariantsDecoder;
+import htsjdk.plugin.variants.VariantsDecoderOptions;
+import htsjdk.plugin.variants.VariantsEncoder;
+import htsjdk.plugin.variants.VariantsEncoderOptions;
+import htsjdk.plugin.variants.VariantsFormat;
 
 import htsjdk.utils.ValidationUtils;
 
@@ -40,6 +46,7 @@ public class HtsCodecRegistry {
     // registered codecs by format
     private static HtsCodecsByFormat<HaploidReferenceFormat, HaploidReferenceCodec> hapRefCodecs = new HtsCodecsByFormat<>();
     private static HtsCodecsByFormat<ReadsFormat, ReadsCodec>                       readsCodecs = new HtsCodecsByFormat<>();
+    private static HtsCodecsByFormat<VariantsFormat, VariantsCodec>                 variantCodecs = new HtsCodecsByFormat<>();
 
     private final static String NO_CODEC_MSG_FORMAT_STRING = "A %s codec capable of handling \"%s\" could not be found";
 
@@ -72,6 +79,9 @@ public class HtsCodecRegistry {
                 break;
 
             case VARIANTS:
+                variantCodecs.register(((VariantsCodec) codec).getFormat(), (VariantsCodec) codec);
+                break;
+
             case FEATURES:
                 throw new IllegalArgumentException("Codec type not yet implemented");
 
@@ -149,6 +159,65 @@ public class HtsCodecRegistry {
                 .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath))));
     }
 
+    // **** Variants ******/
+
+    @SuppressWarnings("unchecked")
+    public static<T extends VariantsDecoder> T getVariantsDecoder(final IOPath inputPath) {
+        ValidationUtils.nonNull(inputPath, "Input path must not be null");
+        return (T) (variantCodecs.getCodecForIOPath(inputPath)
+                .map(codec -> codec.getDecoder(inputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", inputPath))));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T extends VariantsDecoder> T getVariantsDecoder(
+            final IOPath inputPath,
+            final VariantsDecoderOptions variantsDecoderOptions) {
+        ValidationUtils.nonNull(inputPath, "Input path must not be null");
+        ValidationUtils.nonNull(variantsDecoderOptions, "Decoder options must not be null");
+        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(inputPath);
+        return (T) (variantCodec.map(codec -> codec.getDecoder(inputPath, variantsDecoderOptions))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", inputPath))));
+    }
+
+    // TODO: verify the file extension against the readsFormat type (delegate to the codec
+    // to see if it likes the extension)
+    // TODO: this needs an "auto-upgrade" arg
+    @SuppressWarnings("unchecked")
+    public static<T extends VariantsEncoder> T getVariantsEncoder(final IOPath outputPath) {
+        ValidationUtils.nonNull(outputPath, "Output path must not be null");
+        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(outputPath);
+        return (T) (variantCodec.map(codec -> codec.getEncoder(outputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T extends VariantsEncoder> T getVariantsEncoder(
+            final IOPath outputPath,
+            final VariantsEncoderOptions variantsEncoderOptions) {
+        ValidationUtils.nonNull(outputPath, "Output path must not be null");
+        ValidationUtils.nonNull(variantsEncoderOptions, "Encoder options must not be null");
+        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(outputPath);
+        return (T) (variantCodec.map(codec -> codec.getEncoder(outputPath, variantsEncoderOptions))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
+    }
+
+    //TODO: verify in the codec here that the codec selected for the readsFormat matches the
+    // extension on this outputPath (which should take precedence ?)
+    // TODO: also that the readsFormat matches extension
+    @SuppressWarnings("unchecked")
+    public static <T extends VariantsEncoder> T getVariantsEncoder(
+            final IOPath outputPath,
+            final VariantsFormat variantsFormat,
+            final HtsCodecVersion codecVersion) {
+        ValidationUtils.nonNull(outputPath, "Output path must not be null");
+        ValidationUtils.nonNull(variantsFormat, "Format must not be null");
+        ValidationUtils.nonNull(codecVersion, "Codec version must not be null");
+        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForFormatAndVersion(variantsFormat, codecVersion);
+        return (T) (variantCodec.map(codec -> codec.getEncoder(outputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
+    }
+
     //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
     // based on version (not just the file extension)
     @SuppressWarnings("unchecked")
@@ -186,3 +255,4 @@ public class HtsCodecRegistry {
 //        }
 //    }
 }
+
