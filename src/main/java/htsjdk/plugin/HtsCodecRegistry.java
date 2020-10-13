@@ -1,16 +1,19 @@
 package htsjdk.plugin;
 
 import htsjdk.io.IOPath;
+
 import htsjdk.exception.HtsjdkPluginException;
 import htsjdk.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
+
 import htsjdk.plugin.reads.ReadsCodec;
+import htsjdk.plugin.reads.ReadsDecoder;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
+import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
-import htsjdk.plugin.reads.ReadsDecoder;
-import htsjdk.plugin.reads.ReadsEncoder;
+
 import htsjdk.utils.ValidationUtils;
 
 import java.util.*;
@@ -25,7 +28,6 @@ import java.util.stream.StreamSupport;
 // TODO: dummy interface/implementation for no-op type params  ? (ie., hapref has no factory/options)
 // TODO: return Optional<ReadsCodec> ?
 // TODO: encoder/decoder need a reference back to the codec
-
 // TODO: does htsget have any (htsget or BAM/CRAM) version # embedded in the stream?
 /**
  * Registry/cache for discovered codecs.
@@ -35,8 +37,11 @@ public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
     private static ServiceLoader<HtsCodec> serviceLoader = ServiceLoader.load(HtsCodec.class);
 
+    // registered codecs by format
     private static HtsCodecsByFormat<HaploidReferenceFormat, HaploidReferenceCodec> hapRefCodecs = new HtsCodecsByFormat<>();
-    private static HtsCodecsByFormat<ReadsFormat, ReadsCodec> readsCodecs = new HtsCodecsByFormat<>();
+    private static HtsCodecsByFormat<ReadsFormat, ReadsCodec>                       readsCodecs = new HtsCodecsByFormat<>();
+
+    private final static String NO_CODEC_MSG_FORMAT_STRING = "A %s codec capable of handling \"%s\" could not be found";
 
     static {
         discoverCodecs().forEach(htsCodecRegistry::registerCodec);
@@ -85,18 +90,25 @@ public class HtsCodecRegistry {
 
     // TODO: these should catch/transform ClassCastException, and throw rather than returning null
 
+    // **** Reads ******/
+
     @SuppressWarnings("unchecked")
     public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath) {
-        final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
-        return (T) (codec.map(readsCodec -> readsCodec.getDecoder(inputPath))
-            .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", inputPath))));
+        ValidationUtils.nonNull(inputPath, "Input path must not be null");
+        return (T) (readsCodecs.getCodecForIOPath(inputPath)
+                .map(codec -> codec.getDecoder(inputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath))));
     }
 
     @SuppressWarnings("unchecked")
-    public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath, final ReadsDecoderOptions readsDecoderOptions) {
-        final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
-        return (T) (codec.map(readsCodec -> readsCodec.getDecoder(inputPath, readsDecoderOptions))
-                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", inputPath))));
+    public static<T extends ReadsDecoder> T getReadsDecoder(
+            final IOPath inputPath,
+            final ReadsDecoderOptions readsDecoderOptions) {
+        ValidationUtils.nonNull(inputPath, "Input path must not be null");
+        ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
+        return (T) (readsCodecs.getCodecForIOPath(inputPath)
+                .map(codec -> codec.getDecoder(inputPath, readsDecoderOptions))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath))));
     }
 
     // TODO: verify the file extension against the readsFormat type (delegate to the codec
@@ -105,17 +117,20 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static<T extends ReadsEncoder> T getReadsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
-        final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(outputPath);
-        return (T) (codec.map(readsCodec -> readsCodec.getEncoder(outputPath))
-                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", outputPath))));
+        return (T) (readsCodecs.getCodecForIOPath(outputPath)
+                .map(codec -> codec.getEncoder(outputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath))));
     }
 
     @SuppressWarnings("unchecked")
-    public static<T extends ReadsEncoder> T getReadsEncoder(final IOPath outputPath, final ReadsEncoderOptions readsEncoderOptions) {
+    public static<T extends ReadsEncoder> T getReadsEncoder(
+            final IOPath outputPath,
+            final ReadsEncoderOptions readsEncoderOptions) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
-        final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(outputPath);
-        return (T) (codec.map(readsCodec -> readsCodec.getEncoder(outputPath, readsEncoderOptions))
-                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", outputPath))));
+        ValidationUtils.nonNull(readsEncoderOptions, "Encoder options must not be null");
+        return (T) (readsCodecs.getCodecForIOPath(outputPath)
+                .map(codec -> codec.getEncoder(outputPath, readsEncoderOptions))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath))));
     }
 
     //TODO: verify in the codec here that the codec selected for the readsFormat matches the
@@ -126,18 +141,22 @@ public class HtsCodecRegistry {
             final IOPath outputPath,
             final ReadsFormat readsFormat,
             final HtsCodecVersion codecVersion) {
-        final Optional<ReadsCodec> codec = readsCodecs.getCodecForFormatAndVersion(readsFormat, codecVersion);
-        return (T) (codec.map(readsCodec -> readsCodec.getEncoder(outputPath))
-                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", outputPath))));
+        ValidationUtils.nonNull(outputPath, "Output path must not be null");
+        ValidationUtils.nonNull(readsFormat, "Codec format must not be null");
+        ValidationUtils.nonNull(codecVersion, "Codec version must not be null");
+        return (T) (readsCodecs.getCodecForFormatAndVersion(readsFormat, codecVersion)
+                .map(codec -> codec.getEncoder(outputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath))));
     }
 
     //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
     // based on version (not just the file extension)
     @SuppressWarnings("unchecked")
     public static<T extends HaploidReferenceDecoder> T getHapRefDecoder(final IOPath inputPath) {
-        final Optional<HaploidReferenceCodec> codec = hapRefCodecs.getCodecForIOPath(inputPath);
-        return (T) (codec.map(haploidReferenceCodec -> haploidReferenceCodec.getDecoder(inputPath))
-                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", inputPath))));
+        ValidationUtils.nonNull(inputPath, "Input path must not be null");
+        final Optional<HaploidReferenceCodec> haploidReferenceCodec = hapRefCodecs.getCodecForIOPath(inputPath);
+        return (T) (haploidReferenceCodec.map(codec -> codec.getDecoder(inputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "hapref", inputPath))));
     }
 
 //    // Once we find a codec, hand it off already primed with the version header, etc).

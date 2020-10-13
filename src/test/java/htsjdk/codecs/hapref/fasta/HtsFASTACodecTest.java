@@ -1,4 +1,4 @@
-package htsjdk.codecs;
+package htsjdk.codecs.hapref.fasta;
 
 import htsjdk.HtsjdkTest;
 import htsjdk.codecs.hapref.HapRefDecoder;

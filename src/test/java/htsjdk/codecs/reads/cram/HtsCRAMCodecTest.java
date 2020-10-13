@@ -1,4 +1,4 @@
-package htsjdk.codecs;
+package htsjdk.codecs.reads.cram;
 
 import htsjdk.HtsjdkTest;
 import htsjdk.io.HtsPath;
@@ -46,21 +46,21 @@ public class HtsCRAMCodecTest extends HtsjdkTest {
         final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions().setReferencePath(referencePath);
         final ReadsEncoderOptions readsEncoderOptions = new ReadsEncoderOptions().setReferencePath(referencePath);
 
-        try (final ReadsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(cramInputPath, readsDecoderOptions);
-             final ReadsEncoder bamEncoder = HtsCodecRegistry.getReadsEncoder(cramOutputPath, readsEncoderOptions)) {
+        try (final ReadsDecoder cramDecoder = HtsCodecRegistry.getReadsDecoder(cramInputPath, readsDecoderOptions);
+             final ReadsEncoder cramEncoder = HtsCodecRegistry.getReadsEncoder(cramOutputPath, readsEncoderOptions)) {
 
-            Assert.assertNotNull(bamDecoder);
-            Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.CRAM);
-            Assert.assertNotNull(bamEncoder);
-            Assert.assertEquals(bamEncoder.getFormat(), ReadsFormat.CRAM);
+            Assert.assertNotNull(cramDecoder);
+            Assert.assertEquals(cramDecoder.getFormat(), ReadsFormat.CRAM);
+            Assert.assertNotNull(cramEncoder);
+            Assert.assertEquals(cramEncoder.getFormat(), ReadsFormat.CRAM);
 
-            final SamReader samReader = bamDecoder.getRecordReader();
+            final SamReader samReader = cramDecoder.getRecordReader();
             Assert.assertNotNull(samReader);
 
-            final SAMFileHeader samFileHeader = bamDecoder.getHeader();
+            final SAMFileHeader samFileHeader = cramDecoder.getHeader();
             Assert.assertNotNull(samFileHeader);
 
-            final SAMFileWriter samFileWriter = bamEncoder.getRecordWriter(samFileHeader);
+            final SAMFileWriter samFileWriter = cramEncoder.getRecordWriter(samFileHeader);
             for (final SAMRecord samRec : samReader) {
                 samFileWriter.addAlignment(samRec);
             }
