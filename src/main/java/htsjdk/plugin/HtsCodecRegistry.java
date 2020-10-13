@@ -88,63 +88,56 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath) {
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
-        return (T) (codec.isPresent() ?
-                codec.get().getDecoder(inputPath) :
-                null);
+        return (T) (codec.map(readsCodec -> readsCodec.getDecoder(inputPath))
+            .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", inputPath))));
     }
 
+    @SuppressWarnings("unchecked")
     public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath, final ReadsDecoderOptions readsDecoderOptions) {
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(inputPath);
-        return (T) (codec.isPresent() ?
-                 codec.get().getDecoder(inputPath, readsDecoderOptions) :
-                null);
+        return (T) (codec.map(readsCodec -> readsCodec.getDecoder(inputPath, readsDecoderOptions))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", inputPath))));
     }
 
     // TODO: verify the file extension against the readsFormat type (delegate to the codec
     // to see if it likes the extension)
     // TODO: this needs an "auto-upgrade" arg
+    @SuppressWarnings("unchecked")
     public static<T extends ReadsEncoder> T getReadsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(outputPath);
-        if (!codec.isPresent()) {
-            throw new IllegalArgumentException(String.format("No codec available for %s", outputPath));
-        }
-        return (T) (codec.isPresent() ?
-                codec.get().getEncoder(outputPath) :
-                null);
+        return (T) (codec.map(readsCodec -> readsCodec.getEncoder(outputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", outputPath))));
     }
 
+    @SuppressWarnings("unchecked")
     public static<T extends ReadsEncoder> T getReadsEncoder(final IOPath outputPath, final ReadsEncoderOptions readsEncoderOptions) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForIOPath(outputPath);
-        if (!codec.isPresent()) {
-            throw new IllegalArgumentException(String.format("No codec available for %s", outputPath));
-        }
-        return (T) (codec.isPresent() ?
-                codec.get().getEncoder(outputPath, readsEncoderOptions) :
-                null);
+        return (T) (codec.map(readsCodec -> readsCodec.getEncoder(outputPath, readsEncoderOptions))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", outputPath))));
     }
 
     //TODO: verify in the codec here that the codec selected for the readsFormat matches the
     // extension on this outputPath (which should take precedence ?)
     // TODO: also that the readsFormat matches extension
+    @SuppressWarnings("unchecked")
     public static <T extends ReadsEncoder> T getReadsEncoder(
             final IOPath outputPath,
             final ReadsFormat readsFormat,
             final HtsCodecVersion codecVersion) {
         final Optional<ReadsCodec> codec = readsCodecs.getCodecForFormatAndVersion(readsFormat, codecVersion);
-        return (T) (codec.isPresent() ?
-                codec.get().getEncoder(outputPath) :
-                null);
+        return (T) (codec.map(readsCodec -> readsCodec.getEncoder(outputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", outputPath))));
     }
 
     //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
     // based on version (not just the file extension)
+    @SuppressWarnings("unchecked")
     public static<T extends HaploidReferenceDecoder> T getHapRefDecoder(final IOPath inputPath) {
         final Optional<HaploidReferenceCodec> codec = hapRefCodecs.getCodecForIOPath(inputPath);
-        return (T) (codec.isPresent() ?
-                codec.get().getDecoder(inputPath) :
-                null);
+        return (T) (codec.map(haploidReferenceCodec -> haploidReferenceCodec.getDecoder(inputPath))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("No codec available for %s", inputPath))));
     }
 
 //    // Once we find a codec, hand it off already primed with the version header, etc).
