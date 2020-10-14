@@ -23,7 +23,7 @@ public interface HtsCodec<
     HtsCodecVersion getVersion();
 
     default String getDisplayName() {
-        return String.format("Codec for %s version %s", getFormat(), getVersion());
+        return String.format("Codec %s for %s version %s", getFormat(), getVersion(), getClass().getName());
     }
 
     FORMAT getFormat();

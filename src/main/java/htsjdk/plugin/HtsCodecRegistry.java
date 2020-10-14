@@ -26,15 +26,26 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-// TODO: how can we enable errors as warnings for this code/module only...
-// TODO: add a codec protocol string (i.e., htsget, or refget ?)
-// TODO: distinguish between FileFormatVersion and codec Version ?
-// TODO: where does an upgrade happen ? Who bridges the version incompatibilities ?
-// TODO: need a resource collection to represent siblings (resource, index, dict)
-// TODO: dummy interface/implementation for no-op type params  ? (ie., hapref has no factory/options)
-// TODO: return Optional<ReadsCodec> ?
-// TODO: encoder/decoder need a reference back to the codec
-// TODO: does htsget have any (htsget or BAM/CRAM) version # embedded in the stream?
+// TODO Misc:
+//  how can we enable errors as warnings for this code/module only...
+//  add a codec protocol string (i.e., htsget, or refget ?)
+//  distinguish between FileFormatVersion and codec Version ?
+
+// TODO Design:
+//  where does an upgrade happen ? Who bridges the version incompatibilities ?
+//  need a resource collection to represent siblings (resource, index, dict)
+//  dummy interface/implementation for no-op type params  ? (ie., hapref has no factory/options)
+//  how to resolve multiple codecs that service the same format/version
+//  "auto-upgrade" arg
+//  does htsget have any (htsget or BAM/CRAM) version # embedded in the stream?
+
+// TODO Code:
+//  return Optional<ReadsCodec> ?
+//  encoder/decoder need a reference back to the codec
+//  registry get* methods should catch/transform ClassCastException, and throw rather than returning null
+//  verify that the file extension matches the format type (delegate to the codec to see if it likes the extension)
+//  look at the actual stream to discriminate based on version (not just file extension)
+
 /**
  * Registry/cache for discovered codecs.
  */
@@ -98,8 +109,6 @@ public class HtsCodecRegistry {
         minSignatureSize = Integer.max(minSignatureSize, minSignatureBytesRequired);
     }
 
-    // TODO: these should catch/transform ClassCastException, and throw rather than returning null
-
     // **** Reads ******/
 
     @SuppressWarnings("unchecked")
@@ -121,9 +130,6 @@ public class HtsCodecRegistry {
                 .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath))));
     }
 
-    // TODO: verify the file extension against the readsFormat type (delegate to the codec
-    // to see if it likes the extension)
-    // TODO: this needs an "auto-upgrade" arg
     @SuppressWarnings("unchecked")
     public static<T extends ReadsEncoder> T getReadsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
@@ -143,9 +149,6 @@ public class HtsCodecRegistry {
                 .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath))));
     }
 
-    //TODO: verify in the codec here that the codec selected for the readsFormat matches the
-    // extension on this outputPath (which should take precedence ?)
-    // TODO: also that the readsFormat matches extension
     @SuppressWarnings("unchecked")
     public static <T extends ReadsEncoder> T getReadsEncoder(
             final IOPath outputPath,
@@ -180,9 +183,6 @@ public class HtsCodecRegistry {
                 .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", inputPath))));
     }
 
-    // TODO: verify the file extension against the readsFormat type (delegate to the codec
-    // to see if it likes the extension)
-    // TODO: this needs an "auto-upgrade" arg
     @SuppressWarnings("unchecked")
     public static<T extends VariantsEncoder> T getVariantsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
@@ -202,9 +202,6 @@ public class HtsCodecRegistry {
                 .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
     }
 
-    //TODO: verify in the codec here that the codec selected for the readsFormat matches the
-    // extension on this outputPath (which should take precedence ?)
-    // TODO: also that the readsFormat matches extension
     @SuppressWarnings("unchecked")
     public static <T extends VariantsEncoder> T getVariantsEncoder(
             final IOPath outputPath,
@@ -218,8 +215,6 @@ public class HtsCodecRegistry {
                 .orElseThrow(() -> new IllegalArgumentException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
     }
 
-    //TODO: need to ensure that this looks at the actual stream, since it needs to discriminate
-    // based on version (not just the file extension)
     @SuppressWarnings("unchecked")
     public static<T extends HaploidReferenceDecoder> T getHapRefDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
