@@ -13,7 +13,7 @@ import java.io.OutputStream;
 
 public class VCFCodecV4_2 extends VCFCodec {
     public static HtsCodecVersion VCF_V42_VERSION = new HtsCodecVersion(4, 2,0);
-    protected static final String VCF_V42_MAGIC = "##fileformat=VCFv42";
+    protected static final String VCF_V42_MAGIC = htsjdk.variant.vcf.VCFCodec.VCF4_MAGIC_HEADER;
 
     @Override
     public HtsCodecVersion getVersion() { return VCF_V42_VERSION; }
