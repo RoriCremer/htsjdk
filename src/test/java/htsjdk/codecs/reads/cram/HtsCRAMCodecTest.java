@@ -22,8 +22,10 @@ public class HtsCRAMCodecTest extends HtsjdkTest {
     @Test
     public void testCRAMDecoder() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "cram/ce#unmap2.3.0.cram");
+        final IOPath referencePath = new HtsPath(TEST_DIR + "cram/c2.fa");
 
-        try (final CRAMDecoder cramDecoder = HtsCodecRegistry.getReadsDecoder(inputPath)) {
+        final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions().setReferencePath(referencePath);
+        try (final CRAMDecoder cramDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
             Assert.assertNotNull(cramDecoder);
             Assert.assertEquals(cramDecoder.getFormat(), ReadsFormat.CRAM);
 
@@ -64,6 +66,26 @@ public class HtsCRAMCodecTest extends HtsjdkTest {
             for (final SAMRecord samRec : samReader) {
                 samFileWriter.addAlignment(samRec);
             }
+        }
+    }
+
+    @Test
+    public void testCRAMCustomDecoderOptions() {
+        final IOPath inputPath = new HtsPath(TEST_DIR + "cram/ce#unmap2.3.0.cram");
+        final IOPath referencePath = new HtsPath(TEST_DIR + "cram/c2.fa");
+
+        final CRAMDecoderOptions customDecoderOptions = new CRAMDecoderOptions().setReferencePath(referencePath);
+        try (final CRAMDecoder cramDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, customDecoderOptions)) {
+            Assert.assertNotNull(cramDecoder);
+            Assert.assertEquals(cramDecoder.getFormat(), ReadsFormat.CRAM);
+
+            final SamReader samReader = cramDecoder.getRecordReader();
+            Assert.assertNotNull(samReader);
+
+            final SAMFileHeader samFileHeader = samReader.getFileHeader();
+            Assert.assertNotNull(samFileHeader);
+
+            Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.unsorted);
         }
     }
 

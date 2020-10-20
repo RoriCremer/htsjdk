@@ -2,6 +2,7 @@ package htsjdk.codecs.reads.cram.cramV3_0;
 
 import htsjdk.codecs.reads.cram.CRAMCodec;
 import htsjdk.codecs.reads.cram.CRAMDecoder;
+import htsjdk.codecs.reads.cram.CRAMDecoderOptions;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
@@ -19,6 +20,7 @@ import java.io.InputStream;
 // TODO: This should reject CRAM 3.1
 public class CRAMDecoderV3_0 extends CRAMDecoder {
     private final ReadsDecoderOptions readsDecoderOptions;
+    private final CRAMDecoderOptions cramDecoderOptions;
     private final CRAMFileReader cramReader;
     private final SAMFileHeader samFileHeader;
 
@@ -29,6 +31,9 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
     public CRAMDecoderV3_0(final IOPath inputPath, final ReadsDecoderOptions readsDecoderOptions) {
         super(inputPath);
         this.readsDecoderOptions = readsDecoderOptions;
+        this.cramDecoderOptions = readsDecoderOptions instanceof CRAMDecoderOptions ?
+                (CRAMDecoderOptions) readsDecoderOptions :
+                null;
         cramReader = getCRAMReader();
         samFileHeader = cramReader.getFileHeader();
     }
@@ -40,6 +45,9 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
     public CRAMDecoderV3_0(final InputStream is, final String displayName, final ReadsDecoderOptions readsDecoderOptions) {
         super(is, displayName);
         this.readsDecoderOptions = readsDecoderOptions;
+        this.cramDecoderOptions = readsDecoderOptions instanceof CRAMDecoderOptions ?
+                (CRAMDecoderOptions) readsDecoderOptions :
+                null;
         cramReader = getCRAMReader();
         samFileHeader = cramReader.getFileHeader();
     }
