@@ -1,23 +1,26 @@
 package htsjdk.codecs.reads.cram.cramV3_0;
 
 import htsjdk.codecs.reads.cram.CRAMCodec;
+import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.reads.ReadsDecoder;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
+import htsjdk.samtools.cram.structure.CramHeader;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
-// TODO: This should reject CRAM 3.1
 /**
  * BAM codec used to exercise the reader factory infrastructure
  */
 public class CRAMCodecV3_0 extends CRAMCodec {
-
     public static final HtsCodecVersion VERSION_3_0 = new HtsCodecVersion(3, 0, 0);
+    protected static final String CRAM_MAGIC = new String(CramHeader.MAGIC) + "\3\0";
 
     @Override
     public HtsCodecVersion getVersion() {
@@ -27,6 +30,22 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     @Override
     public int getSignatureSize() {
         return CRAM_MAGIC.length();
+    }
+
+    // uses a byte array rather than a stream to reduce the need to repeatedly mark/reset the
+    // stream for each codec
+    @Override
+    public boolean canDecodeSignature(final InputStream rawInputStream, final String sourceName) {
+        try {
+            final byte[] signatureBytes = new byte[getSignatureSize()];
+            final int numRead = rawInputStream.read(signatureBytes);
+            if (numRead <= 0) {
+                throw new HtsjdkIOException(String.format("Failure reading content from stream for %s", sourceName));
+            }
+            return Arrays.equals(signatureBytes, CRAM_MAGIC.getBytes());
+        } catch (IOException e) {
+            throw new HtsjdkIOException(String.format("Failure reading content from stream for %s", sourceName));
+        }
     }
 
     @Override

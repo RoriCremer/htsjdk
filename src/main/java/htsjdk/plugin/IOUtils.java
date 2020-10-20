@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+//TODO: consolidate this into the existing IOUtil class
+
 public class IOUtils {
 
     /**

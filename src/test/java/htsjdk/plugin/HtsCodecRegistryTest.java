@@ -51,8 +51,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
         final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions();
-        readsDecoderOptions.getSamReaderFactory().validationStringency(ValidationStringency.DEFAULT_STRINGENCY.LENIENT);
-
+        readsDecoderOptions.getSamReaderFactory().validationStringency(ValidationStringency.SILENT);
         try (final ReadsDecoder readsDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
             Assert.assertNotNull(readsDecoder);
             Assert.assertEquals(readsDecoder.getFormat(), ReadsFormat.BAM);
@@ -71,6 +70,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     @Test
     public void testReadsEncoderForBAM() {
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
+
         try (final ReadsEncoder readsEncoder = HtsCodecRegistry.getReadsEncoder(outputPath)) {
             Assert.assertNotNull(readsEncoder);
             Assert.assertEquals(readsEncoder.getFormat(), ReadsFormat.BAM);
@@ -84,6 +84,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     @Test
     public void testReadsEncoderForVersion() {
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
+
         try (final ReadsEncoder readsEncoder = HtsCodecRegistry.getReadsEncoder(
                 outputPath,
                 ReadsFormat.BAM,

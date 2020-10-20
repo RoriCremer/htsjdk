@@ -35,7 +35,7 @@ public interface HtsCodec<
 
     boolean canDecodeExtension(final Path path);
 
-    boolean canDecodeSignature(final byte[] streamSignature);
+    boolean canDecodeSignature(final InputStream inputStream, final String sourceName);
 
     // Get a codec that matches this ioPath(Select first by extension, then stream signature)
     DECODER getDecoder(final IOPath inputPath);

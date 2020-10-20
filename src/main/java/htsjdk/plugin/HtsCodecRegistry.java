@@ -1,5 +1,6 @@
 package htsjdk.plugin;
 
+import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.exception.HtsjdkPluginException;
 import htsjdk.plugin.hapref.HaploidReferenceCodec;
@@ -22,6 +23,8 @@ import htsjdk.plugin.variants.VariantsFormat;
 
 import htsjdk.utils.ValidationUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -84,9 +87,15 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
-        return (T) (readsCodecs.getCodecForIOPath(inputPath)
+
+        final List<ReadsCodec> codecs = readsCodecs.getCodecsForIOPath(inputPath);
+        final ReadsDecoder decoder = codecs
+                .stream()
+                .filter(codec -> canDecodeSignature(codec, inputPath))
                 .map(codec -> codec.getDecoder(inputPath))
-                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath))));
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
+        return (T) decoder;
     }
 
     @SuppressWarnings("unchecked")
@@ -95,9 +104,14 @@ public class HtsCodecRegistry {
             final ReadsDecoderOptions readsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
-        return (T) (readsCodecs.getCodecForIOPath(inputPath)
+        final List<ReadsCodec> codecs = readsCodecs.getCodecsForIOPath(inputPath);
+        final ReadsDecoder decoder = codecs
+                .stream()
+                .filter(codec -> canDecodeSignature(codec, inputPath))
                 .map(codec -> codec.getDecoder(inputPath, readsDecoderOptions))
-                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath))));
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
+        return (T) decoder;
     }
 
     @SuppressWarnings("unchecked")
@@ -134,14 +148,24 @@ public class HtsCodecRegistry {
 
     // **** Variants ******/
 
+    //TODO: validate stream signature
     @SuppressWarnings("unchecked")
     public static<T extends VariantsDecoder> T getVariantsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
-        return (T) (variantCodecs.getCodecForIOPath(inputPath)
+//        return (T) (variantCodecs.getCodecForIOPath(inputPath)
+//                .map(codec -> codec.getDecoder(inputPath))
+//                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", inputPath))));
+        final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
+        final VariantsDecoder decoder = codecs
+                .stream()
+                .filter(codec -> canDecodeSignature(codec, inputPath))
                 .map(codec -> codec.getDecoder(inputPath))
-                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", inputPath))));
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
+        return (T) decoder;
     }
 
+    //TODO: validate stream signature
     @SuppressWarnings("unchecked")
     public static<T extends VariantsDecoder> T getVariantsDecoder(
             final IOPath inputPath,
@@ -185,6 +209,7 @@ public class HtsCodecRegistry {
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
     }
 
+    //TODO: validate stream signature
     @SuppressWarnings("unchecked")
     public static<T extends HaploidReferenceDecoder> T getHapRefDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
@@ -193,31 +218,14 @@ public class HtsCodecRegistry {
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "hapref", inputPath))));
     }
 
-//    // Once we find a codec, hand it off already primed with the version header, etc).
-//    public static ReadsCodec findReadsCodecFor(final String sourceName, final InputStream is) {
-//        final byte[] signatureBytes = new byte[minSignatureSize];
-//        try {
-//            final int numRead = is.read(signatureBytes);
-//            if (numRead <= 0) {
-//                throw new HtsjdkIOException(String.format("Failure reading content from stream for %s", sourceName));
-//            }
-//            return discoveredCodecs
-//                    .values()
-//                    .stream()
-//                    .flatMap(m -> m.values().stream())
-//                    .filter(
-//                        // its possible that the input is a legitimate stream for some codec, but
-//                        // contains less bytes than are required even for signature detection by another
-//                        // codecs, so skip any descriptors that require more bytes than are available
-//                        codecDescriptor ->
-//                                numRead >= codecDescriptor.getFileSignatureSize() &&
-//                                codecDescriptor.canDecode(signatureBytes))
-//                    .findFirst()
-//                    .orElseThrow(() -> new HtsjdkIOException(String.format("No codec found for %s", sourceName)))
-//                    .getCodecInstance(is);
-//        } catch (IOException e) {
-//            throw new HtsjdkIOException(String.format("Failure reading signature from stream for %s", sourceName), e);
-//        }
-//    }
+    @SuppressWarnings("rawtypes")
+    private static<T extends HtsCodec> boolean canDecodeSignature(final T codec, final IOPath inputPath) {
+        try (final InputStream rawInputStream = inputPath.getInputStream()) {
+            return codec.canDecodeSignature(rawInputStream, inputPath.getRawInputString());
+        } catch (IOException e) {
+            throw new HtsjdkIOException(String.format("Failure reading signature from stream for %s", inputPath.getRawInputString()), e);
+        }
+    }
+
 }
 

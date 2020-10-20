@@ -7,7 +7,6 @@ import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.samtools.cram.ref.CRAMReferenceSource;
 import htsjdk.samtools.cram.ref.ReferenceSource;
-import htsjdk.samtools.cram.structure.CramHeader;
 import htsjdk.samtools.reference.ReferenceSequenceFile;
 import htsjdk.samtools.util.FileExtensions;
 
@@ -17,7 +16,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class CRAMCodec implements ReadsCodec {
-    protected static final String CRAM_MAGIC = new String(CramHeader.MAGIC);
     private final Set<String> extensionMap = new HashSet(Arrays.asList(FileExtensions.CRAM));
 
     @Override
@@ -31,13 +29,6 @@ public abstract class CRAMCodec implements ReadsCodec {
     @Override
     public boolean canDecodeExtension(final Path path) {
         return extensionMap.stream().anyMatch(ext-> path.endsWith(ext));
-    }
-
-    // uses a byte array rather than a stream to reduce the need to repeatedly mark/reset the
-    // stream for each codec
-    @Override
-    public boolean canDecodeSignature(final byte[] signatureBytes) {
-        return signatureBytes.equals(CRAM_MAGIC);
     }
 
     public static CRAMReferenceSource getCRAMReferenceSource(final IOPath referencePath) {

@@ -34,7 +34,7 @@ public class FASTACodecV1_0 extends HapRefCodec {
     }
 
     @Override
-    public boolean canDecodeSignature(final byte[] streamSignature) {
+    public boolean canDecodeSignature(final InputStream rawInputStream, final String sourceName) {
         throw new IllegalStateException("Not implemented");
     }
 
