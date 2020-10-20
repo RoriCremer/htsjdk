@@ -31,12 +31,12 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     public void testReadsDecoderForBAM() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
-        try (final ReadsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(inputPath)) {
-            Assert.assertNotNull(bamDecoder);
-            Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.BAM);
-            Assert.assertEquals(bamDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
+        try (final ReadsDecoder readsDecoder = HtsCodecRegistry.getReadsDecoder(inputPath)) {
+            Assert.assertNotNull(readsDecoder);
+            Assert.assertEquals(readsDecoder.getFormat(), ReadsFormat.BAM);
+            Assert.assertEquals(readsDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
 
-            final SamReader samReader = bamDecoder.getRecordReader();
+            final SamReader samReader = readsDecoder.getRecordReader();
             Assert.assertNotNull(samReader);
 
             final SAMFileHeader samFileHeader = samReader.getFileHeader();
@@ -53,12 +53,12 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
         final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions();
         readsDecoderOptions.getSamReaderFactory().validationStringency(ValidationStringency.DEFAULT_STRINGENCY.LENIENT);
 
-        try (final ReadsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
-            Assert.assertNotNull(bamDecoder);
-            Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.BAM);
-            Assert.assertEquals(bamDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
+        try (final ReadsDecoder readsDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
+            Assert.assertNotNull(readsDecoder);
+            Assert.assertEquals(readsDecoder.getFormat(), ReadsFormat.BAM);
+            Assert.assertEquals(readsDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
 
-            final SamReader samReader = bamDecoder.getRecordReader();
+            final SamReader samReader = readsDecoder.getRecordReader();
             Assert.assertNotNull(samReader);
             //TODO: assert validation stringency
 

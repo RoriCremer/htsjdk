@@ -1,19 +1,15 @@
 package htsjdk.codecs.reads.cram.cramV3_0;
 
-import htsjdk.codecs.hapref.HapRefDecoder;
 import htsjdk.codecs.reads.cram.CRAMCodec;
 import htsjdk.codecs.reads.cram.CRAMDecoder;
 import htsjdk.io.IOPath;
-import htsjdk.plugin.HtsCodecRegistry;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.samtools.CRAMFileReader;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
-import htsjdk.samtools.cram.ref.CRAMReferenceSource;
 import htsjdk.samtools.cram.ref.ReferenceSource;
-import htsjdk.samtools.reference.ReferenceSequenceFile;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.util.RuntimeIOException;
 

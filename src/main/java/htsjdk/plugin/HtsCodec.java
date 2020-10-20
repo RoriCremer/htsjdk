@@ -14,9 +14,9 @@ import java.nio.file.Path;
 public interface HtsCodec<
         FORMAT,
         ENCODER_OPTIONS,
-        ENCODER extends HtsEncoder<?, ?, ?>,
+        ENCODER extends HtsEncoder<?, FORMAT, ?>,
         DECODER_OPTIONS,
-        DECODER extends HtsDecoder<?, ?, ?>> extends Upgradeable {
+        DECODER extends HtsDecoder<?, FORMAT, ?>> extends Upgradeable {
 
     HtsCodecType getType();
 
@@ -40,17 +40,17 @@ public interface HtsCodec<
     // Get a codec that matches this ioPath(Select first by extension, then stream signature)
     DECODER getDecoder(final IOPath inputPath);
 
-    DECODER getDecoder(final IOPath inputPath, final DECODER_OPTIONS readOptions);
+    DECODER getDecoder(final IOPath inputPath, final DECODER_OPTIONS decodeOptions);
 
     DECODER getDecoder(final InputStream is, final String displayName);
 
-    DECODER getDecoder(final InputStream is, final String displayName, final DECODER_OPTIONS readOptions);
+    DECODER getDecoder(final InputStream is, final String displayName, final DECODER_OPTIONS decodeOptions);
 
     ENCODER getEncoder(final IOPath outputPath);
 
-    ENCODER getEncoder(final IOPath outputPath, final ENCODER_OPTIONS writeOptions);
+    ENCODER getEncoder(final IOPath outputPath, final ENCODER_OPTIONS encodeOptions);
 
     ENCODER getEncoder(final OutputStream os, final String displayName);
 
-    ENCODER getEncoder(final OutputStream os, final String displayName, final ENCODER_OPTIONS writeOptions);
+    ENCODER getEncoder(final OutputStream os, final String displayName, final ENCODER_OPTIONS encodeOptions);
 }

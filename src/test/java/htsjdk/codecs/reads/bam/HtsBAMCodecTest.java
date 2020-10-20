@@ -4,8 +4,6 @@ import htsjdk.HtsjdkTest;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecRegistry;
-import htsjdk.plugin.reads.ReadsDecoder;
-import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMFileWriter;
@@ -49,8 +47,8 @@ public class HtsBAMCodecTest  extends HtsjdkTest {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
 
-        try (final ReadsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(inputPath);
-             final ReadsEncoder bamEncoder = HtsCodecRegistry.getReadsEncoder(outputPath)) {
+        try (final BAMDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(inputPath);
+             final BAMEncoder bamEncoder = HtsCodecRegistry.getReadsEncoder(outputPath)) {
 
             Assert.assertNotNull(bamDecoder);
             Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.BAM);

@@ -10,7 +10,7 @@ import java.util.Optional;
 // TODO: need more than one codec per format/version, ie., we'll need an HtsGetCodec for BAM v1 that
 // uses the same encoder/decoder as the BAMv1Codec
 
-final class HtsCodecsByFormat<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?, ?>> {
+final class HtsCodecsByType<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?, ?>> {
 
     private final Map<FORMAT, Map<HtsCodecVersion, CODEC>> codecs = new HashMap<>();
     private final Map<FORMAT, HtsCodecVersion> newestVersion = new HashMap<>();
@@ -35,7 +35,6 @@ final class HtsCodecsByFormat<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?, ?>
                 .findFirst();
     }
 
-    //TODO: rename this to getCodecForWrite
     public Optional<CODEC> getCodecForFormatAndVersion(final FORMAT formatType, HtsCodecVersion codecVersion) {
         return codecs.values()
                 .stream()
@@ -45,7 +44,6 @@ final class HtsCodecsByFormat<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?, ?>
                 .findFirst();
     }
 
-    //TODO: rename this to getCodecForWrite
     // get the newest version codec for the given file extension
     public Optional<CODEC> getCodecForFormatAndVersion(final IOPath outputPath, FORMAT format) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");

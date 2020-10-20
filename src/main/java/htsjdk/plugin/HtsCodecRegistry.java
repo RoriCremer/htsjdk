@@ -24,26 +24,6 @@ import htsjdk.utils.ValidationUtils;
 
 import java.util.*;
 
-// TODO Misc:
-//  how can we enable errors as warnings for this code/module only...
-//  add a codec protocol string (i.e., htsget, or refget ?)
-//  distinguish between FileFormatVersion and codec Version ?
-
-// TODO Design:
-//  where does an upgrade happen ? Who bridges the version incompatibilities ?
-//  need a resource collection to represent siblings (resource, index, dict)
-//  dummy interface/implementation for no-op type params  ? (ie., hapref has no factory/options)
-//  how to resolve multiple codecs that service the same format/version
-//  auto-upgrade
-//  does htsget have any (htsget or BAM/CRAM) version # embedded in the stream?
-
-// TODO Code:
-//  return Optional<ReadsCodec> ?
-//  encoder/decoder need a reference back to the codec
-//  registry get* methods should catch/transform ClassCastException, and throw rather than returning null
-//  verify that the file extension matches the format type (delegate to the codec to see if it accepts the extension)
-//  look at the actual stream to discriminate based on version (not just file extension)
-
 /**
  * Registry/cache for discovered codecs.
  */
@@ -52,9 +32,9 @@ public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
 
     // registered codecs by format
-    private static HtsCodecsByFormat<HaploidReferenceFormat, HaploidReferenceCodec> haprefCodecs = new HtsCodecsByFormat<>();
-    private static HtsCodecsByFormat<ReadsFormat, ReadsCodec>                       readsCodecs = new HtsCodecsByFormat<>();
-    private static HtsCodecsByFormat<VariantsFormat, VariantsCodec>                 variantCodecs = new HtsCodecsByFormat<>();
+    private static HtsCodecsByType<HaploidReferenceFormat, HaploidReferenceCodec> haprefCodecs = new HtsCodecsByType<>();
+    private static HtsCodecsByType<ReadsFormat, ReadsCodec> readsCodecs = new HtsCodecsByType<>();
+    private static HtsCodecsByType<VariantsFormat, VariantsCodec> variantCodecs = new HtsCodecsByType<>();
 
     // minimum number of bytes required to allow any codec to decide if it can decode a stream
     private static int minSignatureSize = 0;
