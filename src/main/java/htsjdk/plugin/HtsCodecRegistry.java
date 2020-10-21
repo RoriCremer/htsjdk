@@ -2,7 +2,6 @@ package htsjdk.plugin;
 
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
-import htsjdk.exception.HtsjdkPluginException;
 import htsjdk.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
@@ -39,8 +38,6 @@ public class HtsCodecRegistry {
     private static HtsCodecsByType<ReadsFormat, ReadsCodec> readsCodecs = new HtsCodecsByType<>();
     private static HtsCodecsByType<VariantsFormat, VariantsCodec> variantCodecs = new HtsCodecsByType<>();
 
-    // minimum number of bytes required to allow any codec to decide if it can decode a stream
-    private static int minSignatureSize = 0;
     private final static String NO_CODEC_MSG_FORMAT_STRING = "A %s codec capable of handling \"%s\" could not be found";
 
     static {
@@ -72,14 +69,6 @@ public class HtsCodecRegistry {
             default:
                 throw new IllegalArgumentException("Unknown codec type");
         }
-
-        final int minSignatureBytesRequired = codec.getSignatureSize();
-        if (minSignatureBytesRequired < 1) {
-            throw new HtsjdkPluginException(
-                    String.format("%s: file signature size must be > 0", codec.getDisplayName())
-            );
-        }
-        minSignatureSize = Integer.max(minSignatureSize, minSignatureBytesRequired);
     }
 
     // **** Reads ******/
@@ -148,13 +137,9 @@ public class HtsCodecRegistry {
 
     // **** Variants ******/
 
-    //TODO: validate stream signature
     @SuppressWarnings("unchecked")
     public static<T extends VariantsDecoder> T getVariantsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
-//        return (T) (variantCodecs.getCodecForIOPath(inputPath)
-//                .map(codec -> codec.getDecoder(inputPath))
-//                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", inputPath))));
         final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
         final VariantsDecoder decoder = codecs
                 .stream()
@@ -165,16 +150,20 @@ public class HtsCodecRegistry {
         return (T) decoder;
     }
 
-    //TODO: validate stream signature
     @SuppressWarnings("unchecked")
     public static<T extends VariantsDecoder> T getVariantsDecoder(
             final IOPath inputPath,
             final VariantsDecoderOptions variantsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(variantsDecoderOptions, "Decoder options must not be null");
-        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(inputPath);
-        return (T) (variantCodec.map(codec -> codec.getDecoder(inputPath, variantsDecoderOptions))
-                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", inputPath))));
+        final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
+        final VariantsDecoder decoder = codecs
+                .stream()
+                .filter(codec -> canDecodeSignature(codec, inputPath))
+                .map(codec -> codec.getDecoder(inputPath, variantsDecoderOptions))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
+        return (T) decoder;
     }
 
     @SuppressWarnings("unchecked")

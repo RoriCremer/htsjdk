@@ -12,11 +12,12 @@ import java.nio.file.Path;
  * A codec class represents a single file format/version
  */
 public interface HtsCodec<
-        FORMAT,
-        ENCODER_OPTIONS,
-        ENCODER extends HtsEncoder<?, FORMAT, ?>,
-        DECODER_OPTIONS,
-        DECODER extends HtsDecoder<?, FORMAT, ?>> extends Upgradeable {
+            FORMAT,
+            ENCODER_OPTIONS,
+            ENCODER extends HtsEncoder<?, FORMAT, ?>,
+            DECODER_OPTIONS,
+            DECODER extends HtsDecoder<?, FORMAT, ?>>
+        extends Upgradeable {
 
     HtsCodecType getType();
 

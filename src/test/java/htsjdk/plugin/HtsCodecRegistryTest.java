@@ -21,8 +21,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import java.util.List;
 
-//TODO: make temp files
-
 public class HtsCodecRegistryTest extends HtsjdkTest {
 
     final IOPath TEST_DIR = new HtsPath("src/test/resources/htsjdk/samtools/");
