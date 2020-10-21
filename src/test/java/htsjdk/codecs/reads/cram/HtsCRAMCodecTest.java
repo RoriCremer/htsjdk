@@ -25,6 +25,7 @@ public class HtsCRAMCodecTest extends HtsjdkTest {
         final IOPath referencePath = new HtsPath(TEST_DIR + "cram/c2.fa");
 
         final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions().setReferencePath(referencePath);
+
         try (final CRAMDecoder cramDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
             Assert.assertNotNull(cramDecoder);
             Assert.assertEquals(cramDecoder.getFormat(), ReadsFormat.CRAM);
@@ -75,6 +76,7 @@ public class HtsCRAMCodecTest extends HtsjdkTest {
         final IOPath referencePath = new HtsPath(TEST_DIR + "cram/c2.fa");
 
         final CRAMDecoderOptions customDecoderOptions = new CRAMDecoderOptions().setReferencePath(referencePath);
+
         try (final CRAMDecoder cramDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, customDecoderOptions)) {
             Assert.assertNotNull(cramDecoder);
             Assert.assertEquals(cramDecoder.getFormat(), ReadsFormat.CRAM);

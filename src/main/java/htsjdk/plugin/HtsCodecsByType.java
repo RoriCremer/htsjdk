@@ -48,7 +48,7 @@ final class HtsCodecsByType<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?, ?>> 
         return codecs.values()
                 .stream()
                 .flatMap(m -> m.values().stream())
-                .filter(codec -> codec.getFormat().equals(formatType) &&
+                .filter(codec -> codec.getFileFormat().equals(formatType) &&
                                     codec.getVersion().equals(codecVersion))
                 .findFirst();
     }

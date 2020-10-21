@@ -24,7 +24,7 @@ public class FASTACodecV1_0 extends HapRefCodec {
     }
 
     @Override
-    public HaploidReferenceFormat getFormat() {
+    public HaploidReferenceFormat getFileFormat() {
         return HaploidReferenceFormat.FASTA;
     }
 

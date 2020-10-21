@@ -15,7 +15,7 @@ public abstract class VCFCodec implements VariantsCodec {
     private final Set<String> extensionMap = new HashSet(FileExtensions.VCF_LIST);
 
     @Override
-    public VariantsFormat getFormat() { return VariantsFormat.VCF; }
+    public VariantsFormat getFileFormat() { return VariantsFormat.VCF; }
 
     @Override
     public boolean canDecodeExtension(final IOPath ioPath) {

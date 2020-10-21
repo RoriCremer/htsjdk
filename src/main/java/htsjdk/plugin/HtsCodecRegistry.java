@@ -52,15 +52,15 @@ public class HtsCodecRegistry {
     private void registerCodec(final HtsCodec codec) {
         switch (codec.getType()) {
             case ALIGNED_READS:
-                readsCodecs.register(((ReadsCodec) codec).getFormat(), (ReadsCodec) codec);
+                readsCodecs.register(((ReadsCodec) codec).getFileFormat(), (ReadsCodec) codec);
                 break;
 
             case REFERENCE:
-                haprefCodecs.register(((HaploidReferenceCodec) codec).getFormat(), (HaploidReferenceCodec) codec);
+                haprefCodecs.register(((HaploidReferenceCodec) codec).getFileFormat(), (HaploidReferenceCodec) codec);
                 break;
 
             case VARIANTS:
-                variantCodecs.register(((VariantsCodec) codec).getFormat(), (VariantsCodec) codec);
+                variantCodecs.register(((VariantsCodec) codec).getFileFormat(), (VariantsCodec) codec);
                 break;
 
             case FEATURES:

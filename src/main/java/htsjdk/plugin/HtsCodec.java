@@ -12,11 +12,12 @@ import java.nio.file.Path;
  * A codec class represents a single file format/version
  */
 public interface HtsCodec<
-            FORMAT,
-            ENCODER_OPTIONS,
-            ENCODER extends HtsEncoder<?, FORMAT, ?>,
-            DECODER_OPTIONS,
-            DECODER extends HtsDecoder<?, FORMAT, ?>>
+        FILE_FORMAT,
+        ENCODER extends HtsEncoder<?, FILE_FORMAT, ?>,
+        ENCODER_OPTIONS,
+        DECODER extends HtsDecoder<?, FILE_FORMAT, ?>,
+        DECODER_OPTIONS
+        >
         extends Upgradeable {
 
     HtsCodecType getType();
@@ -24,10 +25,10 @@ public interface HtsCodec<
     HtsCodecVersion getVersion();
 
     default String getDisplayName() {
-        return String.format("Codec %s for %s version %s", getFormat(), getVersion(), getClass().getName());
+        return String.format("Codec %s for %s version %s", getFileFormat(), getVersion(), getClass().getName());
     }
 
-    FORMAT getFormat();
+    FILE_FORMAT getFileFormat();
 
     // Get the minimum number of bytes this codec requires to determine whether it can decode a stream.
     int getSignatureSize();

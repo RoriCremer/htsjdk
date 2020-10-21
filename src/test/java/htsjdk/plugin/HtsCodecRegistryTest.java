@@ -50,6 +50,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
 
         final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions();
         readsDecoderOptions.getSamReaderFactory().validationStringency(ValidationStringency.SILENT);
+
         try (final ReadsDecoder readsDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
             Assert.assertNotNull(readsDecoder);
             Assert.assertEquals(readsDecoder.getFormat(), ReadsFormat.BAM);

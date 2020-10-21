@@ -17,7 +17,7 @@ public abstract class BAMCodec implements ReadsCodec {
     private final Set<String> extensionMap = new HashSet(Arrays.asList(FileExtensions.BAM));
 
     @Override
-    public ReadsFormat getFormat() { return ReadsFormat.BAM; }
+    public ReadsFormat getFileFormat() { return ReadsFormat.BAM; }
 
     @Override
     public boolean canDecodeExtension(final IOPath ioPath) {

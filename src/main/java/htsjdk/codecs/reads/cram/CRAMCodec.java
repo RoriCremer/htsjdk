@@ -19,7 +19,7 @@ public abstract class CRAMCodec implements ReadsCodec {
     private final Set<String> extensionMap = new HashSet(Arrays.asList(FileExtensions.CRAM));
 
     @Override
-    public ReadsFormat getFormat() { return ReadsFormat.CRAM; }
+    public ReadsFormat getFileFormat() { return ReadsFormat.CRAM; }
 
     @Override
     public boolean canDecodeExtension(final IOPath ioPath) {
