@@ -4,17 +4,19 @@ import htsjdk.HtsjdkTest;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecRegistry;
-import htsjdk.plugin.reads.ReadsDecoder;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
-import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMFileWriter;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
+import htsjdk.samtools.SamReaderFactory;
+import htsjdk.samtools.util.RuntimeIOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 public class HtsCRAMCodecTest extends HtsjdkTest {
     final IOPath TEST_DIR = new HtsPath("src/test/resources/htsjdk/samtools/");
@@ -26,16 +28,11 @@ public class HtsCRAMCodecTest extends HtsjdkTest {
 
         final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions().setReferencePath(referencePath);
 
-        try (final CRAMDecoder cramDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
+        try (final CRAMDecoder cramDecoder = (CRAMDecoder) HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
             Assert.assertNotNull(cramDecoder);
             Assert.assertEquals(cramDecoder.getFormat(), ReadsFormat.CRAM);
 
-            final SamReader samReader = cramDecoder.getRecordReader();
-            Assert.assertNotNull(samReader);
-
-            final SAMFileHeader samFileHeader = samReader.getFileHeader();
-            Assert.assertNotNull(samFileHeader);
-
+            final SAMFileHeader samFileHeader = cramDecoder.getHeader();
             Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.unsorted);
         }
     }
@@ -49,24 +46,30 @@ public class HtsCRAMCodecTest extends HtsjdkTest {
         final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions().setReferencePath(referencePath);
         final ReadsEncoderOptions readsEncoderOptions = new ReadsEncoderOptions().setReferencePath(referencePath);
 
-        try (final CRAMDecoder cramDecoder = HtsCodecRegistry.getReadsDecoder(cramInputPath, readsDecoderOptions);
-             final CRAMEncoder cramEncoder = HtsCodecRegistry.getReadsEncoder(cramOutputPath, readsEncoderOptions)) {
+        try (final CRAMDecoder cramDecoder = (CRAMDecoder) HtsCodecRegistry.getReadsDecoder(cramInputPath, readsDecoderOptions);
+             final CRAMEncoder cramEncoder = (CRAMEncoder) HtsCodecRegistry.getReadsEncoder(cramOutputPath, readsEncoderOptions)) {
 
             Assert.assertNotNull(cramDecoder);
             Assert.assertEquals(cramDecoder.getFormat(), ReadsFormat.CRAM);
             Assert.assertNotNull(cramEncoder);
             Assert.assertEquals(cramEncoder.getFormat(), ReadsFormat.CRAM);
 
-            final SamReader samReader = cramDecoder.getRecordReader();
-            Assert.assertNotNull(samReader);
-
             final SAMFileHeader samFileHeader = cramDecoder.getHeader();
             Assert.assertNotNull(samFileHeader);
 
-            final SAMFileWriter samFileWriter = cramEncoder.getRecordWriter(samFileHeader);
-            for (final SAMRecord samRec : samReader) {
-                samFileWriter.addAlignment(samRec);
+            cramEncoder.setHeader(samFileHeader);
+            for (final SAMRecord samRec : cramDecoder) {
+                cramEncoder.write(samRec);
             }
+        }
+
+        final SamReaderFactory samReaderFactory = SamReaderFactory.makeDefault().referenceSequence(referencePath.toPath());
+        try (final SamReader samReader = samReaderFactory.open(cramOutputPath.toPath())) {
+            for (final SAMRecord samRec : samReader) {
+                System.out.println(samRec);
+            }
+        } catch (final IOException e) {
+            throw new RuntimeIOException(e);
         }
     }
 
@@ -77,14 +80,11 @@ public class HtsCRAMCodecTest extends HtsjdkTest {
 
         final CRAMDecoderOptions customDecoderOptions = new CRAMDecoderOptions().setReferencePath(referencePath);
 
-        try (final CRAMDecoder cramDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, customDecoderOptions)) {
+        try (final CRAMDecoder cramDecoder = (CRAMDecoder) HtsCodecRegistry.getReadsDecoder(inputPath, customDecoderOptions)) {
             Assert.assertNotNull(cramDecoder);
             Assert.assertEquals(cramDecoder.getFormat(), ReadsFormat.CRAM);
 
-            final SamReader samReader = cramDecoder.getRecordReader();
-            Assert.assertNotNull(samReader);
-
-            final SAMFileHeader samFileHeader = samReader.getFileHeader();
+            final SAMFileHeader samFileHeader = cramDecoder.getHeader();
             Assert.assertNotNull(samFileHeader);
 
             Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.unsorted);

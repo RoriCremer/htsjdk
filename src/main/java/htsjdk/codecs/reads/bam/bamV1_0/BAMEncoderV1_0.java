@@ -3,10 +3,12 @@ package htsjdk.codecs.reads.bam.bamV1_0;
 import htsjdk.codecs.reads.bam.BAMEncoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
+import htsjdk.plugin.HtsEncoderOptions;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.BAMFileWriter;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMFileWriter;
+import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.util.BlockCompressedOutputStream;
 
 import java.io.OutputStream;
@@ -17,7 +19,7 @@ import java.io.OutputStream;
 
 public class BAMEncoderV1_0 extends BAMEncoder {
 
-    private final ReadsEncoderOptions readsEncoderOptions;
+    private final HtsEncoderOptions readsEncoderOptions;
     private SAMFileWriter samFileWriter;
 
     public BAMEncoderV1_0(final IOPath outputPath) {
@@ -25,7 +27,7 @@ public class BAMEncoderV1_0 extends BAMEncoder {
         this.readsEncoderOptions = new ReadsEncoderOptions();
     }
 
-    public BAMEncoderV1_0(final IOPath outputPath, final ReadsEncoderOptions readsEncoderOptions) {
+    public BAMEncoderV1_0(final IOPath outputPath, final HtsEncoderOptions readsEncoderOptions) {
         super(outputPath);
         this.readsEncoderOptions = readsEncoderOptions;
     }
@@ -35,7 +37,7 @@ public class BAMEncoderV1_0 extends BAMEncoder {
         this.readsEncoderOptions = new ReadsEncoderOptions();
     }
 
-    public BAMEncoderV1_0(final OutputStream os, final String displayName, final ReadsEncoderOptions readsEncoderOptions) {
+    public BAMEncoderV1_0(final OutputStream os, final String displayName, final HtsEncoderOptions readsEncoderOptions) {
         super(os, displayName);
         this.readsEncoderOptions = readsEncoderOptions;
     }
@@ -46,9 +48,13 @@ public class BAMEncoderV1_0 extends BAMEncoder {
     }
 
     @Override
-    public SAMFileWriter getRecordWriter(final SAMFileHeader samFileHeader) {
+    public void setHeader(final SAMFileHeader samFileHeader) {
         samFileWriter = getBAMFileWriter(readsEncoderOptions, samFileHeader);
-        return samFileWriter;
+    }
+
+    @Override
+    public void write(final SAMRecord record) {
+        samFileWriter.addAlignment(record);
     }
 
     @Override
@@ -58,9 +64,11 @@ public class BAMEncoderV1_0 extends BAMEncoder {
         }
     }
 
-    private SAMFileWriter getBAMFileWriter(final ReadsEncoderOptions readsEncoderOptions, final SAMFileHeader samFileHeader) {
+    private SAMFileWriter getBAMFileWriter(final HtsEncoderOptions htsEncoderOptions, final SAMFileHeader samFileHeader) {
         //TODO: expose presorted
         final boolean preSorted = true;
+
+        final ReadsEncoderOptions readsEncoderOptions = (ReadsEncoderOptions) htsEncoderOptions;
 
         if (os != null) {
             //TODO: SAMFileWriterFactory doesn't expose getters for all options (currently most are not exposed),

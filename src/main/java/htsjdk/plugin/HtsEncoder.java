@@ -2,7 +2,7 @@ package htsjdk.plugin;
 
 import java.io.Closeable;
 
-public interface HtsEncoder<HEADER, FORMAT, WRITER> extends Closeable {
+public interface HtsEncoder<HEADER extends HtsHeader, FORMAT, RECORD extends HtsRecord> extends Closeable {
 
     FORMAT getFormat();
 
@@ -10,7 +10,9 @@ public interface HtsEncoder<HEADER, FORMAT, WRITER> extends Closeable {
 
     String getDisplayName();
 
-    WRITER getRecordWriter(final HEADER header);
+    void setHeader(HEADER header);
+
+    void write(RECORD record);
 
     void close();
 

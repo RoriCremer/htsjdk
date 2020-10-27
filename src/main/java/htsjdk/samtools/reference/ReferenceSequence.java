@@ -24,6 +24,7 @@
 
 package htsjdk.samtools.reference;
 
+import htsjdk.plugin.HtsRecord;
 import htsjdk.samtools.util.StringUtil;
 
 /**
@@ -31,7 +32,7 @@ import htsjdk.samtools.util.StringUtil;
  *
  * @author Tim Fennell
  */
-public class ReferenceSequence {
+public class ReferenceSequence extends HtsRecord {
     private final String name;
     private final byte[] bases;
     private final int contigIndex;

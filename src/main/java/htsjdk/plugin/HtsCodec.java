@@ -11,14 +11,7 @@ import java.nio.file.Path;
  *
  * A codec class represents a single file format/version
  */
-public interface HtsCodec<
-        FILE_FORMAT,
-        ENCODER extends HtsEncoder<?, FILE_FORMAT, ?>,
-        ENCODER_OPTIONS,
-        DECODER extends HtsDecoder<?, FILE_FORMAT, ?>,
-        DECODER_OPTIONS
-        >
-        extends Upgradeable {
+public interface HtsCodec<FILE_FORMAT> extends Upgradeable {
 
     HtsCodecType getType();
 
@@ -40,19 +33,19 @@ public interface HtsCodec<
     boolean canDecodeSignature(final InputStream inputStream, final String sourceName);
 
     // Get a codec that matches this ioPath(Select first by extension, then stream signature)
-    DECODER getDecoder(final IOPath inputPath);
+    HtsDecoder<?, FILE_FORMAT, ? extends HtsRecord> getDecoder(final IOPath inputPath);
 
-    DECODER getDecoder(final IOPath inputPath, final DECODER_OPTIONS decodeOptions);
+    HtsDecoder<?, FILE_FORMAT, ? extends HtsRecord> getDecoder(final IOPath inputPath, final HtsDecoderOptions decodeOptions);
 
-    DECODER getDecoder(final InputStream is, final String displayName);
+    HtsDecoder<?, FILE_FORMAT, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName);
 
-    DECODER getDecoder(final InputStream is, final String displayName, final DECODER_OPTIONS decodeOptions);
+    HtsDecoder<?, FILE_FORMAT, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName, final HtsDecoderOptions decodeOptions);
 
-    ENCODER getEncoder(final IOPath outputPath);
+    HtsEncoder<?, FILE_FORMAT, ? extends HtsRecord> getEncoder(final IOPath outputPath);
 
-    ENCODER getEncoder(final IOPath outputPath, final ENCODER_OPTIONS encodeOptions);
+    HtsEncoder<?, FILE_FORMAT, ? extends HtsRecord> getEncoder(final IOPath outputPath, final HtsEncoderOptions encodeOptions);
 
-    ENCODER getEncoder(final OutputStream os, final String displayName);
+    HtsEncoder<?, FILE_FORMAT, ? extends HtsRecord> getEncoder(final OutputStream os, final String displayName);
 
-    ENCODER getEncoder(final OutputStream os, final String displayName, final ENCODER_OPTIONS encodeOptions);
+    HtsEncoder<?, FILE_FORMAT, ?> getEncoder(final OutputStream os, final String displayName, final HtsEncoderOptions encodeOptions);
 }

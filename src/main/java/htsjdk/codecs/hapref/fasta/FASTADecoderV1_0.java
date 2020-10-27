@@ -3,14 +3,15 @@ package htsjdk.codecs.hapref.fasta;
 import htsjdk.codecs.hapref.HapRefDecoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.UnusedType;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
-import htsjdk.samtools.reference.FastaSequenceFile;
+import htsjdk.samtools.SAMSequenceDictionary;
+import htsjdk.samtools.reference.ReferenceSequence;
 import htsjdk.samtools.reference.ReferenceSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequenceFileFactory;
 import htsjdk.samtools.util.RuntimeIOException;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 public class FASTADecoderV1_0 extends HapRefDecoder {
 
@@ -18,25 +19,45 @@ public class FASTADecoderV1_0 extends HapRefDecoder {
 
     public FASTADecoderV1_0(final IOPath inputPath) {
         super(inputPath);
+        referenceSequenceFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(inputPath.toPath());
     }
 
     @Override
     final public HaploidReferenceFormat getFormat() { return HaploidReferenceFormat.FASTA; }
 
     @Override
-    public ReferenceSequenceFile getRecordReader() {
-        referenceSequenceFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(inputPath.toPath());
-        return referenceSequenceFile;
-    }
-
-    @Override
-    public UnusedType getHeader() {
+    public SAMSequenceDictionary getHeader() {
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
     public HtsCodecVersion getVersion() {
         return FASTACodecV1_0.VERSION_1;
+    }
+
+    @Override
+    public Iterator<ReferenceSequence> iterator() {
+        referenceSequenceFile.reset();
+        return new Iterator<ReferenceSequence>() {
+            ReferenceSequence nextSeq = referenceSequenceFile.nextSequence();
+
+            @Override
+            public boolean hasNext() {
+                return nextSeq != null;
+            }
+
+            @Override
+            public ReferenceSequence next() {
+                final ReferenceSequence tmpSeq = nextSeq;
+                nextSeq = referenceSequenceFile.nextSequence();
+                return tmpSeq;
+            }
+        };
+    }
+
+    //TODO: this shouldn't be necessary
+    public ReferenceSequenceFile getReferenceSequenceFile() {
+        return referenceSequenceFile;
     }
 
     @Override
@@ -49,4 +70,5 @@ public class FASTADecoderV1_0 extends HapRefDecoder {
             }
         }
     }
+
 }

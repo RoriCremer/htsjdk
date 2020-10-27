@@ -1,10 +1,10 @@
 package htsjdk.plugin.reads;
 
 import htsjdk.io.IOPath;
+import htsjdk.plugin.HtsEncoderOptions;
 import htsjdk.samtools.SAMFileWriterFactory;
-import htsjdk.samtools.cram.ref.ReferenceSource;
 
-public class ReadsEncoderOptions {
+public class ReadsEncoderOptions implements HtsEncoderOptions {
     private SAMFileWriterFactory samFileWriterFactory = new SAMFileWriterFactory();
     private IOPath referencePath;
 

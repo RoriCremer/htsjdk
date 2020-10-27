@@ -2,10 +2,9 @@ package htsjdk.plugin.hapref;
 
 import htsjdk.plugin.HtsCodec;
 import htsjdk.plugin.HtsCodecType;
-import htsjdk.plugin.UnusedType;
+import htsjdk.samtools.SAMSequenceDictionary;
 
-// Placeholder class for unused type parameters
-public interface HaploidReferenceCodec extends HtsCodec<HaploidReferenceFormat, HaploidReferenceEncoder, UnusedType, HaploidReferenceDecoder, UnusedType> {
+public interface HaploidReferenceCodec extends HtsCodec<HaploidReferenceFormat> {
 
     @Override
     default HtsCodecType getType() { return HtsCodecType.REFERENCE; }

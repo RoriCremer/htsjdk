@@ -3,6 +3,8 @@ package htsjdk.plugin;
 import htsjdk.HtsjdkTest;
 import htsjdk.codecs.hapref.fasta.FASTACodecV1_0;
 import htsjdk.codecs.reads.bam.BAMCodec;
+import htsjdk.codecs.reads.bam.BAMDecoder;
+import htsjdk.codecs.reads.bam.BAMEncoder;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
@@ -12,14 +14,11 @@ import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsDecoder;
 import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.samtools.SAMFileHeader;
-import htsjdk.samtools.SAMFileWriter;
-import htsjdk.samtools.SAMSequenceRecord;
-import htsjdk.samtools.SamReader;
+import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.ValidationStringency;
-import htsjdk.samtools.reference.ReferenceSequenceFile;
+import htsjdk.samtools.reference.ReferenceSequence;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import java.util.List;
 
 public class HtsCodecRegistryTest extends HtsjdkTest {
 
@@ -34,10 +33,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
             Assert.assertEquals(readsDecoder.getFormat(), ReadsFormat.BAM);
             Assert.assertEquals(readsDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
 
-            final SamReader samReader = readsDecoder.getRecordReader();
-            Assert.assertNotNull(samReader);
-
-            final SAMFileHeader samFileHeader = samReader.getFileHeader();
+            final SAMFileHeader samFileHeader = readsDecoder.getHeader();
             Assert.assertNotNull(samFileHeader);
 
             Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.coordinate);
@@ -56,11 +52,9 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
             Assert.assertEquals(readsDecoder.getFormat(), ReadsFormat.BAM);
             Assert.assertEquals(readsDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
 
-            final SamReader samReader = readsDecoder.getRecordReader();
-            Assert.assertNotNull(samReader);
             //TODO: assert validation stringency
 
-            final SAMFileHeader samFileHeader = samReader.getFileHeader();
+            final SAMFileHeader samFileHeader = readsDecoder.getHeader();
             Assert.assertNotNull(samFileHeader);
 
             Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.coordinate);
@@ -75,8 +69,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
             Assert.assertEquals(readsEncoder.getFormat(), ReadsFormat.BAM);
             Assert.assertEquals(readsEncoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
 
-            final SAMFileWriter samFileWriter = readsEncoder.getRecordWriter(new SAMFileHeader());
-            Assert.assertNotNull(samFileWriter);
+            readsEncoder.setHeader(new SAMFileHeader());
         }
     }
 
@@ -95,6 +88,29 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     }
 
     @Test
+    public void testRoundTripReads() {
+        final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
+        final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
+
+        try (final ReadsDecoder readDecoder = HtsCodecRegistry.getReadsDecoder(inputPath);
+             final ReadsEncoder readsEncoder = HtsCodecRegistry.getReadsEncoder(outputPath)) {
+
+            Assert.assertNotNull(readDecoder);
+            Assert.assertEquals(readDecoder.getFormat(), ReadsFormat.BAM);
+            Assert.assertNotNull(readsEncoder);
+            Assert.assertEquals(readsEncoder.getFormat(), ReadsFormat.BAM);
+
+            final SAMFileHeader samFileHeader = readDecoder.getHeader();
+            Assert.assertNotNull(samFileHeader);
+
+            readsEncoder.setHeader(samFileHeader);
+            for (final SAMRecord samRec : readDecoder) {
+                readsEncoder.write(samRec);
+            }
+        }
+    }
+
+    @Test
     public void testHapRefDecoder() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "/hg19mini.fasta");
 
@@ -103,11 +119,9 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
             Assert.assertEquals(hapRefDecoder.getFormat(), HaploidReferenceFormat.FASTA);
             Assert.assertEquals(hapRefDecoder.getVersion(), FASTACodecV1_0.VERSION_1);
 
-            final ReferenceSequenceFile referenceReader = hapRefDecoder.getRecordReader();
-            Assert.assertNotNull(referenceReader);
-
-            final List<SAMSequenceRecord> sequences = referenceReader.getSequenceDictionary().getSequences();
-            Assert.assertFalse(sequences.isEmpty());
+            for (final ReferenceSequence referenceSequence : hapRefDecoder) {
+                Assert.assertNotNull(referenceSequence);
+            }
         }
     }
 

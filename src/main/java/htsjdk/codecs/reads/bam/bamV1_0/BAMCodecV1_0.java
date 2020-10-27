@@ -1,13 +1,14 @@
 package htsjdk.codecs.reads.bam.bamV1_0;
 
 import htsjdk.codecs.reads.bam.BAMCodec;
+import htsjdk.codecs.reads.bam.BAMDecoder;
+import htsjdk.codecs.reads.bam.BAMEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.reads.ReadsDecoder;
+import htsjdk.plugin.HtsDecoderOptions;
+import htsjdk.plugin.HtsEncoderOptions;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
-import htsjdk.plugin.reads.ReadsEncoder;
-import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.SamStreams;
 import htsjdk.utils.ValidationUtils;
 
@@ -50,42 +51,42 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
-    public ReadsDecoder getDecoder(final IOPath inputPath) {
+    public BAMDecoder getDecoder(final IOPath inputPath) {
         return getDecoder(inputPath, new ReadsDecoderOptions());
     }
 
     @Override
-    public ReadsDecoder getDecoder(final IOPath inputPath, final ReadsDecoderOptions decoderOptions) {
+    public BAMDecoder getDecoder(final IOPath inputPath, final HtsDecoderOptions decoderOptions) {
         return new BAMDecoderV1_0(inputPath, decoderOptions);
     }
 
     @Override
-    public ReadsDecoder getDecoder(final InputStream is, final String displayName) {
+    public BAMDecoder getDecoder(final InputStream is, final String displayName) {
         return getDecoder(is, displayName, new ReadsDecoderOptions());
     }
 
     @Override
-    public ReadsDecoder getDecoder(final InputStream is, final String displayName, final ReadsDecoderOptions decoderOptions) {
+    public BAMDecoder getDecoder(final InputStream is, final String displayName, final HtsDecoderOptions decoderOptions) {
         return new BAMDecoderV1_0(is, displayName, decoderOptions);
     }
 
     @Override
-    public ReadsEncoder getEncoder(final IOPath outputPath) {
+    public BAMEncoder getEncoder(final IOPath outputPath) {
         return new BAMEncoderV1_0(outputPath);
     }
 
     @Override
-    public ReadsEncoder getEncoder(final IOPath outputPath, final ReadsEncoderOptions encoderOptions) {
+    public BAMEncoder getEncoder(final IOPath outputPath, final HtsEncoderOptions encoderOptions) {
         return new BAMEncoderV1_0(outputPath, encoderOptions);
     }
 
     @Override
-    public ReadsEncoder getEncoder(final OutputStream os, final String displayName) {
+    public BAMEncoder getEncoder(final OutputStream os, final String displayName) {
         return new BAMEncoderV1_0(os, displayName);
     }
 
     @Override
-    public ReadsEncoder getEncoder(final OutputStream os, final String displayName, final ReadsEncoderOptions encoderOptions) {
+    public BAMEncoder getEncoder(final OutputStream os, final String displayName, final HtsEncoderOptions encoderOptions) {
         return new BAMEncoderV1_0(os, displayName, encoderOptions);
     }
 

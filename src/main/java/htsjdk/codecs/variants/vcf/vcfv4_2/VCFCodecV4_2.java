@@ -1,13 +1,15 @@
 package htsjdk.codecs.variants.vcf.vcfv4_2;
 
 import htsjdk.codecs.variants.vcf.VCFCodec;
+import htsjdk.codecs.variants.vcf.VCFDecoder;
+import htsjdk.codecs.variants.vcf.VCFEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.variants.VariantsDecoder;
-import htsjdk.plugin.variants.VariantsDecoderOptions;
-import htsjdk.plugin.variants.VariantsEncoder;
-import htsjdk.plugin.variants.VariantsEncoderOptions;
+import htsjdk.plugin.HtsDecoderOptions;
+import htsjdk.plugin.HtsEncoderOptions;
+import htsjdk.plugin.variants.VariantsHtsDecoderOptions;
+import htsjdk.plugin.variants.VariantsHtsEncoderOptions;
 import htsjdk.samtools.util.IOUtil;
 
 import java.io.BufferedInputStream;
@@ -45,42 +47,42 @@ public class VCFCodecV4_2 extends VCFCodec {
     }
 
     @Override
-    public VariantsDecoder getDecoder(final IOPath inputPath) {
-        return getDecoder(inputPath, new VariantsDecoderOptions());
+    public VCFDecoder getDecoder(final IOPath inputPath) {
+        return getDecoder(inputPath, new VariantsHtsDecoderOptions());
     }
 
     @Override
-    public VariantsDecoder getDecoder(final IOPath inputPath, final VariantsDecoderOptions decoderOptions) {
+    public VCFDecoder getDecoder(final IOPath inputPath, final HtsDecoderOptions decoderOptions) {
         return new VCFDecoderV4_2(inputPath, decoderOptions);
     }
 
     @Override
-    public VariantsDecoder getDecoder(final InputStream is, final String displayName) {
-        return getDecoder(is, displayName, new VariantsDecoderOptions());
+    public VCFDecoder getDecoder(final InputStream is, final String displayName) {
+        return getDecoder(is, displayName, new VariantsHtsDecoderOptions());
     }
 
     @Override
-    public VariantsDecoder getDecoder(final InputStream is, final String displayName, final VariantsDecoderOptions decoderOptions) {
+    public VCFDecoder getDecoder(final InputStream is, final String displayName, final HtsDecoderOptions decoderOptions) {
         return new VCFDecoderV4_2(is, displayName, decoderOptions);
     }
 
     @Override
-    public VariantsEncoder getEncoder(final IOPath outputPath) {
+    public VCFEncoder getEncoder(final IOPath outputPath) {
         return new VCFEncoderV4_2(outputPath);
     }
 
     @Override
-    public VariantsEncoder getEncoder(final IOPath outputPath, final VariantsEncoderOptions encoderOptions) {
+    public VCFEncoder getEncoder(final IOPath outputPath, final HtsEncoderOptions encoderOptions) {
         return new VCFEncoderV4_2(outputPath, encoderOptions);
     }
 
     @Override
-    public VariantsEncoder getEncoder(final OutputStream os, final String displayName) {
+    public VCFEncoder getEncoder(final OutputStream os, final String displayName) {
         return new VCFEncoderV4_2(os, displayName);
     }
 
     @Override
-    public VariantsEncoder getEncoder(final OutputStream os, final String displayName, final VariantsEncoderOptions encoderOptions) {
+    public VCFEncoder getEncoder(final OutputStream os, final String displayName, final HtsEncoderOptions encoderOptions) {
         return new VCFEncoderV4_2(os, displayName, encoderOptions);
     }
 

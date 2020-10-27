@@ -23,6 +23,7 @@
  */
 package htsjdk.samtools;
 
+import htsjdk.plugin.HtsRecord;
 import htsjdk.samtools.util.BinaryCodec;
 import htsjdk.samtools.util.CoordMath;
 import htsjdk.samtools.util.Locatable;
@@ -111,7 +112,7 @@ import java.util.Set;
  * @author alecw@broadinstitute.org
  * @author mishali.naik@intel.com
  */
-public class SAMRecord implements Cloneable, Locatable, Serializable {
+public class SAMRecord extends HtsRecord implements Cloneable, Locatable, Serializable {
     private final static Log LOG = Log.getInstance(SAMRecord.class);
 
     public static final long serialVersionUID = 1L;

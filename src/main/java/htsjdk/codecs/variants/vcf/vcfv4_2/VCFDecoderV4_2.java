@@ -4,24 +4,27 @@ import htsjdk.codecs.variants.vcf.VCFDecoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.variants.VariantsDecoderOptions;
+import htsjdk.plugin.HtsDecoderOptions;
+import htsjdk.plugin.variants.VariantsHtsDecoderOptions;
 import htsjdk.utils.ValidationUtils;
+import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFReader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 public class VCFDecoderV4_2 extends VCFDecoder {
     private final VCFReader vcfReader;
     private final VCFHeader vcfHeader;
 
     public VCFDecoderV4_2(final IOPath inputPath) {
-        this(inputPath, new VariantsDecoderOptions());
+        this(inputPath, new VariantsHtsDecoderOptions());
     }
 
-    public VCFDecoderV4_2(final IOPath inputPath, final VariantsDecoderOptions decoderOptions) {
+    public VCFDecoderV4_2(final IOPath inputPath, final HtsDecoderOptions decoderOptions) {
         super(inputPath);
         ValidationUtils.nonNull(decoderOptions);
         vcfReader = getVCFReader(decoderOptions);
@@ -29,10 +32,10 @@ public class VCFDecoderV4_2 extends VCFDecoder {
     }
 
     public VCFDecoderV4_2(final InputStream is, final String displayName) {
-        this(is, displayName, new VariantsDecoderOptions());
+        this(is, displayName, new VariantsHtsDecoderOptions());
     }
 
-    public VCFDecoderV4_2(final InputStream is, final String displayName, final VariantsDecoderOptions decoderOptions) {
+    public VCFDecoderV4_2(final InputStream is, final String displayName, final HtsDecoderOptions decoderOptions) {
         super(is, displayName);
         ValidationUtils.nonNull(decoderOptions);
         vcfReader = getVCFReader(decoderOptions);
@@ -45,13 +48,13 @@ public class VCFDecoderV4_2 extends VCFDecoder {
     }
 
     @Override
-    public VCFReader getRecordReader() {
-        return vcfReader;
+    public VCFHeader getHeader() {
+        return vcfHeader;
     }
 
     @Override
-    public VCFHeader getHeader() {
-        return vcfHeader;
+    public Iterator<VariantContext> iterator() {
+        return vcfReader.iterator();
     }
 
     @Override
@@ -63,11 +66,12 @@ public class VCFDecoderV4_2 extends VCFDecoder {
         }
     }
 
-    private VCFReader getVCFReader(final VariantsDecoderOptions decoderOptions) {
+    private VCFReader getVCFReader(final HtsDecoderOptions decoderOptions) {
         if (is != null) {
             throw new IllegalArgumentException("VCF reader from stream not implemented");
         } else {
             return new VCFFileReader(inputPath.toPath(),false);
         }
     }
+
 }

@@ -15,9 +15,9 @@ import htsjdk.plugin.reads.ReadsFormat;
 
 import htsjdk.plugin.variants.VariantsCodec;
 import htsjdk.plugin.variants.VariantsDecoder;
-import htsjdk.plugin.variants.VariantsDecoderOptions;
+import htsjdk.plugin.variants.VariantsHtsDecoderOptions;
 import htsjdk.plugin.variants.VariantsEncoder;
-import htsjdk.plugin.variants.VariantsEncoderOptions;
+import htsjdk.plugin.variants.VariantsHtsEncoderOptions;
 import htsjdk.plugin.variants.VariantsFormat;
 
 import htsjdk.utils.ValidationUtils;
@@ -74,21 +74,21 @@ public class HtsCodecRegistry {
     // **** Reads ******/
 
     @SuppressWarnings("unchecked")
-    public static<T extends ReadsDecoder> T getReadsDecoder(final IOPath inputPath) {
+    public static ReadsDecoder getReadsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
 
         final List<ReadsCodec> codecs = readsCodecs.getCodecsForIOPath(inputPath);
         final ReadsDecoder decoder = codecs
                 .stream()
                 .filter(codec -> canDecodeSignature(codec, inputPath))
-                .map(codec -> codec.getDecoder(inputPath))
+                .map(codec -> (ReadsDecoder) codec.getDecoder(inputPath))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
-        return (T) decoder;
+        return decoder;
     }
 
     @SuppressWarnings("unchecked")
-    public static<T extends ReadsDecoder> T getReadsDecoder(
+    public static ReadsDecoder getReadsDecoder(
             final IOPath inputPath,
             final ReadsDecoderOptions readsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
@@ -97,40 +97,40 @@ public class HtsCodecRegistry {
         final ReadsDecoder decoder = codecs
                 .stream()
                 .filter(codec -> canDecodeSignature(codec, inputPath))
-                .map(codec -> codec.getDecoder(inputPath, readsDecoderOptions))
+                .map(codec -> (ReadsDecoder) codec.getDecoder(inputPath, readsDecoderOptions))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
-        return (T) decoder;
+        return decoder;
     }
 
     @SuppressWarnings("unchecked")
-    public static<T extends ReadsEncoder> T getReadsEncoder(final IOPath outputPath) {
+    public static ReadsEncoder getReadsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
-        return (T) (readsCodecs.getCodecForIOPath(outputPath)
+        return (ReadsEncoder) readsCodecs.getCodecForIOPath(outputPath)
                 .map(codec -> codec.getEncoder(outputPath))
-                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath))));
+                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath)));
     }
 
     @SuppressWarnings("unchecked")
-    public static<T extends ReadsEncoder> T getReadsEncoder(
+    public static ReadsEncoder getReadsEncoder(
             final IOPath outputPath,
             final ReadsEncoderOptions readsEncoderOptions) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         ValidationUtils.nonNull(readsEncoderOptions, "Encoder options must not be null");
-        return (T) (readsCodecs.getCodecForIOPath(outputPath)
+        return (ReadsEncoder) readsCodecs.getCodecForIOPath(outputPath)
                 .map(codec -> codec.getEncoder(outputPath, readsEncoderOptions))
-                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath))));
+                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath)));
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ReadsEncoder> T getReadsEncoder(
+    public static ReadsEncoder getReadsEncoder(
             final IOPath outputPath,
             final ReadsFormat readsFormat,
             final HtsCodecVersion codecVersion) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         ValidationUtils.nonNull(readsFormat, "Codec format must not be null");
         ValidationUtils.nonNull(codecVersion, "Codec version must not be null");
-        return (T) (readsCodecs.getCodecForFormatAndVersion(readsFormat, codecVersion)
+        return (ReadsEncoder) (readsCodecs.getCodecForFormatAndVersion(readsFormat, codecVersion)
                 .map(codec -> codec.getEncoder(outputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath))));
     }
@@ -138,55 +138,55 @@ public class HtsCodecRegistry {
     // **** Variants ******/
 
     @SuppressWarnings("unchecked")
-    public static<T extends VariantsDecoder> T getVariantsDecoder(final IOPath inputPath) {
+    public static VariantsDecoder getVariantsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
         final VariantsDecoder decoder = codecs
                 .stream()
                 .filter(codec -> canDecodeSignature(codec, inputPath))
-                .map(codec -> codec.getDecoder(inputPath))
+                .map(codec -> (VariantsDecoder) codec.getDecoder(inputPath))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
-        return (T) decoder;
+        return decoder;
     }
 
     @SuppressWarnings("unchecked")
-    public static<T extends VariantsDecoder> T getVariantsDecoder(
+    public static VariantsDecoder getVariantsDecoder(
             final IOPath inputPath,
-            final VariantsDecoderOptions variantsDecoderOptions) {
+            final VariantsHtsDecoderOptions variantsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(variantsDecoderOptions, "Decoder options must not be null");
         final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
         final VariantsDecoder decoder = codecs
                 .stream()
                 .filter(codec -> canDecodeSignature(codec, inputPath))
-                .map(codec -> codec.getDecoder(inputPath, variantsDecoderOptions))
+                .map(codec -> (VariantsDecoder) codec.getDecoder(inputPath, variantsDecoderOptions))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
-        return (T) decoder;
+        return decoder;
     }
 
     @SuppressWarnings("unchecked")
-    public static<T extends VariantsEncoder> T getVariantsEncoder(final IOPath outputPath) {
+    public static VariantsEncoder getVariantsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(outputPath);
-        return (T) (variantCodec.map(codec -> codec.getEncoder(outputPath))
+        return (VariantsEncoder) (variantCodec.map(codec -> codec.getEncoder(outputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
     }
 
     @SuppressWarnings("unchecked")
-    public static<T extends VariantsEncoder> T getVariantsEncoder(
+    public static VariantsEncoder getVariantsEncoder(
             final IOPath outputPath,
-            final VariantsEncoderOptions variantsEncoderOptions) {
+            final VariantsHtsEncoderOptions variantsEncoderOptions) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         ValidationUtils.nonNull(variantsEncoderOptions, "Encoder options must not be null");
         final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(outputPath);
-        return (T) (variantCodec.map(codec -> codec.getEncoder(outputPath, variantsEncoderOptions))
+        return (VariantsEncoder) (variantCodec.map(codec -> codec.getEncoder(outputPath, variantsEncoderOptions))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends VariantsEncoder> T getVariantsEncoder(
+    public static VariantsEncoder getVariantsEncoder(
             final IOPath outputPath,
             final VariantsFormat variantsFormat,
             final HtsCodecVersion codecVersion) {
@@ -194,16 +194,16 @@ public class HtsCodecRegistry {
         ValidationUtils.nonNull(variantsFormat, "Format must not be null");
         ValidationUtils.nonNull(codecVersion, "Codec version must not be null");
         final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForFormatAndVersion(variantsFormat, codecVersion);
-        return (T) (variantCodec.map(codec -> codec.getEncoder(outputPath))
+        return (VariantsEncoder) (variantCodec.map(codec -> codec.getEncoder(outputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
     }
 
     //TODO: validate stream signature
     @SuppressWarnings("unchecked")
-    public static<T extends HaploidReferenceDecoder> T getHapRefDecoder(final IOPath inputPath) {
+    public static HaploidReferenceDecoder getHapRefDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         final Optional<HaploidReferenceCodec> haploidReferenceCodec = haprefCodecs.getCodecForIOPath(inputPath);
-        return (T) (haploidReferenceCodec.map(codec -> codec.getDecoder(inputPath))
+        return (HaploidReferenceDecoder) (haploidReferenceCodec.map(codec -> codec.getDecoder(inputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "hapref", inputPath))));
     }
 

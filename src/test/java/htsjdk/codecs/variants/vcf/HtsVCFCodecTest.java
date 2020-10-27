@@ -9,9 +9,7 @@ import htsjdk.plugin.variants.VariantsDecoder;
 import htsjdk.plugin.variants.VariantsEncoder;
 import htsjdk.plugin.variants.VariantsFormat;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.vcf.VCFHeader;
-import htsjdk.variant.vcf.VCFReader;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -43,16 +41,12 @@ public class HtsVCFCodecTest extends HtsjdkTest {
             Assert.assertEquals(variantsEncoder.getFormat(), VariantsFormat.VCF);
             Assert.assertEquals(variantsEncoder.getVersion(), VCFCodecV4_2.VCF_V42_VERSION);
 
-            final VCFReader vcfReader = variantsDecoder.getRecordReader();
-            Assert.assertNotNull(vcfReader);
-
             final VCFHeader vcfHeader = variantsDecoder.getHeader();
             Assert.assertNotNull(vcfHeader);
 
-            final VariantContextWriter vcfWriter = variantsEncoder.getRecordWriter(vcfHeader);
-            vcfWriter.writeHeader(vcfHeader);
-            for (final VariantContext vc : vcfReader) {
-                vcfWriter.add(vc);
+            variantsEncoder.setHeader(vcfHeader);
+            for (final VariantContext vc : variantsDecoder) {
+                variantsEncoder.write(vc);
             }
         }
     }

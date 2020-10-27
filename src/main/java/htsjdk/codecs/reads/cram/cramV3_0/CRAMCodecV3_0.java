@@ -1,12 +1,14 @@
 package htsjdk.codecs.reads.cram.cramV3_0;
 
 import htsjdk.codecs.reads.cram.CRAMCodec;
+import htsjdk.codecs.reads.cram.CRAMDecoder;
+import htsjdk.codecs.reads.cram.CRAMEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.reads.ReadsDecoder;
+import htsjdk.plugin.HtsDecoderOptions;
+import htsjdk.plugin.HtsEncoderOptions;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
-import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.cram.structure.CramHeader;
 
@@ -49,42 +51,42 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     }
 
     @Override
-    public ReadsDecoder getDecoder(final IOPath inputPath) {
+    public CRAMDecoder getDecoder(final IOPath inputPath) {
         return getDecoder(inputPath, new ReadsDecoderOptions());
     }
 
     @Override
-    public ReadsDecoder getDecoder(final IOPath inputPath, final ReadsDecoderOptions readsDecoderOptions) {
+    public CRAMDecoder getDecoder(final IOPath inputPath, final HtsDecoderOptions readsDecoderOptions) {
         return new CRAMDecoderV3_0(inputPath, readsDecoderOptions);
     }
 
     @Override
-    public ReadsDecoder getDecoder(final InputStream is, final String displayName) {
+    public CRAMDecoder getDecoder(final InputStream is, final String displayName) {
         return getDecoder(is, displayName, new ReadsDecoderOptions());
     }
 
     @Override
-    public ReadsDecoder getDecoder(final InputStream is, final String displayName, final ReadsDecoderOptions readsDecoderOptions) {
+    public CRAMDecoder getDecoder(final InputStream is, final String displayName, final HtsDecoderOptions readsDecoderOptions) {
         return new CRAMDecoderV3_0(is, displayName, readsDecoderOptions);
     }
 
     @Override
-    public ReadsEncoder getEncoder(final IOPath outputPath) {
+    public CRAMEncoder getEncoder(final IOPath outputPath) {
         return getEncoder(outputPath, new ReadsEncoderOptions());
     }
 
     @Override
-    public ReadsEncoder getEncoder(final IOPath outputPath, final ReadsEncoderOptions readsEncoderOptions) {
+    public CRAMEncoder getEncoder(final IOPath outputPath, final HtsEncoderOptions readsEncoderOptions) {
         return new CRAMEncoderV3_0(outputPath, readsEncoderOptions);
     }
 
     @Override
-    public ReadsEncoder getEncoder(final OutputStream os, final String displayName) {
+    public CRAMEncoder getEncoder(final OutputStream os, final String displayName) {
         return new CRAMEncoderV3_0(os, displayName);
     }
 
     @Override
-    public ReadsEncoder getEncoder(final OutputStream os, final String displayName, final ReadsEncoderOptions readsEncoderOptions) {
+    public CRAMEncoder getEncoder(final OutputStream os, final String displayName, final HtsEncoderOptions readsEncoderOptions) {
         return new CRAMEncoderV3_0(os, displayName, readsEncoderOptions);
     }
 

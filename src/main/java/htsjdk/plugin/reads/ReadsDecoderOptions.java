@@ -1,9 +1,10 @@
 package htsjdk.plugin.reads;
 
 import htsjdk.io.IOPath;
+import htsjdk.plugin.HtsDecoderOptions;
 import htsjdk.samtools.SamReaderFactory;
 
-public class ReadsDecoderOptions {
+public class ReadsDecoderOptions implements HtsDecoderOptions {
     private SamReaderFactory samReaderFactory = SamReaderFactory.makeDefault();
     private IOPath referencePath;
 

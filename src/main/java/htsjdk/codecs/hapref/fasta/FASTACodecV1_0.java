@@ -1,12 +1,13 @@
 package htsjdk.codecs.hapref.fasta;
 
 import htsjdk.codecs.hapref.HapRefCodec;
+import htsjdk.codecs.hapref.HapRefDecoder;
+import htsjdk.codecs.hapref.HapRefEncoder;
 import htsjdk.io.IOPath;
+import htsjdk.plugin.HtsDecoderOptions;
+import htsjdk.plugin.HtsEncoderOptions;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.UnusedType;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
-import htsjdk.plugin.hapref.HaploidReferenceDecoder;
-import htsjdk.plugin.hapref.HaploidReferenceEncoder;
 import htsjdk.samtools.util.FileExtensions;
 import htsjdk.utils.ValidationUtils;
 
@@ -47,45 +48,46 @@ public class FASTACodecV1_0 extends HapRefCodec {
     public boolean canDecodeExtension(final Path path) {
         return FileExtensions.FASTA.stream().anyMatch(ext-> path.endsWith(ext));
     }
+
     @Override
-    public HaploidReferenceDecoder getDecoder(final IOPath inputPath) {
+    public HapRefDecoder getDecoder(final IOPath inputPath) {
         return getDecoder(inputPath, null);
     }
 
     @Override
-    public HaploidReferenceDecoder getDecoder(final IOPath inputPath, final UnusedType options) {
+    public HapRefDecoder getDecoder(final IOPath inputPath, final HtsDecoderOptions options) {
         ValidationUtils.validateArg(options == null, "reference reader options must be null");
         return new FASTADecoderV1_0(inputPath);
     }
 
     @Override
-    public HaploidReferenceDecoder getDecoder(final InputStream is, final String displayName) {
+    public HapRefDecoder getDecoder(final InputStream is, final String displayName) {
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public HaploidReferenceDecoder getDecoder(InputStream is, String displayName, UnusedType unusedType) {
+    public HapRefDecoder getDecoder(InputStream is, String displayName, HtsDecoderOptions emptyType) {
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public HaploidReferenceEncoder getEncoder(final IOPath outputPath) {
+    public HapRefEncoder getEncoder(final IOPath outputPath) {
         return getEncoder(outputPath, null);
     }
 
     @Override
-    public HaploidReferenceEncoder getEncoder(final IOPath outputPath, final UnusedType options) {
+    public HapRefEncoder getEncoder(final IOPath outputPath, final HtsEncoderOptions options) {
         ValidationUtils.nonNull(options, "reference reader options must be null");
         return new FASTAEncoderV1_0(outputPath);
     }
 
     @Override
-    public HaploidReferenceEncoder getEncoder(final OutputStream os, final String displayName) {
+    public HapRefEncoder getEncoder(final OutputStream os, final String displayName) {
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public HaploidReferenceEncoder getEncoder(final OutputStream os, final String displayName, final UnusedType unusedType) {
+    public HapRefEncoder getEncoder(final OutputStream os, final String displayName, final HtsEncoderOptions emptyType) {
         return null;
     }
 

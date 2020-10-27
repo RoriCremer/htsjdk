@@ -1,49 +1,50 @@
 package htsjdk.codecs.reads.cram.cramV3_0;
 
-import htsjdk.codecs.hapref.HapRefDecoder;
 import htsjdk.codecs.reads.cram.CRAMCodec;
 import htsjdk.codecs.reads.cram.CRAMEncoder;
 import htsjdk.io.IOPath;
-import htsjdk.plugin.HtsCodecRegistry;
 import htsjdk.plugin.HtsCodecVersion;
+import htsjdk.plugin.HtsEncoderOptions;
+import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.CRAMFileWriter;
 import htsjdk.samtools.SAMFileHeader;
-import htsjdk.samtools.SAMFileWriter;
-import htsjdk.samtools.cram.ref.CRAMReferenceSource;
+import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.cram.ref.ReferenceSource;
-import htsjdk.samtools.reference.ReferenceSequenceFile;
 
 import java.io.OutputStream;
 
-// TODO: This should reject CRAM 3.1
 public class CRAMEncoderV3_0 extends CRAMEncoder {
 
-    final private ReadsEncoderOptions readsEncoderOptions;
+    final private HtsEncoderOptions htsEncoderOptions;
     private CRAMFileWriter cramFileWriter;
 
     public CRAMEncoderV3_0(final IOPath outputPath) {
         this(outputPath, new ReadsEncoderOptions());
     }
 
-    public CRAMEncoderV3_0(final IOPath outputPath, final ReadsEncoderOptions readsEncoderOptions) {
+    public CRAMEncoderV3_0(final IOPath outputPath, final HtsEncoderOptions readsEncoderOptions) {
         super(outputPath);
-        this.readsEncoderOptions = readsEncoderOptions;
+        this.htsEncoderOptions = readsEncoderOptions;
     }
 
     public CRAMEncoderV3_0(final OutputStream os, final String displayName) {
         this(os, displayName, new ReadsEncoderOptions());
     }
 
-    public CRAMEncoderV3_0(final OutputStream os, final String displayName, final ReadsEncoderOptions readsEncoderOptions) {
+    public CRAMEncoderV3_0(final OutputStream os, final String displayName, final HtsEncoderOptions readsEncoderOptions) {
         super(os, displayName);
-        this.readsEncoderOptions = readsEncoderOptions;
+        this.htsEncoderOptions = readsEncoderOptions;
     }
 
     @Override
-    public SAMFileWriter getRecordWriter(final SAMFileHeader samFileHeader) {
+    public void setHeader(final SAMFileHeader samFileHeader) {
         cramFileWriter = getCRAMWriter(samFileHeader);
-        return cramFileWriter;
+    }
+
+    @Override
+    public void write(final SAMRecord record) {
+        cramFileWriter.addAlignment(record);
     }
 
     @Override
@@ -59,6 +60,7 @@ public class CRAMEncoderV3_0 extends CRAMEncoder {
     }
 
     private CRAMFileWriter getCRAMWriter(final SAMFileHeader samFileHeader) {
+        final ReadsEncoderOptions readsEncoderOptions = (ReadsEncoderOptions) htsEncoderOptions;
         cramFileWriter = new CRAMFileWriter(
                 outputPath.getOutputStream(),
                 readsEncoderOptions.getReferencePath() == null ?
@@ -66,7 +68,6 @@ public class CRAMEncoderV3_0 extends CRAMEncoder {
                         CRAMCodec.getCRAMReferenceSource(readsEncoderOptions.getReferencePath()),
                 samFileHeader,
                 outputPath.toString());
-        cramFileWriter.setHeader(samFileHeader);
         return cramFileWriter;
     }
 

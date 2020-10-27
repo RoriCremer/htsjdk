@@ -3,9 +3,9 @@ package htsjdk.codecs.hapref.fasta;
 import htsjdk.codecs.hapref.HapRefEncoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.UnusedType;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
-import htsjdk.samtools.reference.FastaReferenceWriter;
+import htsjdk.samtools.SAMSequenceDictionary;
+import htsjdk.samtools.reference.ReferenceSequence;
 
 public class FASTAEncoderV1_0 extends HapRefEncoder {
 
@@ -17,7 +17,12 @@ public class FASTAEncoderV1_0 extends HapRefEncoder {
     final public HaploidReferenceFormat getFormat() { return HaploidReferenceFormat.FASTA; }
 
     @Override
-    public FastaReferenceWriter getRecordWriter(final UnusedType unused) {
+    public void setHeader(final SAMSequenceDictionary unused) {
+        throw new IllegalStateException("Not implemented");
+    }
+
+    @Override
+    public void write(final ReferenceSequence referenceSequence) {
         throw new IllegalStateException("Not implemented");
     }
 

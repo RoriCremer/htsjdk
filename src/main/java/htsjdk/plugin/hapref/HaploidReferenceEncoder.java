@@ -1,7 +1,7 @@
 package htsjdk.plugin.hapref;
 
 import htsjdk.plugin.HtsEncoder;
-import htsjdk.plugin.UnusedType;
-import htsjdk.samtools.reference.FastaReferenceWriter;
+import htsjdk.samtools.SAMSequenceDictionary;
+import htsjdk.samtools.reference.ReferenceSequence;
 
-public interface HaploidReferenceEncoder extends HtsEncoder<UnusedType, HaploidReferenceFormat, FastaReferenceWriter> { }
+public interface HaploidReferenceEncoder extends HtsEncoder<SAMSequenceDictionary, HaploidReferenceFormat, ReferenceSequence> { }

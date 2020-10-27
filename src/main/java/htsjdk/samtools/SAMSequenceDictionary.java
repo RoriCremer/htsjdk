@@ -23,6 +23,8 @@
  */
 package htsjdk.samtools;
 
+import htsjdk.plugin.HtsHeader;
+import htsjdk.plugin.HtsRecord;
 import htsjdk.samtools.util.Log;
 
 import java.io.Serializable;
@@ -39,7 +41,7 @@ import static java.util.stream.Collectors.toList;
  * Collection of SAMSequenceRecords.
  */
 
-public class SAMSequenceDictionary implements Serializable {
+public class SAMSequenceDictionary implements HtsHeader, Serializable {
     public static final long serialVersionUID = 1L;
 
     private List<SAMSequenceRecord> mSequences = new ArrayList<>();
