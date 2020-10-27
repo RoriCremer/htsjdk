@@ -40,9 +40,7 @@ public class HtsCodecRegistry {
 
     private final static String NO_CODEC_MSG_FORMAT_STRING = "A %s codec capable of handling \"%s\" could not be found";
 
-    static {
-        ServiceLoader.load(HtsCodec.class).forEach(htsCodecRegistry::registerCodec);
-    }
+    static { ServiceLoader.load(HtsCodec.class).forEach(htsCodecRegistry::registerCodec); }
 
     private HtsCodecRegistry() {}
 
@@ -52,15 +50,15 @@ public class HtsCodecRegistry {
     private void registerCodec(final HtsCodec codec) {
         switch (codec.getType()) {
             case ALIGNED_READS:
-                readsCodecs.register(((ReadsCodec) codec).getFileFormat(), (ReadsCodec) codec);
+                readsCodecs.register((ReadsCodec) codec);
                 break;
 
             case REFERENCE:
-                haprefCodecs.register(((HaploidReferenceCodec) codec).getFileFormat(), (HaploidReferenceCodec) codec);
+                haprefCodecs.register((HaploidReferenceCodec) codec);
                 break;
 
             case VARIANTS:
-                variantCodecs.register(((VariantsCodec) codec).getFileFormat(), (VariantsCodec) codec);
+                variantCodecs.register((VariantsCodec) codec);
                 break;
 
             case FEATURES:
@@ -93,6 +91,7 @@ public class HtsCodecRegistry {
             final ReadsDecoderOptions readsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
+
         final List<ReadsCodec> codecs = readsCodecs.getCodecsForIOPath(inputPath);
         final ReadsDecoder decoder = codecs
                 .stream()
@@ -106,6 +105,7 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static ReadsEncoder getReadsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
+
         return (ReadsEncoder) readsCodecs.getCodecForIOPath(outputPath)
                 .map(codec -> codec.getEncoder(outputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath)));
@@ -117,6 +117,7 @@ public class HtsCodecRegistry {
             final ReadsEncoderOptions readsEncoderOptions) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         ValidationUtils.nonNull(readsEncoderOptions, "Encoder options must not be null");
+
         return (ReadsEncoder) readsCodecs.getCodecForIOPath(outputPath)
                 .map(codec -> codec.getEncoder(outputPath, readsEncoderOptions))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath)));
@@ -130,6 +131,7 @@ public class HtsCodecRegistry {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         ValidationUtils.nonNull(readsFormat, "Codec format must not be null");
         ValidationUtils.nonNull(codecVersion, "Codec version must not be null");
+
         return (ReadsEncoder) (readsCodecs.getCodecForFormatAndVersion(readsFormat, codecVersion)
                 .map(codec -> codec.getEncoder(outputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", outputPath))));
@@ -140,11 +142,12 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static VariantsDecoder getVariantsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
+
         final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
-        final VariantsDecoder decoder = codecs
+        final VariantsDecoder decoder = (VariantsDecoder) codecs
                 .stream()
                 .filter(codec -> canDecodeSignature(codec, inputPath))
-                .map(codec -> (VariantsDecoder) codec.getDecoder(inputPath))
+                .map(codec -> codec.getDecoder(inputPath))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
         return decoder;
@@ -156,11 +159,12 @@ public class HtsCodecRegistry {
             final VariantsDecoderOptions variantsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(variantsDecoderOptions, "Decoder options must not be null");
+
         final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
-        final VariantsDecoder decoder = codecs
+        final VariantsDecoder decoder = (VariantsDecoder) codecs
                 .stream()
                 .filter(codec -> canDecodeSignature(codec, inputPath))
-                .map(codec -> (VariantsDecoder) codec.getDecoder(inputPath, variantsDecoderOptions))
+                .map(codec -> codec.getDecoder(inputPath, variantsDecoderOptions))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
         return decoder;
@@ -169,6 +173,7 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static VariantsEncoder getVariantsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
+
         final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(outputPath);
         return (VariantsEncoder) (variantCodec.map(codec -> codec.getEncoder(outputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
@@ -180,6 +185,7 @@ public class HtsCodecRegistry {
             final VariantsEncoderOptions variantsEncoderOptions) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         ValidationUtils.nonNull(variantsEncoderOptions, "Encoder options must not be null");
+
         final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(outputPath);
         return (VariantsEncoder) (variantCodec.map(codec -> codec.getEncoder(outputPath, variantsEncoderOptions))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
@@ -193,6 +199,7 @@ public class HtsCodecRegistry {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         ValidationUtils.nonNull(variantsFormat, "Format must not be null");
         ValidationUtils.nonNull(codecVersion, "Codec version must not be null");
+
         final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForFormatAndVersion(variantsFormat, codecVersion);
         return (VariantsEncoder) (variantCodec.map(codec -> codec.getEncoder(outputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
@@ -203,6 +210,7 @@ public class HtsCodecRegistry {
     public static HaploidReferenceDecoder getHapRefDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         final Optional<HaploidReferenceCodec> haploidReferenceCodec = haprefCodecs.getCodecForIOPath(inputPath);
+
         return (HaploidReferenceDecoder) (haploidReferenceCodec.map(codec -> codec.getDecoder(inputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "hapref", inputPath))));
     }

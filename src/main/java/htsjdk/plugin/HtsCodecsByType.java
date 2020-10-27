@@ -17,7 +17,8 @@ final class HtsCodecsByType<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?>> {
     private final Map<FORMAT, Map<HtsCodecVersion, CODEC>> codecs = new HashMap<>();
     private final Map<FORMAT, HtsCodecVersion> newestVersion = new HashMap<>();
 
-    public void register(final FORMAT codecFormatType, final CODEC codec) {
+    public void register(final CODEC codec) {
+        final FORMAT codecFormatType = codec.getFileFormat();
         codecs.compute(
                 codecFormatType,
                 (k, v) -> {
@@ -48,8 +49,7 @@ final class HtsCodecsByType<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?>> {
         return codecs.values()
                 .stream()
                 .flatMap(m -> m.values().stream())
-                .filter(codec -> codec.getFileFormat().equals(formatType) &&
-                                    codec.getVersion().equals(codecVersion))
+                .filter(codec -> codec.getFileFormat().equals(formatType) && codec.getVersion().equals(codecVersion))
                 .findFirst();
     }
 
