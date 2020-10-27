@@ -4,4 +4,4 @@ import htsjdk.plugin.HtsEncoder;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.reference.ReferenceSequence;
 
-public interface HaploidReferenceEncoder extends HtsEncoder<SAMSequenceDictionary, HaploidReferenceFormat, ReferenceSequence> { }
+public interface HaploidReferenceEncoder extends HtsEncoder<HaploidReferenceFormat, SAMSequenceDictionary, ReferenceSequence> { }

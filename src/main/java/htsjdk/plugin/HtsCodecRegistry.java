@@ -15,9 +15,9 @@ import htsjdk.plugin.reads.ReadsFormat;
 
 import htsjdk.plugin.variants.VariantsCodec;
 import htsjdk.plugin.variants.VariantsDecoder;
-import htsjdk.plugin.variants.VariantsHtsDecoderOptions;
+import htsjdk.plugin.variants.VariantsDecoderOptions;
 import htsjdk.plugin.variants.VariantsEncoder;
-import htsjdk.plugin.variants.VariantsHtsEncoderOptions;
+import htsjdk.plugin.variants.VariantsEncoderOptions;
 import htsjdk.plugin.variants.VariantsFormat;
 
 import htsjdk.utils.ValidationUtils;
@@ -153,7 +153,7 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static VariantsDecoder getVariantsDecoder(
             final IOPath inputPath,
-            final VariantsHtsDecoderOptions variantsDecoderOptions) {
+            final VariantsDecoderOptions variantsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(variantsDecoderOptions, "Decoder options must not be null");
         final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
@@ -177,7 +177,7 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static VariantsEncoder getVariantsEncoder(
             final IOPath outputPath,
-            final VariantsHtsEncoderOptions variantsEncoderOptions) {
+            final VariantsEncoderOptions variantsEncoderOptions) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         ValidationUtils.nonNull(variantsEncoderOptions, "Encoder options must not be null");
         final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(outputPath);

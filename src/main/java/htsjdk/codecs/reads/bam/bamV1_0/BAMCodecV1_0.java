@@ -6,9 +6,8 @@ import htsjdk.codecs.reads.bam.BAMEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.HtsDecoderOptions;
-import htsjdk.plugin.HtsEncoderOptions;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
+import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.SamStreams;
 import htsjdk.utils.ValidationUtils;
 
@@ -56,7 +55,7 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
-    public BAMDecoder getDecoder(final IOPath inputPath, final HtsDecoderOptions decoderOptions) {
+    public BAMDecoder getDecoder(final IOPath inputPath, final ReadsDecoderOptions decoderOptions) {
         return new BAMDecoderV1_0(inputPath, decoderOptions);
     }
 
@@ -66,7 +65,7 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
-    public BAMDecoder getDecoder(final InputStream is, final String displayName, final HtsDecoderOptions decoderOptions) {
+    public BAMDecoder getDecoder(final InputStream is, final String displayName, final ReadsDecoderOptions decoderOptions) {
         return new BAMDecoderV1_0(is, displayName, decoderOptions);
     }
 
@@ -76,7 +75,7 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
-    public BAMEncoder getEncoder(final IOPath outputPath, final HtsEncoderOptions encoderOptions) {
+    public BAMEncoder getEncoder(final IOPath outputPath, final ReadsEncoderOptions encoderOptions) {
         return new BAMEncoderV1_0(outputPath, encoderOptions);
     }
 
@@ -86,7 +85,7 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
-    public BAMEncoder getEncoder(final OutputStream os, final String displayName, final HtsEncoderOptions encoderOptions) {
+    public BAMEncoder getEncoder(final OutputStream os, final String displayName, final ReadsEncoderOptions encoderOptions) {
         return new BAMEncoderV1_0(os, displayName, encoderOptions);
     }
 

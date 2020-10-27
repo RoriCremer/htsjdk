@@ -4,7 +4,7 @@ import htsjdk.codecs.variants.vcf.VCFEncoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.HtsEncoderOptions;
-import htsjdk.plugin.variants.VariantsHtsEncoderOptions;
+import htsjdk.plugin.variants.VariantsEncoderOptions;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
@@ -15,27 +15,27 @@ import java.io.OutputStream;
 import static htsjdk.variant.variantcontext.writer.Options.INDEX_ON_THE_FLY;
 
 public class VCFEncoderV4_2 extends VCFEncoder {
-    private final HtsEncoderOptions htsEncoderOptions;
+    private final VariantsEncoderOptions variantsEncoderOptions;
     private VariantContextWriter vcfWriter;
 
     public VCFEncoderV4_2(final IOPath outputPath) {
         super(outputPath);
-        this.htsEncoderOptions = new VariantsHtsEncoderOptions();
+        this.variantsEncoderOptions = new VariantsEncoderOptions();
     }
 
-    public VCFEncoderV4_2(final IOPath outputPath, final HtsEncoderOptions htsEncoderOptions) {
+    public VCFEncoderV4_2(final IOPath outputPath, final VariantsEncoderOptions variantsEncoderOptions) {
         super(outputPath);
-        this.htsEncoderOptions = htsEncoderOptions;
+        this.variantsEncoderOptions = variantsEncoderOptions;
     }
 
     public VCFEncoderV4_2(final OutputStream os, final String displayName) {
         super(os, displayName);
-        this.htsEncoderOptions = new VariantsHtsEncoderOptions();
+        this.variantsEncoderOptions = new VariantsEncoderOptions();
     }
 
-    public VCFEncoderV4_2(final OutputStream os, final String displayName, final HtsEncoderOptions readsEncoderOptions) {
+    public VCFEncoderV4_2(final OutputStream os, final String displayName, final VariantsEncoderOptions readsEncoderOptions) {
         super(os, displayName);
-        this.htsEncoderOptions = readsEncoderOptions;
+        this.variantsEncoderOptions = readsEncoderOptions;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class VCFEncoderV4_2 extends VCFEncoder {
 
     @Override
     public void setHeader(final VCFHeader vcfHeader) {
-        vcfWriter = getVCFWriter(htsEncoderOptions, vcfHeader);
+        vcfWriter = getVCFWriter(variantsEncoderOptions, vcfHeader);
         vcfWriter.writeHeader(vcfHeader);
     }
 
@@ -61,7 +61,7 @@ public class VCFEncoderV4_2 extends VCFEncoder {
         }
     }
 
-    private VariantContextWriter getVCFWriter(final HtsEncoderOptions htsEncoderOptions, final VCFHeader vcfHeader) {
+    private VariantContextWriter getVCFWriter(final VariantsEncoderOptions variantsEncoderOptions, final VCFHeader vcfHeader) {
         if (os != null) {
             throw new IllegalArgumentException("VCF writer to stream not yet implemented");
         } else {

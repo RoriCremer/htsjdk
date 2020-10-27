@@ -8,8 +8,8 @@ import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.HtsDecoderOptions;
 import htsjdk.plugin.HtsEncoderOptions;
-import htsjdk.plugin.variants.VariantsHtsDecoderOptions;
-import htsjdk.plugin.variants.VariantsHtsEncoderOptions;
+import htsjdk.plugin.variants.VariantsDecoderOptions;
+import htsjdk.plugin.variants.VariantsEncoderOptions;
 import htsjdk.samtools.util.IOUtil;
 
 import java.io.BufferedInputStream;
@@ -48,21 +48,21 @@ public class VCFCodecV4_2 extends VCFCodec {
 
     @Override
     public VCFDecoder getDecoder(final IOPath inputPath) {
-        return getDecoder(inputPath, new VariantsHtsDecoderOptions());
+        return getDecoder(inputPath, new VariantsDecoderOptions());
     }
 
     @Override
-    public VCFDecoder getDecoder(final IOPath inputPath, final HtsDecoderOptions decoderOptions) {
+    public VCFDecoder getDecoder(final IOPath inputPath, final VariantsDecoderOptions decoderOptions) {
         return new VCFDecoderV4_2(inputPath, decoderOptions);
     }
 
     @Override
     public VCFDecoder getDecoder(final InputStream is, final String displayName) {
-        return getDecoder(is, displayName, new VariantsHtsDecoderOptions());
+        return getDecoder(is, displayName, new VariantsDecoderOptions());
     }
 
     @Override
-    public VCFDecoder getDecoder(final InputStream is, final String displayName, final HtsDecoderOptions decoderOptions) {
+    public VCFDecoder getDecoder(final InputStream is, final String displayName, final VariantsDecoderOptions decoderOptions) {
         return new VCFDecoderV4_2(is, displayName, decoderOptions);
     }
 
@@ -72,7 +72,7 @@ public class VCFCodecV4_2 extends VCFCodec {
     }
 
     @Override
-    public VCFEncoder getEncoder(final IOPath outputPath, final HtsEncoderOptions encoderOptions) {
+    public VCFEncoder getEncoder(final IOPath outputPath, final VariantsEncoderOptions encoderOptions) {
         return new VCFEncoderV4_2(outputPath, encoderOptions);
     }
 
@@ -82,7 +82,7 @@ public class VCFCodecV4_2 extends VCFCodec {
     }
 
     @Override
-    public VCFEncoder getEncoder(final OutputStream os, final String displayName, final HtsEncoderOptions encoderOptions) {
+    public VCFEncoder getEncoder(final OutputStream os, final String displayName, final VariantsEncoderOptions encoderOptions) {
         return new VCFEncoderV4_2(os, displayName, encoderOptions);
     }
 

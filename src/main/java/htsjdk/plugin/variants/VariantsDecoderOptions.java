@@ -2,5 +2,5 @@ package htsjdk.plugin.variants;
 
 import htsjdk.plugin.HtsDecoderOptions;
 
-public class VariantsHtsDecoderOptions implements HtsDecoderOptions {
+public class VariantsDecoderOptions implements HtsDecoderOptions {
 }

@@ -6,8 +6,6 @@ import htsjdk.codecs.reads.cram.CRAMEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.HtsDecoderOptions;
-import htsjdk.plugin.HtsEncoderOptions;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.cram.structure.CramHeader;
@@ -56,7 +54,7 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     }
 
     @Override
-    public CRAMDecoder getDecoder(final IOPath inputPath, final HtsDecoderOptions readsDecoderOptions) {
+    public CRAMDecoder getDecoder(final IOPath inputPath, final ReadsDecoderOptions readsDecoderOptions) {
         return new CRAMDecoderV3_0(inputPath, readsDecoderOptions);
     }
 
@@ -66,7 +64,7 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     }
 
     @Override
-    public CRAMDecoder getDecoder(final InputStream is, final String displayName, final HtsDecoderOptions readsDecoderOptions) {
+    public CRAMDecoder getDecoder(final InputStream is, final String displayName, final ReadsDecoderOptions readsDecoderOptions) {
         return new CRAMDecoderV3_0(is, displayName, readsDecoderOptions);
     }
 
@@ -76,7 +74,7 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     }
 
     @Override
-    public CRAMEncoder getEncoder(final IOPath outputPath, final HtsEncoderOptions readsEncoderOptions) {
+    public CRAMEncoder getEncoder(final IOPath outputPath, final ReadsEncoderOptions readsEncoderOptions) {
         return new CRAMEncoderV3_0(outputPath, readsEncoderOptions);
     }
 
@@ -86,7 +84,7 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     }
 
     @Override
-    public CRAMEncoder getEncoder(final OutputStream os, final String displayName, final HtsEncoderOptions readsEncoderOptions) {
+    public CRAMEncoder getEncoder(final OutputStream os, final String displayName, final ReadsEncoderOptions readsEncoderOptions) {
         return new CRAMEncoderV3_0(os, displayName, readsEncoderOptions);
     }
 

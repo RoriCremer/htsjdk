@@ -4,8 +4,6 @@ import htsjdk.codecs.reads.cram.CRAMCodec;
 import htsjdk.codecs.reads.cram.CRAMEncoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.HtsEncoderOptions;
-import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.CRAMFileWriter;
 import htsjdk.samtools.SAMFileHeader;
@@ -16,25 +14,25 @@ import java.io.OutputStream;
 
 public class CRAMEncoderV3_0 extends CRAMEncoder {
 
-    final private HtsEncoderOptions htsEncoderOptions;
+    final private ReadsEncoderOptions readsEncoderOptions;
     private CRAMFileWriter cramFileWriter;
 
     public CRAMEncoderV3_0(final IOPath outputPath) {
         this(outputPath, new ReadsEncoderOptions());
     }
 
-    public CRAMEncoderV3_0(final IOPath outputPath, final HtsEncoderOptions readsEncoderOptions) {
+    public CRAMEncoderV3_0(final IOPath outputPath, final ReadsEncoderOptions readsEncoderOptions) {
         super(outputPath);
-        this.htsEncoderOptions = readsEncoderOptions;
+        this.readsEncoderOptions = readsEncoderOptions;
     }
 
     public CRAMEncoderV3_0(final OutputStream os, final String displayName) {
         this(os, displayName, new ReadsEncoderOptions());
     }
 
-    public CRAMEncoderV3_0(final OutputStream os, final String displayName, final HtsEncoderOptions readsEncoderOptions) {
+    public CRAMEncoderV3_0(final OutputStream os, final String displayName, final ReadsEncoderOptions readsEncoderOptions) {
         super(os, displayName);
-        this.htsEncoderOptions = readsEncoderOptions;
+        this.readsEncoderOptions = readsEncoderOptions;
     }
 
     @Override
@@ -60,7 +58,6 @@ public class CRAMEncoderV3_0 extends CRAMEncoder {
     }
 
     private CRAMFileWriter getCRAMWriter(final SAMFileHeader samFileHeader) {
-        final ReadsEncoderOptions readsEncoderOptions = (ReadsEncoderOptions) htsEncoderOptions;
         cramFileWriter = new CRAMFileWriter(
                 outputPath.getOutputStream(),
                 readsEncoderOptions.getReferencePath() == null ?

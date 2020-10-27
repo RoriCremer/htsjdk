@@ -2,7 +2,7 @@ package htsjdk.plugin;
 
 import java.io.Closeable;
 
-public interface HtsEncoder<HEADER extends HtsHeader, FORMAT, RECORD extends HtsRecord> extends Closeable {
+public interface HtsEncoder<FORMAT, HEADER extends HtsHeader, RECORD extends HtsRecord> extends Closeable {
 
     FORMAT getFormat();
 

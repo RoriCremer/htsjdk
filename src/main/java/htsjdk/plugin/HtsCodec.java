@@ -11,7 +11,8 @@ import java.nio.file.Path;
  *
  * A codec class represents a single file format/version
  */
-public interface HtsCodec<FILE_FORMAT> extends Upgradeable {
+public interface HtsCodec<FILE_FORMAT, DECODER_OPTIONS extends HtsDecoderOptions, ENCODER_OPTIONS extends HtsEncoderOptions>
+        extends Upgradeable {
 
     HtsCodecType getType();
 
@@ -33,19 +34,19 @@ public interface HtsCodec<FILE_FORMAT> extends Upgradeable {
     boolean canDecodeSignature(final InputStream inputStream, final String sourceName);
 
     // Get a codec that matches this ioPath(Select first by extension, then stream signature)
-    HtsDecoder<?, FILE_FORMAT, ? extends HtsRecord> getDecoder(final IOPath inputPath);
+    HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final IOPath inputPath);
 
-    HtsDecoder<?, FILE_FORMAT, ? extends HtsRecord> getDecoder(final IOPath inputPath, final HtsDecoderOptions decodeOptions);
+    HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final IOPath inputPath, final DECODER_OPTIONS decodeOptions);
 
-    HtsDecoder<?, FILE_FORMAT, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName);
+    HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName);
 
-    HtsDecoder<?, FILE_FORMAT, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName, final HtsDecoderOptions decodeOptions);
+    HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName, final DECODER_OPTIONS decodeOptions);
 
-    HtsEncoder<?, FILE_FORMAT, ? extends HtsRecord> getEncoder(final IOPath outputPath);
+    HtsEncoder<FILE_FORMAT, ?, ? extends HtsRecord> getEncoder(final IOPath outputPath);
 
-    HtsEncoder<?, FILE_FORMAT, ? extends HtsRecord> getEncoder(final IOPath outputPath, final HtsEncoderOptions encodeOptions);
+    HtsEncoder<FILE_FORMAT, ?, ? extends HtsRecord> getEncoder(final IOPath outputPath, final ENCODER_OPTIONS encodeOptions);
 
-    HtsEncoder<?, FILE_FORMAT, ? extends HtsRecord> getEncoder(final OutputStream os, final String displayName);
+    HtsEncoder<FILE_FORMAT, ?, ? extends HtsRecord> getEncoder(final OutputStream os, final String displayName);
 
-    HtsEncoder<?, FILE_FORMAT, ?> getEncoder(final OutputStream os, final String displayName, final HtsEncoderOptions encodeOptions);
+    HtsEncoder<FILE_FORMAT, ?, ?> getEncoder(final OutputStream os, final String displayName, final ENCODER_OPTIONS encodeOptions);
 }

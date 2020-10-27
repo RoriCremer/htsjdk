@@ -5,7 +5,7 @@ import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.HtsDecoderOptions;
-import htsjdk.plugin.variants.VariantsHtsDecoderOptions;
+import htsjdk.plugin.variants.VariantsDecoderOptions;
 import htsjdk.utils.ValidationUtils;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
@@ -21,10 +21,10 @@ public class VCFDecoderV4_2 extends VCFDecoder {
     private final VCFHeader vcfHeader;
 
     public VCFDecoderV4_2(final IOPath inputPath) {
-        this(inputPath, new VariantsHtsDecoderOptions());
+        this(inputPath, new VariantsDecoderOptions());
     }
 
-    public VCFDecoderV4_2(final IOPath inputPath, final HtsDecoderOptions decoderOptions) {
+    public VCFDecoderV4_2(final IOPath inputPath, final VariantsDecoderOptions decoderOptions) {
         super(inputPath);
         ValidationUtils.nonNull(decoderOptions);
         vcfReader = getVCFReader(decoderOptions);
@@ -32,10 +32,10 @@ public class VCFDecoderV4_2 extends VCFDecoder {
     }
 
     public VCFDecoderV4_2(final InputStream is, final String displayName) {
-        this(is, displayName, new VariantsHtsDecoderOptions());
+        this(is, displayName, new VariantsDecoderOptions());
     }
 
-    public VCFDecoderV4_2(final InputStream is, final String displayName, final HtsDecoderOptions decoderOptions) {
+    public VCFDecoderV4_2(final InputStream is, final String displayName, final VariantsDecoderOptions decoderOptions) {
         super(is, displayName);
         ValidationUtils.nonNull(decoderOptions);
         vcfReader = getVCFReader(decoderOptions);
@@ -66,7 +66,7 @@ public class VCFDecoderV4_2 extends VCFDecoder {
         }
     }
 
-    private VCFReader getVCFReader(final HtsDecoderOptions decoderOptions) {
+    private VCFReader getVCFReader(final VariantsDecoderOptions decoderOptions) {
         if (is != null) {
             throw new IllegalArgumentException("VCF reader from stream not implemented");
         } else {
