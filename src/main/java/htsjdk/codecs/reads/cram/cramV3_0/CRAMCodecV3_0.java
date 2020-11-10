@@ -6,8 +6,12 @@ import htsjdk.codecs.reads.cram.CRAMEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
+import htsjdk.plugin.HtsDecoder;
+import htsjdk.plugin.HtsRecord;
+import htsjdk.plugin.reads.ReadsBundle;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
+import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.samtools.cram.structure.CramHeader;
 
 import java.io.IOException;
@@ -61,6 +65,11 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     @Override
     public CRAMDecoder getDecoder(final InputStream is, final String displayName) {
         return getDecoder(is, displayName, new ReadsDecoderOptions());
+    }
+
+    @Override
+    public HtsDecoder<ReadsFormat, ?, ? extends HtsRecord> getDecoder(final ReadsBundle bundle, final ReadsDecoderOptions decodeOptions) {
+        return new CRAMDecoderV3_0(bundle, decodeOptions);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package htsjdk.codecs.reads.bam;
 
 import htsjdk.io.IOPath;
+import htsjdk.plugin.reads.ReadsBundle;
+import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.plugin.reads.ReadsDecoder;
 
@@ -12,6 +14,7 @@ public abstract class BAMDecoder implements ReadsDecoder {
 
     protected IOPath inputPath;
     protected InputStream is;
+    protected ReadsBundle inputBundle;
 
     public BAMDecoder(final IOPath inputPath) {
         this.inputPath = inputPath;
@@ -21,6 +24,11 @@ public abstract class BAMDecoder implements ReadsDecoder {
     public BAMDecoder(final InputStream is, final String displayName) {
         this.is = is;
         this.displayName = displayName;
+    }
+
+    public BAMDecoder(final ReadsBundle inputBundle, final ReadsDecoderOptions decoderOptions) {
+        this.inputBundle = inputBundle;
+        this.displayName = inputBundle.getReads().getRawInputString();
     }
 
     @Override

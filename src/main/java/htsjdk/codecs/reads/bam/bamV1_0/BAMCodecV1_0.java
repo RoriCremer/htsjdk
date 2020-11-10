@@ -6,6 +6,7 @@ import htsjdk.codecs.reads.bam.BAMEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
+import htsjdk.plugin.reads.ReadsBundle;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.SamStreams;
@@ -57,6 +58,11 @@ public class BAMCodecV1_0 extends BAMCodec {
     @Override
     public BAMDecoder getDecoder(final IOPath inputPath, final ReadsDecoderOptions decoderOptions) {
         return new BAMDecoderV1_0(inputPath, decoderOptions);
+    }
+
+    @Override
+    public BAMDecoder getDecoder(final ReadsBundle inputBundle, final ReadsDecoderOptions decoderOptions) {
+        return new BAMDecoderV1_0(inputBundle, decoderOptions);
     }
 
     @Override

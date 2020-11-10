@@ -1,5 +1,8 @@
 package htsjdk.plugin.interval;
 
+import htsjdk.utils.ValidationUtils;
+
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -7,36 +10,75 @@ import java.util.List;
 // - coord system interpretation is ambiguous (and different across decoders)
 // - wild cards, i.e., end of reference/contig
 // - why does SamReader have query(..., contained) AND queryContained ?
+// - remove the default implementations once all the codecs implement these
+//        switch (queryRule) {
+//            case CONTAINED: return queryContained(queryName, start, end);
+//            case OVERLAPPING: return queryOverlapping(queryName, start, end);
+//            default: throw new IllegalArgumentException(String.format("Unknown query rule: %s", queryRule));
+//        }
 
 /**
  * Common query interface for decoders
  * @param <RECORD>
  */
-public interface HtsQuery<RECORD> {
+public interface HtsQuery<RECORD> extends Iterable<RECORD> {
 
     Iterator<RECORD> iterator();
-    boolean isQueryable();
-    boolean hasIndex();
 
-    Iterator<RECORD> query(String queryName, long start, long end, boolean contained);
-    Iterator<RECORD> queryOverlapping(String queryName, long start, long end);
-    Iterator<RECORD> queryContained(String queryName, long start, long end);
+    //*******************************************
+    // Start temporary common query interface default implementations.
 
-    Iterator<RECORD> query(HtsInterval interval, boolean contained);
-    Iterator<RECORD> queryOverlapping(HtsInterval interval);
-    Iterator<RECORD> queryContained(HtsInterval interval);
+    default boolean isQueryable() { throw new IllegalStateException("Not implemented"); }
 
-    Iterator<RECORD> query(List<HtsInterval> intervals, boolean contained);
-    Iterator<RECORD> queryOverlapping(List<HtsInterval> intervals);
-    Iterator<RECORD> queryContained(List<HtsInterval> intervals);
+    default boolean hasIndex() { throw new IllegalStateException("Not implemented"); }
 
-    Iterator<RECORD> queryStart(String queryName, long start);
+    // TODO: include this, for rsID for variants ? readname for reads?
+    default Iterator<RECORD> query(final String queryString) {
+        ValidationUtils.validateArg(isQueryable(), "Reader is not queryable");
+        throw new IllegalStateException("Not implemented");
+    }
 
-    // Other methods from SamReader:
+    default Iterator<RECORD> query(final String queryName, final long start, final long end, final HtsQueryRule queryRule) {
+        return query(new SimpleInterval(queryName, start, end), queryRule);
+    }
 
-    // move these to a SAM-specific interface
-    //Iterator<RECORD> queryUnmapped();
+    default Iterator<RECORD> queryOverlapping(final String queryName, final long start, final long end) {
+        return queryOverlapping(new SimpleInterval(queryName, start, end));
+    }
 
-    // Fetch the mate for the given read.
-    //RECORD queryMate(RECORD rec);
+    default Iterator<RECORD> queryContained(final String queryName, final long start, final long end) {
+        return queryContained(new SimpleInterval(queryName, start, end));
+    }
+
+    default Iterator<RECORD> query(final HtsInterval interval, final HtsQueryRule queryRule) {
+        return query(Collections.singletonList(interval), queryRule);
+    }
+
+    default Iterator<RECORD> queryOverlapping(final HtsInterval interval) {
+        return query(interval, HtsQueryRule.OVERLAPPING);
+    }
+
+    default Iterator<RECORD> queryContained(final HtsInterval interval) {
+        return queryContained(Collections.singletonList(interval));
+    }
+
+    default Iterator<RECORD> query(final List<HtsInterval> intervals, final HtsQueryRule queryRule) {
+        ValidationUtils.validateArg(isQueryable(), "Reader is not queryable");
+        throw new IllegalStateException("Not implemented"); }
+
+    default Iterator<RECORD> queryOverlapping(final List<HtsInterval> intervals) {
+        return query(intervals, HtsQueryRule.OVERLAPPING);
+    }
+
+    default Iterator<RECORD> queryContained(final List<HtsInterval> intervals) {
+        return query(intervals, HtsQueryRule.CONTAINED);
+    }
+
+    // match reads that have this start
+    //use an HtsInterval with span==1
+    default Iterator<RECORD> queryStart(final String queryName, final long start) {
+        ValidationUtils.validateArg(isQueryable(), "Reader is not queryable");
+        throw new IllegalStateException("Not implemented");
+    }
+
 }

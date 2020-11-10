@@ -6,6 +6,7 @@ import htsjdk.codecs.reads.cram.CRAMDecoderOptions;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.HtsDecoderOptions;
+import htsjdk.plugin.reads.ReadsBundle;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.samtools.CRAMFileReader;
 import htsjdk.samtools.SAMFileHeader;
@@ -30,6 +31,16 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
 
     public CRAMDecoderV3_0(final IOPath inputPath, final HtsDecoderOptions readsDecoderOptions) {
         super(inputPath);
+        this.htsDecoderOptions = readsDecoderOptions;
+        this.cramDecoderOptions = readsDecoderOptions instanceof CRAMDecoderOptions ?
+                (CRAMDecoderOptions) readsDecoderOptions :
+                null;
+        cramReader = getCRAMReader();
+        samFileHeader = cramReader.getFileHeader();
+    }
+
+    public CRAMDecoderV3_0(final ReadsBundle bundle, final ReadsDecoderOptions readsDecoderOptions) {
+        super(bundle);
         this.htsDecoderOptions = readsDecoderOptions;
         this.cramDecoderOptions = readsDecoderOptions instanceof CRAMDecoderOptions ?
                 (CRAMDecoderOptions) readsDecoderOptions :
@@ -72,6 +83,7 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
         cramReader.close();
     }
 
+    //TODO: This needs to consult the resource bundle
     private CRAMFileReader getCRAMReader() {
         final ReadsDecoderOptions readsDecoderOptions = (ReadsDecoderOptions) htsDecoderOptions;
         try {

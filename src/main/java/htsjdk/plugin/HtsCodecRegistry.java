@@ -6,6 +6,7 @@ import htsjdk.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
 
+import htsjdk.plugin.reads.ReadsBundle;
 import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsDecoder;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
@@ -13,6 +14,7 @@ import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
 
+import htsjdk.plugin.reads.ReadsResourceType;
 import htsjdk.plugin.variants.VariantsCodec;
 import htsjdk.plugin.variants.VariantsDecoder;
 import htsjdk.plugin.variants.VariantsDecoderOptions;
@@ -74,15 +76,7 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static ReadsDecoder getReadsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
-
-        final List<ReadsCodec> codecs = readsCodecs.getCodecsForIOPath(inputPath);
-        final ReadsDecoder decoder = codecs
-                .stream()
-                .filter(codec -> canDecodeSignature(codec, inputPath))
-                .map(codec -> (ReadsDecoder) codec.getDecoder(inputPath))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
-        return decoder;
+        return getReadsDecoder(new ReadsBundle(inputPath), new ReadsDecoderOptions());
     }
 
     @SuppressWarnings("unchecked")
@@ -91,14 +85,24 @@ public class HtsCodecRegistry {
             final ReadsDecoderOptions readsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
+        return getReadsDecoder(new ReadsBundle(inputPath), readsDecoderOptions);
+    }
 
-        final List<ReadsCodec> codecs = readsCodecs.getCodecsForIOPath(inputPath);
+    @SuppressWarnings("unchecked")
+    public static ReadsDecoder getReadsDecoder(
+            final ReadsBundle inputBundle,
+            final ReadsDecoderOptions readsDecoderOptions) {
+        ValidationUtils.nonNull(inputBundle, "Input bundle must not be null");
+        ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
+
+        final IOPath readsPath = inputBundle.getReads();
+        final List<ReadsCodec> codecs = readsCodecs.getCodecsForIOPath(readsPath);
         final ReadsDecoder decoder = codecs
                 .stream()
-                .filter(codec -> canDecodeSignature(codec, inputPath))
-                .map(codec -> (ReadsDecoder) codec.getDecoder(inputPath, readsDecoderOptions))
+                .filter(codec -> canDecodeSignature(codec, readsPath))
+                .map(codec -> (ReadsDecoder) codec.getDecoder(inputBundle, readsDecoderOptions))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
+                .orElseThrow(() -> new RuntimeException(String.format(NO_CODEC_MSG_FORMAT_STRING, "reads", readsPath)));
         return decoder;
     }
 

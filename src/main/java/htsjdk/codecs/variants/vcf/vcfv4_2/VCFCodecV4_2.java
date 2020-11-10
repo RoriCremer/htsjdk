@@ -6,8 +6,7 @@ import htsjdk.codecs.variants.vcf.VCFEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.HtsDecoderOptions;
-import htsjdk.plugin.HtsEncoderOptions;
+import htsjdk.plugin.variants.VariantsBundle;
 import htsjdk.plugin.variants.VariantsDecoderOptions;
 import htsjdk.plugin.variants.VariantsEncoderOptions;
 import htsjdk.samtools.util.IOUtil;
@@ -54,6 +53,11 @@ public class VCFCodecV4_2 extends VCFCodec {
     @Override
     public VCFDecoder getDecoder(final IOPath inputPath, final VariantsDecoderOptions decoderOptions) {
         return new VCFDecoderV4_2(inputPath, decoderOptions);
+    }
+
+    @Override
+    public VCFDecoder getDecoder(final VariantsBundle inputBundle, final VariantsDecoderOptions decoderOptions) {
+        return new VCFDecoderV4_2(inputBundle, decoderOptions);
     }
 
     @Override

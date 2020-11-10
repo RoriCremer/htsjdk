@@ -5,10 +5,15 @@ import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.HtsDecoderOptions;
+import htsjdk.plugin.interval.HtsInterval;
+import htsjdk.plugin.interval.HtsQueryRule;
+import htsjdk.plugin.reads.ReadsBundle;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
+import htsjdk.plugin.reads.ReadsResourceType;
 import htsjdk.samtools.BAMFileReader;
 import htsjdk.samtools.DefaultSAMRecordFactory;
 import htsjdk.samtools.PrimitiveSamReaderToSamReaderAdapter;
+import htsjdk.samtools.QueryInterval;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamInputResource;
@@ -20,6 +25,10 @@ import htsjdk.utils.ValidationUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+
+//TODO: need to guard against multiple iterators
 
 public class BAMDecoderV1_0 extends BAMDecoder {
 
@@ -32,6 +41,13 @@ public class BAMDecoderV1_0 extends BAMDecoder {
 
     public BAMDecoderV1_0(final IOPath inputPath, final HtsDecoderOptions decoderOptions) {
         super(inputPath);
+        ValidationUtils.nonNull(decoderOptions);
+        samReader = getSamReader(decoderOptions);
+        samFileHeader = samReader.getFileHeader();
+    }
+
+    public BAMDecoderV1_0(final ReadsBundle inputBundle, final ReadsDecoderOptions decoderOptions) {
+        super(inputBundle, decoderOptions);
         ValidationUtils.nonNull(decoderOptions);
         samReader = getSamReader(decoderOptions);
         samFileHeader = samReader.getFileHeader();
@@ -58,9 +74,46 @@ public class BAMDecoderV1_0 extends BAMDecoder {
         return samFileHeader;
     }
 
+    // HtsQuery methods
+
     @Override
     public Iterator<SAMRecord> iterator() {
         return samReader.iterator();
+    }
+
+    @Override
+    public boolean isQueryable() {
+        return samReader.isQueryable();
+    }
+
+    @Override
+    public boolean hasIndex() {
+        return samReader.hasIndex();
+    }
+
+    @Override
+    public Iterator<SAMRecord> query(final List<HtsInterval> intervals, final HtsQueryRule queryRule) {
+        final QueryInterval[] queryIntervals = HtsInterval.asQueryIntervalArray(
+                intervals,
+                samFileHeader.getSequenceDictionary());
+        return samReader.query(queryIntervals, queryRule.toContained());
+    }
+
+    @Override
+    public Iterator<SAMRecord> queryStart(final String queryName, final long start) {
+        return samReader.queryAlignmentStart(queryName, HtsInterval.toIntegerSafe(start));
+    }
+
+    // ReadsQuery interface methods
+
+    @Override
+    public Iterator<SAMRecord> queryUnmapped() {
+        return samReader.queryUnmapped();
+    }
+
+    @Override
+    public SAMRecord queryMate(final SAMRecord rec) {
+        return samReader.queryMate(rec);
     }
 
     @Override
@@ -93,8 +146,16 @@ public class BAMDecoderV1_0 extends BAMDecoder {
             } catch (IOException e) {
                 throw new RuntimeIOException(e);
             }
-        } else {
+        } else if (inputPath != null) {
             reader = readsDecoderOptions.getSamReaderFactory().open(SamInputResource.of(inputPath.toPath()));
+        } else {
+            // use the bundle
+            final SamInputResource readsResource = SamInputResource.of(inputBundle.getReads().toPath());
+            final Optional<IOPath> indexPath = inputBundle.get(ReadsResourceType.INDEX);
+            if (indexPath.isPresent()) {
+                readsResource.index(indexPath.get().toPath());
+            }
+            reader = readsDecoderOptions.getSamReaderFactory().open(readsResource);
         }
         return reader;
     }

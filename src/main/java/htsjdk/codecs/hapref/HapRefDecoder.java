@@ -1,16 +1,23 @@
 package htsjdk.codecs.hapref;
 
 import htsjdk.io.IOPath;
+import htsjdk.plugin.hapref.HaploidReferenceBundle;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
 
 public abstract class HapRefDecoder implements HaploidReferenceDecoder {
-    protected final IOPath inputPath;
-
+    protected IOPath inputPath;
+    protected HaploidReferenceBundle haprefBundle;
     private final String displayName;
 
     public HapRefDecoder(final IOPath inputPath) {
         this.inputPath = inputPath;
         this.displayName = inputPath.getRawInputString();
+    }
+
+    public HapRefDecoder(final HaploidReferenceBundle inputBundle) {
+        this.haprefBundle = inputBundle;
+        //TODO: fix this
+        this.displayName = "TEMP";
     }
 
     @Override
