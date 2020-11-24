@@ -7,10 +7,10 @@ import java.io.Closeable;
 // TODO:
 // - Do we need to retain the existing limitation of a single open iterator (and thus CloseableIterator)
 //   and reject an attempt to open a second one, or just cancel any outstanding iterator on a subsequent query ?
-// Should we move the extendsHtsQuery down one level to the individual base classes (i.e., ReadsCodec, VariantsCodec?)
+// - Should we move "extends HtsQuery" down one level to the individual base classes (i.e., ReadsCodec, VariantsCodec?)
 
 public interface HtsDecoder<FORMAT, HEADER extends HtsHeader, RECORD extends HtsRecord>
-        extends Iterable<RECORD>, HtsQuery<RECORD>, Closeable {
+        extends HtsQuery<RECORD>, Closeable {
 
     FORMAT getFormat();
 
