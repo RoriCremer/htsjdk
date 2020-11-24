@@ -39,15 +39,15 @@ public interface HtsQuery<RECORD> extends Iterable<RECORD> {
     }
 
     default Iterator<RECORD> query(final String queryName, final long start, final long end, final HtsQueryRule queryRule) {
-        return query(new SimpleInterval(queryName, start, end), queryRule);
+        return query(new HtsInterval(queryName, start, end), queryRule);
     }
 
     default Iterator<RECORD> queryOverlapping(final String queryName, final long start, final long end) {
-        return queryOverlapping(new SimpleInterval(queryName, start, end));
+        return queryOverlapping(new HtsInterval(queryName, start, end));
     }
 
     default Iterator<RECORD> queryContained(final String queryName, final long start, final long end) {
-        return queryContained(new SimpleInterval(queryName, start, end));
+        return queryContained(new HtsInterval(queryName, start, end));
     }
 
     default Iterator<RECORD> query(final HtsInterval interval, final HtsQueryRule queryRule) {

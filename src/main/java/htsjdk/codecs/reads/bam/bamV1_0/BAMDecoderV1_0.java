@@ -93,7 +93,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
 
     @Override
     public Iterator<SAMRecord> query(final List<HtsInterval> intervals, final HtsQueryRule queryRule) {
-        final QueryInterval[] queryIntervals = HtsInterval.asQueryIntervalArray(
+        final QueryInterval[] queryIntervals = HtsInterval.toQueryIntervalArray(
                 intervals,
                 samFileHeader.getSequenceDictionary());
         return samReader.query(queryIntervals, queryRule.toContained());
