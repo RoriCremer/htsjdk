@@ -4,7 +4,6 @@ import htsjdk.HtsjdkTest;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecRegistry;
-import htsjdk.plugin.HtsHeader;
 import htsjdk.plugin.reads.ReadsFormat;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMRecord;

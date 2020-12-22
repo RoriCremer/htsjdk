@@ -16,6 +16,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 
+/**
+ * A FASTA codec.
+ */
 public class FASTACodecV1_0 extends HapRefCodec {
 
     public static final HtsCodecVersion VERSION_1 = new HtsCodecVersion(1, 0, 0);
@@ -79,13 +82,12 @@ public class FASTACodecV1_0 extends HapRefCodec {
 
     @Override
     public HapRefEncoder getEncoder(final IOPath outputPath) {
-        return getEncoder(outputPath, null);
+        throw new IllegalStateException("Not implemented");
     }
 
     @Override
     public HapRefEncoder getEncoder(final IOPath outputPath, final HtsEncoderOptions options) {
-        ValidationUtils.nonNull(options, "reference reader options must be null");
-        return new FASTAEncoderV1_0(outputPath);
+        throw new IllegalStateException("Not implemented");
     }
 
     @Override

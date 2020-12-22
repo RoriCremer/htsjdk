@@ -1,18 +1,14 @@
 package htsjdk.codecs.hapref;
 
-import htsjdk.io.IOPath;
 import htsjdk.plugin.hapref.HaploidReferenceEncoder;
 
+/**
+ * Base class for haploid reference encoders.
+ */
 public abstract class HapRefEncoder implements HaploidReferenceEncoder {
-    protected final IOPath outputPath;
 
-    private final String displayName;
-
-    public HapRefEncoder(final IOPath outputPath) {
-        this.outputPath = outputPath;
-        this.displayName = outputPath.getRawInputString();
+    public HapRefEncoder() {
+        throw new IllegalStateException("Not implemented");
     }
 
-    @Override
-    public String getDisplayName() { return displayName; }
 }

@@ -3,8 +3,6 @@ package htsjdk.plugin;
 import htsjdk.HtsjdkTest;
 import htsjdk.codecs.hapref.fasta.FASTACodecV1_0;
 import htsjdk.codecs.reads.bam.BAMCodec;
-import htsjdk.codecs.reads.bam.BAMDecoder;
-import htsjdk.codecs.reads.bam.BAMEncoder;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;

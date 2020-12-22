@@ -12,7 +12,6 @@ import htsjdk.plugin.interval.HtsInterval;
 import htsjdk.plugin.interval.HtsQueryRule;
 
 import htsjdk.plugin.reads.ReadsDecoderOptions;
-import htsjdk.plugin.reads.ReadsResourceType;
 import htsjdk.samtools.BAMFileReader;
 import htsjdk.samtools.DefaultSAMRecordFactory;
 import htsjdk.samtools.PrimitiveSamReaderToSamReaderAdapter;

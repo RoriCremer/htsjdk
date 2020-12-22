@@ -14,6 +14,9 @@ import htsjdk.samtools.util.RuntimeIOException;
 import java.io.IOException;
 import java.util.Iterator;
 
+/**
+ * A FASTA file decoder.
+ */
 public class FASTADecoderV1_0 extends HapRefDecoder {
 
     private ReferenceSequenceFile referenceSequenceFile;

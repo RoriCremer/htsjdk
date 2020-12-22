@@ -1,7 +1,6 @@
 package htsjdk.codecs.hapref.fasta;
 
 import htsjdk.HtsjdkTest;
-import htsjdk.codecs.hapref.HapRefDecoder;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecRegistry;

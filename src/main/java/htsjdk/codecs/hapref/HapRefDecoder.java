@@ -4,6 +4,9 @@ import htsjdk.io.IOPath;
 import htsjdk.plugin.bundle.InputBundle;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
 
+/**
+ * Base class for haploid reference decoders.
+ */
 public abstract class HapRefDecoder implements HaploidReferenceDecoder {
     protected IOPath inputPath;
     protected InputBundle haprefBundle;
