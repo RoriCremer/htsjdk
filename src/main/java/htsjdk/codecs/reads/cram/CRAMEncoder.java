@@ -6,6 +6,9 @@ import htsjdk.plugin.reads.ReadsEncoder;
 
 import java.io.OutputStream;
 
+/**
+ * Base class for CRAM encoders.
+ */
 public abstract class CRAMEncoder implements ReadsEncoder {
     // TODO: presorted
     protected IOPath outputPath;

@@ -1,24 +1,36 @@
 package htsjdk.plugin;
 
 import htsjdk.io.IOPath;
+import htsjdk.plugin.bundle.InputBundle;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 
 /**
- * Base interface that must be implemented by all htsjdk codecs.
+ * Base interface implemented by all codecs.
  *
- * A codec class represents a single file format/version
+ * A codec  is a handler for a specific combination of file-format, version, possibly specific
+ * to some URI protocol. i.e.:
+ *
+ *  the BAM codec handles the BAM format for the "file://" protocol; the
+ *  the HtsGet codec handles BAM via "http://" or "htsget://" protocol.
+ *
+ * Codecs may delegate to/reuse shared encoder/decoder implementations.
+ *
+ * @param <FILE_FORMAT>
+ * @param <DECODER_OPTIONS>
+ * @param <ENCODER_OPTIONS>
  */
+// i.e., Htsget codec can't assume it can call toPath on http: paths, .tsv codecs can't tell from extension
+// and MUST resolve to a stream
 public interface HtsCodec<
-        FILE_FORMAT,
-        BUNDLE_TYPE,
+        FILE_FORMAT extends Enum<FILE_FORMAT>,
         DECODER_OPTIONS extends HtsDecoderOptions,
         ENCODER_OPTIONS extends HtsEncoderOptions>
         extends Upgradeable {
 
-    HtsCodecType getType();
+    HtsCodecCategory getCodecCategory();
 
     HtsCodecVersion getVersion();
 
@@ -31,20 +43,24 @@ public interface HtsCodec<
     // Get the minimum number of bytes this codec requires to determine whether it can decode a stream.
     int getSignatureSize();
 
-    boolean canDecodeExtension(final IOPath resource);
+    // Return true if this codec claims to handle the URI scheme and file extension for this IOPath.
+    boolean canDecodeURI(final IOPath resource);
 
+    // Return true if this codec claims to handle the file extension for this Path.
     boolean canDecodeExtension(final Path path);
 
     boolean canDecodeSignature(final InputStream inputStream, final String sourceName);
 
-    // Get a codec that matches this ioPath(Select first by extension, then stream signature)
+    //TODO: we should get rid of all of these overloads, and just implement one each for decoder
+    // and encoder that takes an InputBundle or OutputBundle.
+
     HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final IOPath inputPath);
 
     HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final IOPath inputPath, final DECODER_OPTIONS decodeOptions);
 
     HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName);
 
-    HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final BUNDLE_TYPE bundle, final DECODER_OPTIONS decodeOptions);
+    HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final InputBundle bundle, final DECODER_OPTIONS decodeOptions);
 
     HtsDecoder<FILE_FORMAT, ?, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName, final DECODER_OPTIONS decodeOptions);
 

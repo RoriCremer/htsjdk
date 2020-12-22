@@ -6,7 +6,7 @@ import htsjdk.codecs.reads.bam.BAMEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.reads.ReadsBundle;
+import htsjdk.plugin.bundle.InputBundle;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.SamStreams;
@@ -18,11 +18,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * BAM codec used to exercise the reader factory infrastructure
+ * BAM codec.
  */
 public class BAMCodecV1_0 extends BAMCodec {
     protected static final String BAM_MAGIC = "BAM\1";
-
     protected static final HtsCodecVersion VERSION_1 = new HtsCodecVersion(1, 0, 0);
 
     @Override
@@ -61,7 +60,7 @@ public class BAMCodecV1_0 extends BAMCodec {
     }
 
     @Override
-    public BAMDecoder getDecoder(final ReadsBundle inputBundle, final ReadsDecoderOptions decoderOptions) {
+    public BAMDecoder getDecoder(final InputBundle inputBundle, final ReadsDecoderOptions decoderOptions) {
         return new BAMDecoderV1_0(inputBundle, decoderOptions);
     }
 
@@ -97,7 +96,7 @@ public class BAMCodecV1_0 extends BAMCodec {
 
     @Override
     public boolean runVersionUpgrade(final HtsCodecVersion sourceCodecVersion, final HtsCodecVersion targetCodecVersion) {
-        throw new IllegalStateException("Not yet implemented");
+        throw new RuntimeException("Not yet implemented");
     }
 
 }

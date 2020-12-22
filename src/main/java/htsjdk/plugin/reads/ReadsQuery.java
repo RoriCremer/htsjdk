@@ -9,13 +9,11 @@ import java.util.Iterator;
  */
 public interface ReadsQuery {
 
-    // TODO: remove the default implementations once all the reads codecs implement these
-
+    // query unmapped Reads
     default Iterator<SAMRecord> queryUnmapped() {
         throw new IllegalStateException("Not implemented");
     };
 
-    // TODO: do we need to retain this ?
     // Fetch the mate for the given read.
     default SAMRecord queryMate(SAMRecord rec) {
         throw new IllegalStateException("Not implemented");

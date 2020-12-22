@@ -3,7 +3,7 @@ package htsjdk.codecs.hapref.fasta;
 import htsjdk.codecs.hapref.HapRefDecoder;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.hapref.HaploidReferenceBundle;
+import htsjdk.plugin.bundle.InputBundle;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.reference.ReferenceSequence;
@@ -23,7 +23,7 @@ public class FASTADecoderV1_0 extends HapRefDecoder {
         referenceSequenceFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(inputPath.toPath());
     }
 
-    public FASTADecoderV1_0(final HaploidReferenceBundle inputBundle) {
+    public FASTADecoderV1_0(final InputBundle inputBundle) {
         super(inputBundle);
         referenceSequenceFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(inputPath.toPath());
     }

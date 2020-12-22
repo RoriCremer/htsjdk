@@ -7,10 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 
 // TODO:
-// - coord system interpretation is ambiguous (and different across decoders)
 // - wild cards, i.e., end of reference/contig
 // - why does SamReader have query(..., contained) AND queryContained ?
-// - remove the default implementations once all the codecs implement these
+// - remove the default implementations once all the decoders implement these
 //        switch (queryRule) {
 //            case CONTAINED: return queryContained(queryName, start, end);
 //            case OVERLAPPING: return queryOverlapping(queryName, start, end);
@@ -19,7 +18,8 @@ import java.util.List;
 
 /**
  * Common query interface for decoders
- * @param <RECORD>
+ *
+ * @param <RECORD> they type of records/iterators returned by queries
  */
 public interface HtsQuery<RECORD> extends Iterable<RECORD> {
 
@@ -74,8 +74,7 @@ public interface HtsQuery<RECORD> extends Iterable<RECORD> {
         return query(intervals, HtsQueryRule.CONTAINED);
     }
 
-    // match reads that have this start
-    //use an HtsInterval with span==1
+    //TODO: match reads that have this start; we could just use an HtsInterval with span==1
     default Iterator<RECORD> queryStart(final String queryName, final long start) {
         ValidationUtils.validateArg(isQueryable(), "Reader is not queryable");
         throw new IllegalStateException("Not implemented");

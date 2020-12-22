@@ -6,7 +6,7 @@ import htsjdk.codecs.variants.vcf.VCFEncoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.variants.VariantsBundle;
+import htsjdk.plugin.bundle.InputBundle;
 import htsjdk.plugin.variants.VariantsDecoderOptions;
 import htsjdk.plugin.variants.VariantsEncoderOptions;
 import htsjdk.samtools.util.IOUtil;
@@ -56,7 +56,7 @@ public class VCFCodecV4_2 extends VCFCodec {
     }
 
     @Override
-    public VCFDecoder getDecoder(final VariantsBundle inputBundle, final VariantsDecoderOptions decoderOptions) {
+    public VCFDecoder getDecoder(final InputBundle inputBundle, final VariantsDecoderOptions decoderOptions) {
         return new VCFDecoderV4_2(inputBundle, decoderOptions);
     }
 
@@ -92,7 +92,7 @@ public class VCFCodecV4_2 extends VCFCodec {
 
     @Override
     public boolean runVersionUpgrade(final HtsCodecVersion sourceCodecVersion, final HtsCodecVersion targetCodecVersion) {
-        throw new IllegalStateException("Not yet implemented");
+        throw new RuntimeException("Not yet implemented");
     }
 
 }

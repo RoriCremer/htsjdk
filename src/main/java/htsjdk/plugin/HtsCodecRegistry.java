@@ -2,11 +2,15 @@ package htsjdk.plugin;
 
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
+import htsjdk.plugin.bundle.BundleResourceType;
+import htsjdk.plugin.bundle.InputBundle;
+import htsjdk.plugin.bundle.InputBundleBuilder;
+import htsjdk.plugin.bundle.InputIOPathResource;
+import htsjdk.plugin.bundle.InputResource;
 import htsjdk.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.plugin.hapref.HaploidReferenceDecoder;
 
-import htsjdk.plugin.reads.ReadsBundle;
 import htsjdk.plugin.reads.ReadsCodec;
 import htsjdk.plugin.reads.ReadsDecoder;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
@@ -14,7 +18,6 @@ import htsjdk.plugin.reads.ReadsEncoder;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
 
-import htsjdk.plugin.reads.ReadsResourceType;
 import htsjdk.plugin.variants.VariantsCodec;
 import htsjdk.plugin.variants.VariantsDecoder;
 import htsjdk.plugin.variants.VariantsDecoderOptions;
@@ -29,19 +32,20 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * Registry/cache for discovered codecs.
+ * Registry/cache for binding to encoders/decoders.
  */
 @SuppressWarnings("rawtypes")
 public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
 
-    // registered codecs by format
-    private static HtsCodecsByType<HaploidReferenceFormat, HaploidReferenceCodec> haprefCodecs = new HtsCodecsByType<>();
-    private static HtsCodecsByType<ReadsFormat, ReadsCodec> readsCodecs = new HtsCodecsByType<>();
-    private static HtsCodecsByType<VariantsFormat, VariantsCodec> variantCodecs = new HtsCodecsByType<>();
+    // registries for dynamically discovered codecs, by category
+    private static HtsCodecsByCategory<HaploidReferenceFormat, HaploidReferenceCodec> haprefCodecs = new HtsCodecsByCategory<>();
+    private static HtsCodecsByCategory<ReadsFormat, ReadsCodec> readsCodecs = new HtsCodecsByCategory<>();
+    private static HtsCodecsByCategory<VariantsFormat, VariantsCodec> variantCodecs = new HtsCodecsByCategory<>();
 
     private final static String NO_CODEC_MSG_FORMAT_STRING = "A %s codec capable of handling \"%s\" could not be found";
 
+    //discover any codecs on the classpath
     static { ServiceLoader.load(HtsCodec.class).forEach(htsCodecRegistry::registerCodec); }
 
     private HtsCodecRegistry() {}
@@ -50,12 +54,12 @@ public class HtsCodecRegistry {
      * Add a codec to the registry
      */
     private void registerCodec(final HtsCodec codec) {
-        switch (codec.getType()) {
+        switch (codec.getCodecCategory()) {
             case ALIGNED_READS:
                 readsCodecs.register((ReadsCodec) codec);
                 break;
 
-            case REFERENCE:
+            case HAPLOID_REFERENCE:
                 haprefCodecs.register((HaploidReferenceCodec) codec);
                 break;
 
@@ -64,7 +68,7 @@ public class HtsCodecRegistry {
                 break;
 
             case FEATURES:
-                throw new IllegalArgumentException("Codec type not yet implemented");
+                throw new RuntimeException("Features codec type not yet implemented");
 
             default:
                 throw new IllegalArgumentException("Unknown codec type");
@@ -76,7 +80,10 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static ReadsDecoder getReadsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
-        return getReadsDecoder(new ReadsBundle(inputPath), new ReadsDecoderOptions());
+        return getReadsDecoder(
+                InputBundleBuilder.start().add(new InputIOPathResource(BundleResourceType.READS, inputPath)).getBundle(),
+                new ReadsDecoderOptions()
+        );
     }
 
     @SuppressWarnings("unchecked")
@@ -85,17 +92,24 @@ public class HtsCodecRegistry {
             final ReadsDecoderOptions readsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
-        return getReadsDecoder(new ReadsBundle(inputPath), readsDecoderOptions);
+        return getReadsDecoder(
+                InputBundleBuilder.start().add(new InputIOPathResource(BundleResourceType.READS, inputPath)).getBundle(),
+                readsDecoderOptions);
     }
 
     @SuppressWarnings("unchecked")
     public static ReadsDecoder getReadsDecoder(
-            final ReadsBundle inputBundle,
+            final InputBundle inputBundle,
             final ReadsDecoderOptions readsDecoderOptions) {
         ValidationUtils.nonNull(inputBundle, "Input bundle must not be null");
         ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
 
-        final IOPath readsPath = inputBundle.getReads();
+        final Optional<InputResource> readsInput = inputBundle.get(BundleResourceType.READS);
+        if (!readsInput.isPresent()) {
+            throw new IllegalArgumentException(String.format("No source of reads was found in input bundle", inputBundle));
+        }
+        // TODO: this currently assumes the input source is an IOPath; needs to handle stream, etc...
+        final IOPath readsPath = readsInput.get().getIOPath().get();
         final List<ReadsCodec> codecs = readsCodecs.getCodecsForIOPath(readsPath);
         final ReadsDecoder decoder = codecs
                 .stream()
@@ -221,10 +235,14 @@ public class HtsCodecRegistry {
 
     @SuppressWarnings("rawtypes")
     private static<T extends HtsCodec> boolean canDecodeSignature(final T codec, final IOPath inputPath) {
-        try (final InputStream rawInputStream = inputPath.getInputStream()) {
-            return codec.canDecodeSignature(rawInputStream, inputPath.getRawInputString());
-        } catch (IOException e) {
-            throw new HtsjdkIOException(String.format("Failure reading signature from stream for %s", inputPath.getRawInputString()), e);
+        if (inputPath.hasFileSystemProvider()) {
+            try (final InputStream rawInputStream = inputPath.getInputStream()) {
+                return codec.canDecodeSignature(rawInputStream, inputPath.getRawInputString());
+            } catch (IOException e) {
+                throw new HtsjdkIOException(String.format("Failure reading signature from stream for %s", inputPath.getRawInputString()), e);
+            }
+        } else {
+            return codec.canDecodeURI(inputPath);
         }
     }
 

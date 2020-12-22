@@ -18,8 +18,8 @@ public abstract class VCFCodec implements VariantsCodec {
     public VariantsFormat getFileFormat() { return VariantsFormat.VCF; }
 
     @Override
-    public boolean canDecodeExtension(final IOPath ioPath) {
-        return extensionMap.stream().anyMatch(ext-> ioPath.hasExtension(ext));
+    public boolean canDecodeURI(final IOPath ioPath) {
+        return ioPath.getScheme().equals("file") && extensionMap.stream().anyMatch(ext-> ioPath.hasExtension(ext));
     }
 
     @Override

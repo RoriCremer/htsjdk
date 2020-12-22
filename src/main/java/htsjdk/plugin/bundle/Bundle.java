@@ -1,38 +1,34 @@
 package htsjdk.plugin.bundle;
 
-import htsjdk.io.IOPath;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-//TODO: should these be immutable ?
+/**
+ * Aa immutable container for a collection of related resources (a primary resource such as reads,
+ * variants, features, or reference, etc.), plus zero or more related companion resources (an index, dictionary,
+ * MD5, etc). It is essentially a more generic version of SamInputResource, suitable for handling both
+ * inputs and output resources for any codec type).
+ *
+ * Each resource is represented by a BundleResource, which in turn describes an access mechanism for that resource
+ * (such as a URI, Path, file name, or stream).
+ *
+ * @param <T> a type that determines whether this bundle contains InputResources or OutputResources.
+ */
 
-// T is the resource type, and must be an enum
-public class Bundle<T extends Enum<T>> {
+// TODO: do we ever need duplicates/collections (i.e. 2 index files, etc.) ?
 
-    private final Map<T, BundleResource<T>> resources = new HashMap<>();
+class Bundle<T extends BundleResource> {
 
-    public Bundle() { }
+    private final Map<String, T> resources = new HashMap<>();
 
-    public Bundle(final BundleResource<T> resource) {
-        resources.put(resource.getResourceType(), resource);
+    public Bundle(final Collection<T> resources) {
+        resources.forEach(t -> this.resources.put(t.getContentType(), t));
     }
 
-    public Bundle<T> add(final BundleResource<T> resource) {
-        resources.put(resource.getResourceType(), resource);
-        return this;
-    }
-
-    public Bundle<T> add(final Collection<BundleResource<T>> resources) {
-        resources.forEach(this::add);
-        return this;
-    }
-
-    public Optional<IOPath> get(final T target) {
-        final BundleResource<T> bundleResource = resources.get(target);
-        return bundleResource == null ? Optional.empty() : Optional.of(bundleResource.getResourcePath());
+    public Optional<T> get(final String targetContent) {
+        return Optional.ofNullable(resources.get(targetContent));
     }
 
 }

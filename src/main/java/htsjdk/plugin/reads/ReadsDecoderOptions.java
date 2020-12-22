@@ -4,6 +4,12 @@ import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsDecoderOptions;
 import htsjdk.samtools.SamReaderFactory;
 
+/**
+ * ReadsDecoderOptions.
+ *
+ * NOTE: Pretty skeletal at this point, but this will be expanded to contain all of the various
+ * SamReaderFactory methods/options.
+ */
 public class ReadsDecoderOptions implements HtsDecoderOptions {
     private SamReaderFactory samReaderFactory = SamReaderFactory.makeDefault();
     private IOPath referencePath;

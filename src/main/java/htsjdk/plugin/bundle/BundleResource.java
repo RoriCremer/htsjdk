@@ -1,11 +1,28 @@
 package htsjdk.plugin.bundle;
 
+
 import htsjdk.io.IOPath;
 
-// T is a resource type enum
+import java.util.Optional;
 
-public interface BundleResource<T> {
-    IOPath getResourcePath();
+/**
+ * Base class for {@link InputResource} or {@link OutputResource}.
+ */
+public abstract class BundleResource {
+    private final String displayName;
+    private final String contentType;
 
-    T getResourceType();
+    public BundleResource(final String contentType, final String displayName) {
+        this.contentType = contentType;
+        this.displayName = displayName;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public String getDisplayName() { return displayName; }
+
+    public Optional<IOPath> getIOPath() { return Optional.empty(); };   // may be None for some sub-types
+
 }

@@ -5,8 +5,11 @@ import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecRegistry;
 import htsjdk.plugin.HtsDecoder;
+import htsjdk.plugin.bundle.BundleResourceType;
+import htsjdk.plugin.bundle.InputBundle;
+import htsjdk.plugin.bundle.InputBundleBuilder;
+import htsjdk.plugin.bundle.InputIOPathResource;
 import htsjdk.plugin.interval.HtsQueryRule;
-import htsjdk.plugin.reads.ReadsBundle;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.samtools.QueryInterval;
 import htsjdk.samtools.SAMRecord;
@@ -83,7 +86,10 @@ public class HtsBAMCodecQueryTest extends HtsjdkTest {
 
     @Test(dataProvider = "queryIntervalsData")
     public void testQueryIntervals(final HtsQueryRule queryRule, final int expected) {
-        final ReadsBundle readsBundle = new ReadsBundle(TEST_BAM, TEST_BAI);
+        final InputBundle readsBundle =
+                InputBundleBuilder.start()
+                        .add(new InputIOPathResource(BundleResourceType.READS, TEST_BAM))
+                        .add(new InputIOPathResource(BundleResourceType.INDEX, TEST_BAI)).getBundle();
         try (final HtsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(readsBundle, new ReadsDecoderOptions())) {
             final Iterator<SAMRecord> it = bamDecoder.query("chr1", 202661637, 202661812, queryRule);
             Assert.assertEquals(countElements(it), expected);

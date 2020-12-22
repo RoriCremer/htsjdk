@@ -4,6 +4,12 @@ import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsEncoderOptions;
 import htsjdk.samtools.SAMFileWriterFactory;
 
+/**
+ * ReadsEncoderOptions.
+ *
+ * NOTE: Pretty skeletal at this point, but this will be expanded to contain all of the various
+ * SamFileWriterFactory methods/options.
+ */
 public class ReadsEncoderOptions implements HtsEncoderOptions {
     private SAMFileWriterFactory samFileWriterFactory = new SAMFileWriterFactory();
     private IOPath referencePath;

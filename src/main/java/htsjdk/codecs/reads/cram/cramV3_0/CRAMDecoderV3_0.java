@@ -5,12 +5,14 @@ import htsjdk.codecs.reads.cram.CRAMDecoder;
 import htsjdk.codecs.reads.cram.CRAMDecoderOptions;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.HtsDecoderOptions;
-import htsjdk.plugin.reads.ReadsBundle;
+import htsjdk.plugin.bundle.BundleResourceType;
+import htsjdk.plugin.bundle.InputBundle;
+import htsjdk.plugin.bundle.InputResource;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.samtools.CRAMFileReader;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.cram.ref.ReferenceSource;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.util.RuntimeIOException;
@@ -18,9 +20,12 @@ import htsjdk.samtools.util.RuntimeIOException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Optional;
 
+/**
+ * CRAM v3.0 decoder.
+ */
 public class CRAMDecoderV3_0 extends CRAMDecoder {
-    private final HtsDecoderOptions htsDecoderOptions;
     private final CRAMDecoderOptions cramDecoderOptions;
     private final CRAMFileReader cramReader;
     private final SAMFileHeader samFileHeader;
@@ -29,9 +34,8 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
         this(inputPath, new ReadsDecoderOptions());
     }
 
-    public CRAMDecoderV3_0(final IOPath inputPath, final HtsDecoderOptions readsDecoderOptions) {
-        super(inputPath);
-        this.htsDecoderOptions = readsDecoderOptions;
+    public CRAMDecoderV3_0(final IOPath inputPath, final ReadsDecoderOptions readsDecoderOptions) {
+        super(inputPath, readsDecoderOptions);
         this.cramDecoderOptions = readsDecoderOptions instanceof CRAMDecoderOptions ?
                 (CRAMDecoderOptions) readsDecoderOptions :
                 null;
@@ -39,9 +43,8 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
         samFileHeader = cramReader.getFileHeader();
     }
 
-    public CRAMDecoderV3_0(final ReadsBundle bundle, final ReadsDecoderOptions readsDecoderOptions) {
-        super(bundle);
-        this.htsDecoderOptions = readsDecoderOptions;
+    public CRAMDecoderV3_0(final InputBundle bundle, final ReadsDecoderOptions readsDecoderOptions) {
+        super(bundle, readsDecoderOptions);
         this.cramDecoderOptions = readsDecoderOptions instanceof CRAMDecoderOptions ?
                 (CRAMDecoderOptions) readsDecoderOptions :
                 null;
@@ -53,9 +56,8 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
         this(is, displayName, new ReadsDecoderOptions());
     }
 
-    public CRAMDecoderV3_0(final InputStream is, final String displayName, final HtsDecoderOptions readsDecoderOptions) {
-        super(is, displayName);
-        this.htsDecoderOptions = readsDecoderOptions;
+    public CRAMDecoderV3_0(final InputStream is, final String displayName, final ReadsDecoderOptions readsDecoderOptions) {
+        super(is, displayName, readsDecoderOptions);
         this.cramDecoderOptions = readsDecoderOptions instanceof CRAMDecoderOptions ?
                 (CRAMDecoderOptions) readsDecoderOptions :
                 null;
@@ -83,22 +85,66 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
         cramReader.close();
     }
 
-    //TODO: This needs to consult the resource bundle
     private CRAMFileReader getCRAMReader() {
-        final ReadsDecoderOptions readsDecoderOptions = (ReadsDecoderOptions) htsDecoderOptions;
-        try {
-            return new CRAMFileReader(
-                    is == null ?
-                        inputPath.getInputStream() :
+        //TODO: honor decoderOptions
+        final CRAMFileReader cramFileReader;
+        if (is != null) {
+            try {
+                cramFileReader = new CRAMFileReader(
                         is,
-                    (SeekableStream) null,
-                    readsDecoderOptions.getReferencePath() == null ?
-                            ReferenceSource.getDefaultCRAMReferenceSource() :
-                            CRAMCodec.getCRAMReferenceSource(readsDecoderOptions.getReferencePath()),
-                    readsDecoderOptions.getSamReaderFactory().validationStringency());
-        } catch (IOException e) {
-            throw new RuntimeIOException(String.format("Failure opening reader for %s", getDisplayName()));
+                        (SeekableStream) null,
+                        readsDecoderOptions.getReferencePath() == null ?
+                                ReferenceSource.getDefaultCRAMReferenceSource() :
+                                CRAMCodec.getCRAMReferenceSource(readsDecoderOptions.getReferencePath()),
+                        readsDecoderOptions.getSamReaderFactory().validationStringency());
+            } catch (IOException e) {
+                throw new RuntimeIOException(e);
+            }
+        } else if (inputPath != null) {
+            try {
+                cramFileReader = new CRAMFileReader(
+                        inputPath.getInputStream(),
+                        (SeekableStream) null,
+                        readsDecoderOptions.getReferencePath() == null ?
+                                ReferenceSource.getDefaultCRAMReferenceSource() :
+                                CRAMCodec.getCRAMReferenceSource(readsDecoderOptions.getReferencePath()),
+                        readsDecoderOptions.getSamReaderFactory().validationStringency());
+            } catch (IOException e) {
+                throw new RuntimeIOException(e);
+            }
+        } else {
+            // use the bundle
+            final Optional<InputResource> readsInput = inputBundle.get(BundleResourceType.READS);
+            if (!readsInput.isPresent()) {
+                throw new IllegalArgumentException("No source of reads was provided");
+            }
+            final Optional<IOPath> readsPath = readsInput.get().getIOPath();
+            if (!readsPath.isPresent()) {
+                throw new IllegalArgumentException("Currently onlyIOPaths are supported for reads input bundles");
+            }
+            final SamInputResource readsResource = SamInputResource.of(readsPath.get().toPath());
+
+            final Optional<InputResource> indexInput = inputBundle.get(BundleResourceType.INDEX);
+            if (indexInput.isPresent()) {
+                final Optional<IOPath> indexPath = indexInput.get().getIOPath();
+                if (!indexPath.isPresent()) {
+                    throw new IllegalArgumentException("Currently only IOPaths are supported for index input bundles");
+                }
+                readsResource.index(indexPath.get().toPath());
+            }
+            try {
+                cramFileReader = new CRAMFileReader(
+                        readsPath.get().getInputStream(),
+                        (SeekableStream) null,
+                        readsDecoderOptions.getReferencePath() == null ?
+                                ReferenceSource.getDefaultCRAMReferenceSource() :
+                                CRAMCodec.getCRAMReferenceSource(readsDecoderOptions.getReferencePath()),
+                        readsDecoderOptions.getSamReaderFactory().validationStringency());
+            } catch (IOException e) {
+                throw new RuntimeIOException(e);
+            }
         }
+        return cramFileReader;
     }
 
 }

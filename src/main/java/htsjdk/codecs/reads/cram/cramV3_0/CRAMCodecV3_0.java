@@ -8,7 +8,7 @@ import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.HtsDecoder;
 import htsjdk.plugin.HtsRecord;
-import htsjdk.plugin.reads.ReadsBundle;
+import htsjdk.plugin.bundle.InputBundle;
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsEncoderOptions;
 import htsjdk.plugin.reads.ReadsFormat;
@@ -20,7 +20,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 /**
- * BAM codec used to exercise the reader factory infrastructure
+ * CRAM v3.0 codec
  */
 public class CRAMCodecV3_0 extends CRAMCodec {
     public static final HtsCodecVersion VERSION_3_0 = new HtsCodecVersion(3, 0, 0);
@@ -68,8 +68,8 @@ public class CRAMCodecV3_0 extends CRAMCodec {
     }
 
     @Override
-    public HtsDecoder<ReadsFormat, ?, ? extends HtsRecord> getDecoder(final ReadsBundle bundle, final ReadsDecoderOptions decodeOptions) {
-        return new CRAMDecoderV3_0(bundle, decodeOptions);
+    public HtsDecoder<ReadsFormat, ?, ? extends HtsRecord> getDecoder(final InputBundle bundle, final ReadsDecoderOptions decoderOptions) {
+        return new CRAMDecoderV3_0(bundle, decoderOptions);
     }
 
     @Override

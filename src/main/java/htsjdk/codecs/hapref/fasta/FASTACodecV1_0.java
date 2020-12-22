@@ -7,7 +7,7 @@ import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsDecoderOptions;
 import htsjdk.plugin.HtsEncoderOptions;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.hapref.HaploidReferenceBundle;
+import htsjdk.plugin.bundle.InputBundle;
 import htsjdk.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.samtools.util.FileExtensions;
 import htsjdk.utils.ValidationUtils;
@@ -41,8 +41,8 @@ public class FASTACodecV1_0 extends HapRefCodec {
     }
 
     @Override
-    public boolean canDecodeExtension(final IOPath ioPath) {
-        return FileExtensions.FASTA.stream().anyMatch(ext-> ioPath.hasExtension(ext));
+    public boolean canDecodeURI(final IOPath ioPath) {
+        return ioPath.getScheme().equals("file") && FileExtensions.FASTA.stream().anyMatch(ext-> ioPath.hasExtension(ext));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class FASTACodecV1_0 extends HapRefCodec {
     }
 
     @Override
-    public HapRefDecoder getDecoder(final HaploidReferenceBundle inputBundle, final HtsDecoderOptions options) {
+    public HapRefDecoder getDecoder(final InputBundle inputBundle, final HtsDecoderOptions options) {
         ValidationUtils.validateArg(options == null, "reference reader options must be null");
         return new FASTADecoderV1_0(inputBundle);
     }

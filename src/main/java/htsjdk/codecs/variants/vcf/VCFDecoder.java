@@ -1,7 +1,7 @@
 package htsjdk.codecs.variants.vcf;
 
 import htsjdk.io.IOPath;
-import htsjdk.plugin.variants.VariantsBundle;
+import htsjdk.plugin.bundle.InputBundle;
 import htsjdk.plugin.variants.VariantsDecoder;
 import htsjdk.plugin.variants.VariantsDecoderOptions;
 import htsjdk.plugin.variants.VariantsFormat;
@@ -13,7 +13,7 @@ public abstract class VCFDecoder implements VariantsDecoder {
 
     protected IOPath inputPath;
     protected InputStream is;
-    protected VariantsBundle inputBundle;
+    protected InputBundle inputBundle;
 
     public VCFDecoder(final IOPath inputPath) {
         this.inputPath = inputPath;
@@ -25,7 +25,8 @@ public abstract class VCFDecoder implements VariantsDecoder {
         this.displayName = displayName;
     }
 
-    public VCFDecoder(final VariantsBundle inputBundle, final VariantsDecoderOptions decoderOptions) {
+    //TODO:handle decoder Options
+    public VCFDecoder(final InputBundle inputBundle, final VariantsDecoderOptions decoderOptions) {
         this.inputBundle = inputBundle;
         //this.displayName = inputBundle.;
         this.displayName = "TEMP"; //TODO: get the name from the input variants

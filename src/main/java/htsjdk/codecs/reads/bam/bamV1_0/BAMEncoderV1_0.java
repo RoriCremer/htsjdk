@@ -13,10 +13,6 @@ import htsjdk.samtools.util.BlockCompressedOutputStream;
 
 import java.io.OutputStream;
 
-//TODO: a writer needs to write several streams (file, index, md5), not one
-// TODO: should this take a REFERENCE_READER from a codec ? from options
-//TODO: this needs a header to create the
-
 public class BAMEncoderV1_0 extends BAMEncoder {
 
     private final HtsEncoderOptions readsEncoderOptions;

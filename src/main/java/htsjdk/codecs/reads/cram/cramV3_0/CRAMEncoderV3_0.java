@@ -12,6 +12,9 @@ import htsjdk.samtools.cram.ref.ReferenceSource;
 
 import java.io.OutputStream;
 
+/**
+ * CRAM v3.0 encoder.
+ */
 public class CRAMEncoderV3_0 extends CRAMEncoder {
 
     final private ReadsEncoderOptions readsEncoderOptions;

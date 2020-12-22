@@ -1,16 +1,11 @@
 package htsjdk.plugin.interval;
 
 // TODO:
-// Final:
-// use a single, normalized, 1 based, closed coordinate system
-// use SimpleInterval if possible, only support String queryName
 // - Wild cards, i.e., end of reference/contig
-//   ?? wildcards, use an interval that spans
-// Add a query by String (ie, by readname)
-// for special (per-reader) cases, implement an extended interface (ie., queryUnMapped)
 
 import htsjdk.samtools.QueryInterval;
 import htsjdk.samtools.SAMSequenceDictionary;
+import htsjdk.samtools.util.Locatable;
 import htsjdk.utils.ValidationUtils;
 
 import java.util.Arrays;
@@ -47,11 +42,46 @@ public class HtsInterval {
 
     public long getEnd() { return end; }
 
+    // Interop methods for interconverting to/from existing htsjdk types such as Locatable/QueryInterval
+
     public QueryInterval toQueryInterval(final SAMSequenceDictionary dictionary) {
         return new QueryInterval(
                 dictionary.getSequenceIndex(getQueryName()),
                 toIntegerSafe(getStart()),
                 toIntegerSafe(getEnd()));
+    }
+
+    public Locatable toLocatable(final SAMSequenceDictionary dictionary) {
+        return new Locatable() {
+            @Override
+            public String getContig() {
+                return getQueryName();
+            }
+
+            @Override
+            public int getStart() {
+                return toIntegerSafe(start);
+            }
+
+            @Override
+            public int getEnd() {
+                return toIntegerSafe(end);
+            }
+
+            @Override
+            public String toString() {
+                return String.format("%s:%s-%s", getQueryName(), start, end);
+            }
+        };
+    }
+
+    public static List<Locatable> toLocatableList(
+            final List<HtsInterval> intervals,
+            final SAMSequenceDictionary dictionary) {
+        return intervals
+                .stream()
+                .map(si -> si.toLocatable(dictionary))
+                .collect(Collectors.toList());
     }
 
     public static QueryInterval[] toQueryIntervalArray(

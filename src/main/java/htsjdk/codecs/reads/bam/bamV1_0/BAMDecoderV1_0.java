@@ -5,9 +5,12 @@ import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
 import htsjdk.plugin.HtsDecoderOptions;
+import htsjdk.plugin.bundle.BundleResourceType;
+import htsjdk.plugin.bundle.InputBundle;
+import htsjdk.plugin.bundle.InputResource;
 import htsjdk.plugin.interval.HtsInterval;
 import htsjdk.plugin.interval.HtsQueryRule;
-import htsjdk.plugin.reads.ReadsBundle;
+
 import htsjdk.plugin.reads.ReadsDecoderOptions;
 import htsjdk.plugin.reads.ReadsResourceType;
 import htsjdk.samtools.BAMFileReader;
@@ -31,7 +34,6 @@ import java.util.Optional;
 //TODO: need to guard against multiple iterators
 
 public class BAMDecoderV1_0 extends BAMDecoder {
-
     private final SamReader samReader;
     private final SAMFileHeader samFileHeader;
 
@@ -42,11 +44,12 @@ public class BAMDecoderV1_0 extends BAMDecoder {
     public BAMDecoderV1_0(final IOPath inputPath, final HtsDecoderOptions decoderOptions) {
         super(inputPath);
         ValidationUtils.nonNull(decoderOptions);
+
         samReader = getSamReader(decoderOptions);
         samFileHeader = samReader.getFileHeader();
     }
 
-    public BAMDecoderV1_0(final ReadsBundle inputBundle, final ReadsDecoderOptions decoderOptions) {
+    public BAMDecoderV1_0(final InputBundle inputBundle, final ReadsDecoderOptions decoderOptions) {
         super(inputBundle, decoderOptions);
         ValidationUtils.nonNull(decoderOptions);
         samReader = getSamReader(decoderOptions);
@@ -96,7 +99,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
         final QueryInterval[] queryIntervals = HtsInterval.toQueryIntervalArray(
                 intervals,
                 samFileHeader.getSequenceDictionary());
-        return samReader.query(queryIntervals, queryRule.toContained());
+        return samReader.query(queryIntervals, queryRule == HtsQueryRule.CONTAINED);
     }
 
     @Override
@@ -150,9 +153,22 @@ public class BAMDecoderV1_0 extends BAMDecoder {
             reader = readsDecoderOptions.getSamReaderFactory().open(SamInputResource.of(inputPath.toPath()));
         } else {
             // use the bundle
-            final SamInputResource readsResource = SamInputResource.of(inputBundle.getReads().toPath());
-            final Optional<IOPath> indexPath = inputBundle.get(ReadsResourceType.INDEX);
-            if (indexPath.isPresent()) {
+            final Optional<InputResource> readsInput = inputBundle.get(BundleResourceType.READS);
+            if (!readsInput.isPresent()) {
+                throw new IllegalArgumentException("No source of reads was provided");
+            }
+            final Optional<IOPath> readsPath = readsInput.get().getIOPath();
+            if (!readsPath.isPresent()) {
+                throw new IllegalArgumentException("Currently onlyIOPaths are supported for reads input bundles");
+            }
+            final SamInputResource readsResource = SamInputResource.of(readsPath.get().toPath());
+
+            final Optional<InputResource> indexInput = inputBundle.get(BundleResourceType.INDEX);
+            if (indexInput.isPresent()) {
+                final Optional<IOPath> indexPath = indexInput.get().getIOPath();
+                if (!indexPath.isPresent()) {
+                    throw new IllegalArgumentException("Currently only IOPaths are supported for index input bundles");
+                }
                 readsResource.index(indexPath.get().toPath());
             }
             reader = readsDecoderOptions.getSamReaderFactory().open(readsResource);

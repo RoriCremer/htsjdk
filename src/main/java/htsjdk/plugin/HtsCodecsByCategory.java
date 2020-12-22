@@ -9,10 +9,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+// Class used by the registry to track all codecs for a given category.
 // TODO: need more than one codec per format/version, ie., we'll need an HtsGetCodec for BAM v1 that
 // uses the same encoder/decoder as the BAMv1Codec
 
-final class HtsCodecsByType<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?>> {
+final class HtsCodecsByCategory<FORMAT extends Enum<FORMAT>, CODEC extends HtsCodec<FORMAT, ?, ?>> {
 
     private final Map<FORMAT, Map<HtsCodecVersion, CODEC>> codecs = new HashMap<>();
     private final Map<FORMAT, HtsCodecVersion> newestVersion = new HashMap<>();
@@ -41,7 +42,7 @@ final class HtsCodecsByType<FORMAT, CODEC extends HtsCodec<FORMAT, ?, ?, ?>> {
         return codecs.values()
                 .stream()
                 .flatMap(m -> m.values().stream())
-                .filter(codec -> codec.canDecodeExtension(inputPath))
+                .filter(codec -> codec.canDecodeURI(inputPath))
                 .collect(Collectors.toList());
     }
 

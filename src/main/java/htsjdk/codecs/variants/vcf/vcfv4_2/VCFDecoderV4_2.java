@@ -4,7 +4,7 @@ import htsjdk.codecs.variants.vcf.VCFDecoder;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.plugin.HtsCodecVersion;
-import htsjdk.plugin.variants.VariantsBundle;
+import htsjdk.plugin.bundle.InputBundle;
 import htsjdk.plugin.variants.VariantsDecoderOptions;
 import htsjdk.utils.ValidationUtils;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -31,7 +31,7 @@ public class VCFDecoderV4_2 extends VCFDecoder {
         vcfHeader = vcfReader.getHeader();
     }
 
-    public VCFDecoderV4_2(final VariantsBundle inputBundle, final VariantsDecoderOptions decoderOptions) {
+    public VCFDecoderV4_2(final InputBundle inputBundle, final VariantsDecoderOptions decoderOptions) {
         super(inputBundle, decoderOptions);
         vcfReader = getVCFReader(decoderOptions);
         vcfHeader = vcfReader.getHeader();

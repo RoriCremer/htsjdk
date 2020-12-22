@@ -1,22 +1,19 @@
 package htsjdk.plugin.bundle;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
-public class BundleBuilder<T extends Enum<T>> {
+/**
+ * A builder class for {@link Bundle}.
+ *
+ * @param <T> the type of resource the {@link Bundle} being built holds ({@link InputResource}
+ *          or {@link OutputResource}).
+ */
+public class BundleBuilder<T extends BundleResource> {
 
-    final private Bundle<T> bundle = new Bundle();
+    //use a List in order to allow duplicates
+    final List<T> bundleResources = new ArrayList<>();
 
-    private BundleBuilder() {};
+    public BundleBuilder() {};
 
-    static public <T extends Enum<T>> BundleBuilder<T> get() { return new BundleBuilder<T>(); }
-
-    final BundleBuilder add(final BundleResource<T> resource) {
-        bundle.add(resource);
-        return this;
-    }
-
-    final BundleBuilder add(final Collection<BundleResource<T>> resources) {
-        bundle.add(resources);
-        return this;
-    }
 }

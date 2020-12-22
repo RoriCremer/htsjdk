@@ -6,10 +6,12 @@ import htsjdk.plugin.reads.ReadsEncoder;
 
 import java.io.OutputStream;
 
+// TODO: handle presorted
+
+/**
+ * Base class for BAM encoders.
+ */
 public abstract class BAMEncoder implements ReadsEncoder {
-
-    // TODO: presorted
-
     final private String displayName;
     protected IOPath outputPath;
     protected OutputStream os;

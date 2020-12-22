@@ -15,6 +15,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Base class for CRAM codecs.
+ */
 public abstract class CRAMCodec implements ReadsCodec {
     private final Set<String> extensionMap = new HashSet(Arrays.asList(FileExtensions.CRAM));
 
@@ -22,8 +25,8 @@ public abstract class CRAMCodec implements ReadsCodec {
     public ReadsFormat getFileFormat() { return ReadsFormat.CRAM; }
 
     @Override
-    public boolean canDecodeExtension(final IOPath ioPath) {
-        return extensionMap.stream().anyMatch(ext-> ioPath.hasExtension(ext));
+    public boolean canDecodeURI(final IOPath ioPath) {
+        return ioPath.getScheme().equals("file") && extensionMap.stream().anyMatch(ext-> ioPath.hasExtension(ext));
     }
 
     @Override

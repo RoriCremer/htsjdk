@@ -2,6 +2,9 @@ package htsjdk.plugin;
 
 import htsjdk.utils.ValidationUtils;
 
+/**
+ * A codec (file format) version.
+ */
 public class HtsCodecVersion implements Comparable<HtsCodecVersion> {
 
     private static final String FORMAT_STRING = "%d.%d.%d";
