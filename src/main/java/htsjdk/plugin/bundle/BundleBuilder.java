@@ -9,7 +9,7 @@ import java.util.List;
  * @param <T> the type of resource the {@link Bundle} being built holds ({@link InputResource}
  *          or {@link OutputResource}).
  */
-public class BundleBuilder<T extends BundleResource> {
+public abstract class BundleBuilder<T extends BundleResource> {
 
     //use a List in order to allow duplicates
     final List<T> bundleResources = new ArrayList<>();

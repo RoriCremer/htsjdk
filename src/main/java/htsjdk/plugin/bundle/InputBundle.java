@@ -1,5 +1,7 @@
 package htsjdk.plugin.bundle;
 
+import htsjdk.utils.ValidationUtils;
+
 import java.util.List;
 
 /**
@@ -8,8 +10,7 @@ import java.util.List;
 public class InputBundle extends Bundle<InputResource> {
 
     public InputBundle(final List<InputResource> resources) {
-        super(resources);
+        super(ValidationUtils.nonNull(resources, "A non-null resources list is required"));
     }
 
-    //TODO: toString, equals, hashCode
 }

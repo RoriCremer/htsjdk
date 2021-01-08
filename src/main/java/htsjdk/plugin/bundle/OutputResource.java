@@ -1,5 +1,7 @@
 package htsjdk.plugin.bundle;
 
+import htsjdk.utils.ValidationUtils;
+
 import java.io.OutputStream;
 import java.util.Optional;
 
@@ -9,11 +11,10 @@ import java.util.Optional;
 public abstract class OutputResource extends BundleResource {
 
     public OutputResource(final String contentType, final String displayName) {
-        super(contentType, displayName);
+        super(ValidationUtils.nonNull(contentType, "A content type must be provided"),
+              ValidationUtils.nonNull(displayName, "A display name must be provided"));
     }
 
     public abstract Optional<OutputStream> getOutputStream();
-
-    //TODO: toString, hashCode
 
 }

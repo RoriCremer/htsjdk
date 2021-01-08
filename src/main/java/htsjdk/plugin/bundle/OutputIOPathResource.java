@@ -1,6 +1,7 @@
 package htsjdk.plugin.bundle;
 
 import htsjdk.io.IOPath;
+import htsjdk.utils.ValidationUtils;
 
 import java.io.OutputStream;
 import java.util.Optional;
@@ -12,7 +13,7 @@ public class OutputIOPathResource extends OutputResource {
     private final IOPath ioPath;
 
     public OutputIOPathResource(final String contentType, final IOPath ioPath) {
-        super(contentType, ioPath.getRawInputString());
+        super(contentType, ValidationUtils.nonNull(ioPath, "A non-null iopath must be provided").getRawInputString());
         this.ioPath = ioPath;
     }
 

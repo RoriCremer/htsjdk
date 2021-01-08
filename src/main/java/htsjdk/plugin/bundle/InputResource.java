@@ -1,6 +1,7 @@
 package htsjdk.plugin.bundle;
 
 import htsjdk.samtools.seekablestream.SeekableStream;
+import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
 import java.util.Optional;
@@ -11,10 +12,10 @@ import java.util.Optional;
 public abstract class InputResource extends BundleResource {
 
     public InputResource(final String contentType, final String displayName) {
-        super(contentType, displayName);
+        super(ValidationUtils.nonNull(contentType, "A content type must be provided"),
+              ValidationUtils.nonNull(displayName, "A display name must be provided"));
     }
 
-    //TODO: Optional<InputStream> and Option<SeekableStream> ??
     public abstract Optional<InputStream> getInputStream();
 
     public abstract Optional<SeekableStream> getSeekableStream();

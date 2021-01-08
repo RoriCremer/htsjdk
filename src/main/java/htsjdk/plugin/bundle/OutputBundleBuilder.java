@@ -10,7 +10,6 @@ public class OutputBundleBuilder extends BundleBuilder<OutputResource> {
     }
 
     final public OutputBundle getBundle() {
-        //TODO: assert that there are resources...or maybe do that right in Bundle
         return new OutputBundle(bundleResources);
     }
 }

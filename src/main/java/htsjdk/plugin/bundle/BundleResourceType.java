@@ -15,6 +15,7 @@ public class BundleResourceType {
     public static final String VARIANTS = "variants";
     public static final String FEATURES = "features";
 
+    //TODO: resolve this into a set of more specific types (BAI, CSI, IDX, TBI..)
     public static final String INDEX = "index";
     public static final String MD5 = "md5";
 

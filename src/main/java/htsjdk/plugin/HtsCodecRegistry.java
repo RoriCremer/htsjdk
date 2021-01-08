@@ -81,7 +81,9 @@ public class HtsCodecRegistry {
     public static ReadsDecoder getReadsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         return getReadsDecoder(
-                InputBundleBuilder.start().add(new InputIOPathResource(BundleResourceType.READS, inputPath)).getBundle(),
+                InputBundleBuilder.start()
+                        .add(new InputIOPathResource(BundleResourceType.READS, inputPath))
+                        .getBundle(),
                 new ReadsDecoderOptions()
         );
     }
@@ -93,7 +95,9 @@ public class HtsCodecRegistry {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
         return getReadsDecoder(
-                InputBundleBuilder.start().add(new InputIOPathResource(BundleResourceType.READS, inputPath)).getBundle(),
+                InputBundleBuilder.start()
+                        .add(new InputIOPathResource(BundleResourceType.READS, inputPath))
+                        .getBundle(),
                 readsDecoderOptions);
     }
 

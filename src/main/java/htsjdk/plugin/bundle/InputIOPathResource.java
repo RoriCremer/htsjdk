@@ -2,6 +2,7 @@ package htsjdk.plugin.bundle;
 
 import htsjdk.io.IOPath;
 import htsjdk.samtools.seekablestream.SeekableStream;
+import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
 import java.util.Optional;
@@ -13,7 +14,8 @@ public class InputIOPathResource extends InputResource {
     private final IOPath ioPath;
 
     public InputIOPathResource(final String contentType, final IOPath ioPath) {
-        super(contentType, ioPath.getRawInputString());
+        super(ValidationUtils.nonNull(contentType, "A non null content type string is required"),
+              ValidationUtils.nonNull(ioPath, "A non null input path is required").getRawInputString());
         this.ioPath = ioPath;
     }
 
@@ -27,7 +29,6 @@ public class InputIOPathResource extends InputResource {
 
     @Override
     public Optional<SeekableStream> getSeekableStream() {
-        //TODO: implement this!
         return Optional.empty();
     }
 }
