@@ -4,6 +4,7 @@ import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -11,9 +12,12 @@ import java.util.Optional;
  */
 public abstract class InputResource extends BundleResource {
 
-    public InputResource(final String contentType, final String displayName) {
-        super(ValidationUtils.nonNull(contentType, "A content type must be provided"),
-              ValidationUtils.nonNull(displayName, "A display name must be provided"));
+    public InputResource(
+            final String contentType,
+            final String displayName,
+            final String tag,
+            final Map<String, String> tagAttributes) {
+        super(contentType, displayName, tag, tagAttributes);
     }
 
     public abstract Optional<InputStream> getInputStream();

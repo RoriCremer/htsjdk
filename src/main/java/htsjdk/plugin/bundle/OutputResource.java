@@ -1,18 +1,21 @@
 package htsjdk.plugin.bundle;
 
-import htsjdk.utils.ValidationUtils;
-
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.Optional;
 
 /**
- * A resource that can be added to an {@link OutputBundle}.
+ * A resource that can be added to an {@link OutputBundle}. This is basically just a tagging
+ * interface
  */
 public abstract class OutputResource extends BundleResource {
 
-    public OutputResource(final String contentType, final String displayName) {
-        super(ValidationUtils.nonNull(contentType, "A content type must be provided"),
-              ValidationUtils.nonNull(displayName, "A display name must be provided"));
+    public OutputResource(
+            final String contentType,
+            final String displayName,
+            final String tag,
+            final Map<String, String> tagAttributes) {
+        super(contentType, displayName, tag, tagAttributes);
     }
 
     public abstract Optional<OutputStream> getOutputStream();

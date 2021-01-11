@@ -5,6 +5,7 @@ import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -14,8 +15,22 @@ public class InputIOPathResource extends InputResource {
     private final IOPath ioPath;
 
     public InputIOPathResource(final String contentType, final IOPath ioPath) {
-        super(ValidationUtils.nonNull(contentType, "A non null content type string is required"),
-              ValidationUtils.nonNull(ioPath, "A non null input path is required").getRawInputString());
+        this(contentType, ioPath, null, null);
+    }
+
+    public InputIOPathResource(final String contentType, final IOPath ioPath, final String tag) {
+        this(contentType, ioPath, tag, null);
+    }
+
+    public InputIOPathResource(
+            final String contentType,
+            final IOPath ioPath,
+            final String tag,
+            final Map<String, String> tagAttributes) {
+        super(contentType,
+                ValidationUtils.nonNull(ioPath, "A non null input path is required").getRawInputString(),
+                tag,
+                tagAttributes);
         this.ioPath = ioPath;
     }
 

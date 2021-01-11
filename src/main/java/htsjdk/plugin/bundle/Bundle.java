@@ -25,7 +25,13 @@ public abstract class Bundle<T extends BundleResource> {
     public Bundle(final Collection<T> resources) {
         ValidationUtils.nonNull(resources, "non-null resource collection must be provided");
         ValidationUtils.validateArg(!resources.isEmpty(), "non empty resource collection must be provided");
-        resources.forEach(t -> this.resources.put(t.getContentType(), t));
+        resources.forEach(t -> {
+            if (this.resources.containsKey(t.getContentType())) {
+                throw new IllegalArgumentException(
+                        String.format("Attempt to add a duplicate resource for bundle key: %s", t.getContentType()));
+            }
+            this.resources.put(t.getContentType(), t);
+        });
     }
 
     public Optional<T> get(final String targetContent) {

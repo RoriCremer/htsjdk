@@ -15,7 +15,7 @@ public class InputStreamResource extends InputResource {
     private final InputStream inputStream;
 
     public InputStreamResource(final String contentType, final String displayName, final InputStream inputStream) {
-        super(ValidationUtils.nonNull(contentType), ValidationUtils.nonNull(displayName));
+        super(ValidationUtils.nonNull(contentType), ValidationUtils.nonNull(displayName), null,null);
         ValidationUtils.nonNull(inputStream, "A non-null input stream must be provided");
         this.inputStream = inputStream;
     }
