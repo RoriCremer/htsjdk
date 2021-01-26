@@ -36,7 +36,7 @@ public abstract class HtsgetBAMCodec implements ReadsCodec {
     public HtsCodecVersion getVersion() { return HTSGET_VERSION; }
 
     @Override
-    public ReadsFormat getFileFormat() { return ReadsFormat.BAM; }
+    public ReadsFormat getFileFormat() { return ReadsFormat.HTSGET_BAM; }
 
     @Override
     public int getSignatureSize() {

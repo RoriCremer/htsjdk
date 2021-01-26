@@ -5,22 +5,22 @@ import java.io.Closeable;
 /**
  * Base interface for encoders.
  *
- * @param <FORMAT> enum type param containing constants for each format supported by this codec
+ * @param <F> enum representing the formats for this codec category
  *               (i.e., ReadsFormat defining SAM/BAM/CRAM constants)
- * @param <HEADER> type param for the header for this format (i.e. SAMFileHeader)
- * @param <RECORD> type param for the record for this format (i.e. SAMRecord)
+ * @param <H> type param for the header for this format (i.e. SAMFileHeader)
+ * @param <R> type param for the record for this format (i.e. SAMRecord)
  */
-public interface HtsEncoder<FORMAT, HEADER extends HtsHeader, RECORD extends HtsRecord> extends Closeable {
+public interface HtsEncoder<F, H extends HtsHeader, R extends HtsRecord> extends Closeable {
 
-    FORMAT getFormat();
+    F getFormat();
 
     HtsCodecVersion getVersion();
 
     String getDisplayName();
 
-    void setHeader(HEADER header);
+    void setHeader(H header);
 
-    void write(RECORD record);
+    void write(R record);
 
     void close();
 

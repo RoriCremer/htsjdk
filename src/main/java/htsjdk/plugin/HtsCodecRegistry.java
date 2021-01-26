@@ -31,6 +31,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+// Codec Types:
+//
+// HapRef
+// Reads
+// Features
+// Variants
+//
+// For each codec type T, we need 5 entry points each for the decoder and encoder:
+//
+//  getTDecoder(IOPath)
+//  getTDecoder(IOPath, ReadOptions)
+//  getTDecoder(InputBundle)
+//  getTDecoder(InputBundle, ReadOptions)
+//  getTDecoder(InputBundle, ReadOptions, HtsCodecVersion)
+//
+//  getTEncoder(IOPath)
+//  getTEncoder(IOPath, WriteOptions)
+//  getTEncoder(OutputBundle)
+//  getTEncoder(OutputBundle, WriteOptions)
+//  getTEncoder(OutputBundle, WriteOptions, HtsCodecVersion)
+//
+
 /**
  * Registry/cache for binding to encoders/decoders.
  */
@@ -38,10 +60,13 @@ import java.util.*;
 public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
 
-    // registries for dynamically discovered codecs, by category
-    private static HtsCodecsByCategory<HaploidReferenceFormat, HaploidReferenceCodec> haprefCodecs = new HtsCodecsByCategory<>();
-    private static HtsCodecsByCategory<ReadsFormat, ReadsCodec> readsCodecs = new HtsCodecsByCategory<>();
-    private static HtsCodecsByCategory<VariantsFormat, VariantsCodec> variantCodecs = new HtsCodecsByCategory<>();
+    // maps of codec versions, by format, for each codec type
+    private static HtsVersionsByFormat<HaploidReferenceFormat, HaploidReferenceCodec>
+            haprefCodecs = new HtsVersionsByFormat<>();
+    private static HtsVersionsByFormat<ReadsFormat, ReadsCodec>
+            readsCodecs = new HtsVersionsByFormat<>();
+    private static HtsVersionsByFormat<VariantsFormat, VariantsCodec>
+            variantCodecs = new HtsVersionsByFormat<>();
 
     private final static String NO_CODEC_MSG_FORMAT_STRING = "A %s codec capable of handling \"%s\" could not be found";
 
@@ -54,7 +79,7 @@ public class HtsCodecRegistry {
      * Add a codec to the registry
      */
     private void registerCodec(final HtsCodec codec) {
-        switch (codec.getCodecCategory()) {
+        switch (codec.getCodecType()) {
             case ALIGNED_READS:
                 readsCodecs.register((ReadsCodec) codec);
                 break;

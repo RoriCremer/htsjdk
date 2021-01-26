@@ -2,6 +2,7 @@ package htsjdk.plugin.interval;
 
 // TODO:
 // - Wild cards, i.e., end of reference/contig
+// Should this have a separate interface ?
 
 import htsjdk.samtools.QueryInterval;
 import htsjdk.samtools.SAMSequenceDictionary;

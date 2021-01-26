@@ -1,7 +1,7 @@
 package htsjdk.plugin.reads;
 
 import htsjdk.plugin.HtsCodec;
-import htsjdk.plugin.HtsCodecCategory;
+import htsjdk.plugin.HtsCodecType;
 
 /**
  * Base class for all reads codecs.
@@ -9,6 +9,6 @@ import htsjdk.plugin.HtsCodecCategory;
 public interface ReadsCodec extends HtsCodec<ReadsFormat, ReadsDecoderOptions, ReadsEncoderOptions> {
 
     @Override
-    default HtsCodecCategory getCodecCategory() { return HtsCodecCategory.ALIGNED_READS; }
+    default HtsCodecType getCodecType() { return HtsCodecType.ALIGNED_READS; }
 
 }
