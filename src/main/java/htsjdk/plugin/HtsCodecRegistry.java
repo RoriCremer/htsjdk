@@ -31,26 +31,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-// Codec Types:
-//
-// HapRef
-// Reads
-// Features
-// Variants
-//
-// For each codec type T, we need 5 entry points each for the decoder and encoder:
-//
-//  getTDecoder(IOPath)
-//  getTDecoder(IOPath, ReadOptions)
-//  getTDecoder(InputBundle)
-//  getTDecoder(InputBundle, ReadOptions)
-//  getTDecoder(InputBundle, ReadOptions, HtsCodecVersion)
-//
-//  getTEncoder(IOPath)
-//  getTEncoder(IOPath, WriteOptions)
-//  getTEncoder(OutputBundle)
-//  getTEncoder(OutputBundle, WriteOptions)
-//  getTEncoder(OutputBundle, WriteOptions, HtsCodecVersion)
+// To add a new codec type T (new interfaces):
+//      define the header and record interfaces
+//      define the corresponding HtsCodec, HtsEncoder and HtsDecoder subinterfaces
+//      add a new HtsCodecsForType variable to the registry
+//      update registerCodec to register discovered codecs of that type
+//      add getEncoder and getDecoder entry points to the registry:
+//        getTDecoder(IOPath)
+//        getTDecoder(IOPath, ReadOptions)
+//        getTDecoder(InputBundle)
+//        getTDecoder(InputBundle, ReadOptions)
+//        getTDecoder(InputBundle, ReadOptions, HtsCodecVersion)
+//        getTEncoder(IOPath)
+//        getTEncoder(IOPath, WriteOptions)
+//        getTEncoder(OutputBundle)
+//        getTEncoder(OutputBundle, WriteOptions)
+//        getTEncoder(OutputBundle, WriteOptions, HtsCodecVersion)
 //
 
 /**
@@ -61,12 +57,12 @@ public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
 
     // maps of codec versions, by format, for each codec type
-    private static HtsVersionsByFormat<HaploidReferenceFormat, HaploidReferenceCodec>
-            haprefCodecs = new HtsVersionsByFormat<>();
-    private static HtsVersionsByFormat<ReadsFormat, ReadsCodec>
-            readsCodecs = new HtsVersionsByFormat<>();
-    private static HtsVersionsByFormat<VariantsFormat, VariantsCodec>
-            variantCodecs = new HtsVersionsByFormat<>();
+    private static HtsCodecsForType<HaploidReferenceFormat, HaploidReferenceCodec>
+            haprefCodecs = new HtsCodecsForType<>();
+    private static HtsCodecsForType<ReadsFormat, ReadsCodec>
+            readsCodecs = new HtsCodecsForType<>();
+    private static HtsCodecsForType<VariantsFormat, VariantsCodec>
+            variantCodecs = new HtsCodecsForType<>();
 
     private final static String NO_CODEC_MSG_FORMAT_STRING = "A %s codec capable of handling \"%s\" could not be found";
 
