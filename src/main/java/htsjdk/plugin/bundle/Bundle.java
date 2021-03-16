@@ -1,5 +1,6 @@
 package htsjdk.plugin.bundle;
 
+import htsjdk.io.IOPath;
 import htsjdk.utils.ValidationUtils;
 
 import java.util.Collection;
@@ -20,6 +21,10 @@ import java.util.Optional;
  */
 public abstract class Bundle<T extends BundleResource> {
 
+    public static String JSON_SCHEMA_NAME = "htsbundle";
+    public static String JSON_SCHEMA_VERSION = "0.1.0";
+    public static String JSON_PROPERTY_EMPTY = "NONE";
+
     private final Map<String, T> resources = new HashMap<>();
 
     public Bundle(final Collection<T> resources) {
@@ -37,6 +42,22 @@ public abstract class Bundle<T extends BundleResource> {
     public Optional<T> get(final String targetContent) {
         ValidationUtils.nonNull(targetContent, "target content string must be provided");
         return Optional.ofNullable(resources.get(targetContent));
+    }
+
+    //TODO: this needs proper schema/versioning support
+    public String serializeToJSON() {
+        mjson.Json json = mjson.Json.object()
+                .set("name", JSON_SCHEMA_NAME)
+                .set("version", JSON_SCHEMA_VERSION);
+        resources.keySet().forEach(r -> {
+            final Optional<IOPath> rPath = resources.get(r).getIOPath();
+            if (rPath.isPresent()) {
+                json.set(r, rPath.get().toString());
+            } else {
+                json.set(r, JSON_PROPERTY_EMPTY);
+            }
+        });
+        return json.toString();
     }
 
     @Override
