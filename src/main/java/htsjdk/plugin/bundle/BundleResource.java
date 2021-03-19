@@ -12,27 +12,34 @@ import java.util.Optional;
 public abstract class BundleResource {
     private final String displayName;
     private final String contentType;
+    private final String subContentType;
     private final String tag;
     private final Map<String, String> tagAttributes;
 
     public BundleResource(
-            final String contentType,
             final String displayName,
+            final String contentType,
+            final String subContentType,
             final String tag,
             final Map<String, String> tagAttributes) {
         ValidationUtils.nonNull(contentType, "A content type must be provided");
         ValidationUtils.nonNull(displayName, "A display name must be provided");
-        this.contentType = contentType;
         this.displayName = displayName;
+        this.contentType = contentType;
+        this.subContentType = subContentType;
         this.tag = tag;
         this.tagAttributes = tagAttributes;
     }
+
+    public String getDisplayName() { return displayName; }
 
     public String getContentType() {
         return contentType;
     }
 
-    public String getDisplayName() { return displayName; }
+    public String getSubContentType() {
+        return subContentType;
+    }
 
     public Optional<IOPath> getIOPath() { return Optional.empty(); };   // may be None for some sub-types
 

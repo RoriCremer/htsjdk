@@ -11,11 +11,12 @@ import java.util.Optional;
 public abstract class OutputResource extends BundleResource {
 
     public OutputResource(
-            final String contentType,
             final String displayName,
+            final String contentType,
+            final String subContentType,
             final String tag,
             final Map<String, String> tagAttributes) {
-        super(contentType, displayName, tag, tagAttributes);
+        super(displayName, contentType, subContentType, tag, tagAttributes);
     }
 
     public abstract Optional<OutputStream> getOutputStream();

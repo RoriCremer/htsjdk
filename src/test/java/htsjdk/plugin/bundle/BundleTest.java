@@ -18,8 +18,8 @@ public class BundleTest extends HtsjdkTest {
         final IOPath readsPath = new HtsPath("myFile.bam");
         final IOPath readsIndex = new HtsPath("myFile.bai");
         final InputBundle inputBundle = InputBundleBuilder.start()
-                .add(new InputIOPathResource(BundleResourceType.READS, readsPath))
-                .add(new InputIOPathResource(BundleResourceType.INDEX, readsIndex)).getBundle();
+                .add(new InputIOPathResource(readsPath, BundleResourceType.READS))
+                .add(new InputIOPathResource(readsIndex, BundleResourceType.INDEX)).getBundle();
         final String jsonString = inputBundle.serializeToJSON();
         System.out.println(jsonString);
 

@@ -1,10 +1,10 @@
 package htsjdk.plugin.bundle;
 
-import htsjdk.io.IOPath;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -14,14 +14,38 @@ public class InputStreamResource extends InputResource {
 
     private final InputStream inputStream;
 
-    public InputStreamResource(final String contentType, final String displayName, final InputStream inputStream) {
-        super(ValidationUtils.nonNull(contentType), ValidationUtils.nonNull(displayName), null,null);
+    public InputStreamResource(final InputStream inputStream, final String displayName, final String contentType) {
+        this(inputStream, displayName, contentType, null);
+    }
+
+    public InputStreamResource(
+            final InputStream inputStream,
+            final String displayName,
+            final String contentType,
+            final String subContentType) {
+        this(inputStream, displayName, contentType, subContentType, null);
+    }
+
+    public InputStreamResource(
+            final InputStream inputStream,
+            final String displayName,
+            final String contentType,
+            final String subContentType,
+            final String tag) {
+        this(inputStream, displayName, contentType, subContentType, tag, null);
+    }
+
+    public InputStreamResource(
+            final InputStream inputStream,
+            final String displayName,
+            final String contentType,
+            final String subContentType,
+            final String tag,
+            final Map<String, String> tagAttributes) {
+        super(displayName, contentType, subContentType, tag, tagAttributes);
         ValidationUtils.nonNull(inputStream, "A non-null input stream must be provided");
         this.inputStream = inputStream;
     }
-
-    @Override
-    public Optional<IOPath> getIOPath() { return Optional.empty(); }
 
     public Optional<InputStream> getInputStream() { return Optional.of(inputStream); }
 

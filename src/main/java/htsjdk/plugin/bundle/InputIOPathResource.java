@@ -14,20 +14,26 @@ import java.util.Optional;
 public class InputIOPathResource extends InputResource {
     private final IOPath ioPath;
 
-    public InputIOPathResource(final String contentType, final IOPath ioPath) {
-        this(contentType, ioPath, null, null);
+    public InputIOPathResource(final IOPath ioPath, final String contentType) {
+        this(ioPath, contentType, contentType, null);
     }
 
-    public InputIOPathResource(final String contentType, final IOPath ioPath, final String tag) {
-        this(contentType, ioPath, tag, null);
+    public InputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType) {
+        this(ioPath, contentType, subContentType, null);
+    }
+
+    public InputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType, final String tag) {
+        this(ioPath,  contentType, subContentType, tag, null);
     }
 
     public InputIOPathResource(
-            final String contentType,
             final IOPath ioPath,
+            final String contentType,
+            final String subContentType,
             final String tag,
             final Map<String, String> tagAttributes) {
         super(contentType,
+                subContentType,
                 ValidationUtils.nonNull(ioPath, "A non null input path is required").getRawInputString(),
                 tag,
                 tagAttributes);

@@ -13,21 +13,27 @@ import java.util.Optional;
 public class OutputIOPathResource extends OutputResource {
     private final IOPath ioPath;
 
-    public OutputIOPathResource(final String contentType, final IOPath ioPath) {
-        this(contentType, ioPath, null, null);
+    public OutputIOPathResource(final IOPath ioPath, final String contentType) {
+        this(ioPath, contentType,null);
     }
 
-    public OutputIOPathResource(final String contentType, final IOPath ioPath, final String tag) {
-        this(contentType, ioPath, tag, null);
+    public OutputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType) {
+        this(ioPath, contentType, subContentType,null);
+    }
+
+    public OutputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType, final String tag) {
+        this(ioPath, contentType, subContentType, tag, null);
     }
 
     public OutputIOPathResource(
-            final String contentType,
             final IOPath ioPath,
+            final String contentType,
+            final String subContentType,
             final String tag,
             final Map<String, String> tagAttributes) {
-        super(contentType,
-                ValidationUtils.nonNull(ioPath, "A non null output path is required").getRawInputString(),
+        super(ValidationUtils.nonNull(ioPath, "A non null output path is required").getRawInputString(),
+                contentType,
+                subContentType,
                 tag,
                 tagAttributes);
         this.ioPath = ioPath;

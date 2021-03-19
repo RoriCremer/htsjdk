@@ -3,6 +3,7 @@ package htsjdk.plugin.bundle;
 import htsjdk.io.IOPath;
 import htsjdk.utils.ValidationUtils;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.Optional;
@@ -13,26 +14,36 @@ import java.util.Optional;
 public class OutputStreamResource extends OutputResource  {
     private final OutputStream outputStream;
 
-    public OutputStreamResource(final String contentType, final String displayName, final OutputStream outputStream) {
-        this(contentType, displayName, outputStream, null, null);
+    public OutputStreamResource(final OutputStream outputStream, final String displayName, final String contentType) {
+        this(outputStream, displayName, contentType, null);
     }
 
     public OutputStreamResource(
-            final String contentType,
-            final String displayName,
             final OutputStream outputStream,
+            final String displayName,
+            final String contentType,
+            final String subContentType) {
+        this(outputStream, displayName, contentType, subContentType, null);
+    }
+
+    public OutputStreamResource(
+            final OutputStream outputStream,
+            final String displayName,
+            final String contentType,
+            final String subContentType,
             final String tag) {
-        this(contentType, displayName, outputStream, tag, null);
+        this(outputStream, displayName, contentType, subContentType, tag, null);
     }
 
     public OutputStreamResource(
-            final String contentType,
-            final String displayName,
             final OutputStream outputStream,
+            final String displayName,
+            final String contentType,
+            final String subContentType,
             final String tag,
             final Map<String, String> tagAttributes) {
-        super(contentType, displayName, tag, tagAttributes);
-        ValidationUtils.nonNull(outputStream, "A non null output stream is required");
+        super(displayName, contentType, subContentType, tag, tagAttributes);
+        ValidationUtils.nonNull(outputStream, "A non-null output stream must be provided");
         this.outputStream = outputStream;
     }
 
