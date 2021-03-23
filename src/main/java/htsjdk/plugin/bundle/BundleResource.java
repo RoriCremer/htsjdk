@@ -3,18 +3,20 @@ package htsjdk.plugin.bundle;
 import htsjdk.io.IOPath;
 import htsjdk.utils.ValidationUtils;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * Base class for {@link InputResource} or {@link OutputResource}.
  */
-public abstract class BundleResource {
+public abstract class BundleResource implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final String displayName;
     private final String contentType;
-    private final String subContentType;
-    private final String tag;
-    private final Map<String, String> tagAttributes;
+    private final Optional<String> subContentType;
+    private final Optional<String> tag;
+    private final Optional<Map<String, String>> tagAttributes;
 
     public BundleResource(
             final String displayName,
@@ -22,13 +24,13 @@ public abstract class BundleResource {
             final String subContentType,
             final String tag,
             final Map<String, String> tagAttributes) {
-        ValidationUtils.nonNull(contentType, "A content type must be provided");
-        ValidationUtils.nonNull(displayName, "A display name must be provided");
+        ValidationUtils.nonNull(displayName, "display name");
+        ValidationUtils.nonNull(contentType, "content type");
         this.displayName = displayName;
         this.contentType = contentType;
-        this.subContentType = subContentType;
-        this.tag = tag;
-        this.tagAttributes = tagAttributes;
+        this.subContentType = Optional.ofNullable(subContentType);
+        this.tag = Optional.ofNullable(tag);
+        this.tagAttributes = Optional.ofNullable(tagAttributes);
     }
 
     public String getDisplayName() { return displayName; }
@@ -37,7 +39,7 @@ public abstract class BundleResource {
         return contentType;
     }
 
-    public String getSubContentType() {
+    public Optional<String> getSubContentType() {
         return subContentType;
     }
 
@@ -47,13 +49,13 @@ public abstract class BundleResource {
      * Retrieve the tag name for this instance.
      * @return String representing the tagName. May be null if no tag name was set.
      */
-    public Optional<String> getTag() { return Optional.ofNullable(tag); };
+    public Optional<String> getTag() { return tag; };
 
     /**
      * Get the attribute/value pair Map for this instance. May be empty.
      * @return Map of attribute/value pairs for this instance. May be empty if no tags are present. May not be null.
      */
-    public Optional<Map<String, String>> getTagAttributes() { return Optional.ofNullable(tagAttributes); }
+    public Optional<Map<String, String>> getTagAttributes() { return tagAttributes; }
 
     @Override
     public boolean equals(Object o) {
@@ -62,15 +64,20 @@ public abstract class BundleResource {
 
         BundleResource that = (BundleResource) o;
 
-        if (!getDisplayName().equals(that.getDisplayName())) return false;
-        return getContentType().equals(that.getContentType());
+        if (!displayName.equals(that.displayName)) return false;
+        if (!contentType.equals(that.contentType)) return false;
+        if (!subContentType.equals(that.subContentType)) return false;
+        if (!tag.equals(that.tag)) return false;
+        return tagAttributes.equals(that.tagAttributes);
     }
 
     @Override
     public int hashCode() {
-        int result = getDisplayName().hashCode();
-        result = 31 * result + getContentType().hashCode();
+        int result = displayName.hashCode();
+        result = 31 * result + contentType.hashCode();
+        result = 31 * result + subContentType.hashCode();
+        result = 31 * result + tag.hashCode();
+        result = 31 * result + tagAttributes.hashCode();
         return result;
     }
-
 }

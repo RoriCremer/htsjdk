@@ -224,19 +224,18 @@ public class HtsPath implements IOPath, Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof HtsPath)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        HtsPath that = (HtsPath) o;
+        HtsPath htsPath = (HtsPath) o;
 
-        if (!getRawInputString().equals(that.getRawInputString())) return false;
-        if (!getURI().equals(that.getURI())) return false;
-        return true;
+        if (!rawInputString.equals(htsPath.rawInputString)) return false;
+        return uri.equals(htsPath.uri);
     }
 
     @Override
     public int hashCode() {
-        int result = getRawInputString().hashCode();
-        result = 31 * result + getURI().hashCode();
+        int result = rawInputString.hashCode();
+        result = 31 * result + uri.hashCode();
         return result;
     }
 

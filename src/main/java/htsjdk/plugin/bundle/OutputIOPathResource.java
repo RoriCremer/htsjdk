@@ -4,13 +4,15 @@ import htsjdk.io.IOPath;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * An output resource backed by an {@link IOPath}.
  */
-public class OutputIOPathResource extends OutputResource {
+public class OutputIOPathResource extends OutputResource implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final IOPath ioPath;
 
     public OutputIOPathResource(final IOPath ioPath, final String contentType) {
@@ -31,7 +33,7 @@ public class OutputIOPathResource extends OutputResource {
             final String subContentType,
             final String tag,
             final Map<String, String> tagAttributes) {
-        super(ValidationUtils.nonNull(ioPath, "A non null output path is required").getRawInputString(),
+        super(ValidationUtils.nonNull(ioPath, "output path").getRawInputString(),
                 contentType,
                 subContentType,
                 tag,
@@ -44,5 +46,23 @@ public class OutputIOPathResource extends OutputResource {
 
     @Override
     public Optional<OutputStream> getOutputStream() { return Optional.of(ioPath.getOutputStream()); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OutputIOPathResource)) return false;
+        if (!super.equals(o)) return false;
+
+        OutputIOPathResource that = (OutputIOPathResource) o;
+
+        return ioPath.equals(that.ioPath);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + ioPath.hashCode();
+        return result;
+    }
 
 }

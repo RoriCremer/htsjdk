@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * An output resource backed by an {@link java.io.OutputStream}.
  */
-public class OutputStreamResource extends OutputResource  {
+public class OutputStreamResource extends OutputResource {
     private final OutputStream outputStream;
 
     public OutputStreamResource(final OutputStream outputStream, final String displayName, final String contentType) {
@@ -43,7 +43,7 @@ public class OutputStreamResource extends OutputResource  {
             final String tag,
             final Map<String, String> tagAttributes) {
         super(displayName, contentType, subContentType, tag, tagAttributes);
-        ValidationUtils.nonNull(outputStream, "A non-null output stream must be provided");
+        ValidationUtils.nonNull(outputStream, "output stream");
         this.outputStream = outputStream;
     }
 
@@ -58,4 +58,23 @@ public class OutputStreamResource extends OutputResource  {
     public Optional<OutputStream> getOutputStream() {
         return Optional.of(outputStream);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OutputStreamResource)) return false;
+        if (!super.equals(o)) return false;
+
+        OutputStreamResource that = (OutputStreamResource) o;
+
+        return getOutputStream().equals(that.getOutputStream());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + getOutputStream().hashCode();
+        return result;
+    }
+
 }

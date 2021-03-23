@@ -1,15 +1,24 @@
 package htsjdk.plugin.bundle;
 
+import htsjdk.utils.ValidationUtils;
+
 /**
  * Builder class for {@link OutputBundle}s.
  */
-public class OutputBundleBuilder extends BundleBuilder<OutputResource> {
+public final class OutputBundleBuilder extends BundleBuilder<OutputResource> {
 
-    static public InputBundleBuilder start() {
-        return new InputBundleBuilder();
+    static public OutputBundleBuilder start() {
+        return new OutputBundleBuilder();
     }
 
-    final public OutputBundle getBundle() {
+    public OutputBundleBuilder add(final OutputResource resource) {
+        ValidationUtils.nonNull(resource, "resource");
+        bundleResources.add(resource);
+        return this;
+    }
+
+    public OutputBundle getBundle() {
         return new OutputBundle(bundleResources);
     }
+
 }

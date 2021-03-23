@@ -5,17 +5,19 @@ import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * An input resource backed by an {@link IOPath}.
  */
-public class InputIOPathResource extends InputResource {
+public class InputIOPathResource extends InputResource implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final IOPath ioPath;
 
     public InputIOPathResource(final IOPath ioPath, final String contentType) {
-        this(ioPath, contentType, contentType, null);
+        this(ioPath, contentType,null);
     }
 
     public InputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType) {
@@ -32,9 +34,9 @@ public class InputIOPathResource extends InputResource {
             final String subContentType,
             final String tag,
             final Map<String, String> tagAttributes) {
-        super(contentType,
+        super(ValidationUtils.nonNull(ioPath, "ioPath").getRawInputString(),
+                contentType,
                 subContentType,
-                ValidationUtils.nonNull(ioPath, "A non null input path is required").getRawInputString(),
                 tag,
                 tagAttributes);
         this.ioPath = ioPath;
@@ -48,8 +50,27 @@ public class InputIOPathResource extends InputResource {
         return Optional.of(ioPath.getInputStream());
     }
 
+    //TODO: generate a seekable stream for underlying file/path, override isSeekable ?
     @Override
     public Optional<SeekableStream> getSeekableStream() {
         return Optional.empty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        InputIOPathResource that = (InputIOPathResource) o;
+
+        return ioPath.equals(that.ioPath);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + ioPath.hashCode();
+        return result;
     }
 }

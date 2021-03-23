@@ -4,13 +4,15 @@ import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * A resource that can be added to an {@link InputBundle}.
+ * An immutable resource that can be added to an {@link InputBundle}.
  */
-public abstract class InputResource extends BundleResource {
+public abstract class InputResource extends BundleResource implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     public InputResource(
             final String displayName,
@@ -26,5 +28,7 @@ public abstract class InputResource extends BundleResource {
     public abstract Optional<SeekableStream> getSeekableStream();
 
     //TODO: isRandomAccess ? isQueryable ?
+    // if isSeekable == true, then you can call getSeekableStream
     public boolean isSeekable() { return false; }
+
 }

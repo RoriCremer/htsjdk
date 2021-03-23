@@ -14,6 +14,7 @@ public abstract class BundleBuilder<T extends BundleResource> {
     //use a List in order to allow duplicates
     final List<T> bundleResources = new ArrayList<>();
 
-    public BundleBuilder() {};
-
+    protected BundleBuilder() { }
 }
+
+

@@ -11,7 +11,6 @@ import java.util.Optional;
  * An input resource backed by an {@link java.io.InputStream}.
  */
 public class InputStreamResource extends InputResource {
-
     private final InputStream inputStream;
 
     public InputStreamResource(final InputStream inputStream, final String displayName, final String contentType) {
@@ -43,7 +42,7 @@ public class InputStreamResource extends InputResource {
             final String tag,
             final Map<String, String> tagAttributes) {
         super(displayName, contentType, subContentType, tag, tagAttributes);
-        ValidationUtils.nonNull(inputStream, "A non-null input stream must be provided");
+        ValidationUtils.nonNull(inputStream, "input stream");
         this.inputStream = inputStream;
     }
 
@@ -53,4 +52,23 @@ public class InputStreamResource extends InputResource {
     public Optional<SeekableStream> getSeekableStream() {
         return Optional.empty();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InputStreamResource)) return false;
+        if (!super.equals(o)) return false;
+
+        InputStreamResource that = (InputStreamResource) o;
+
+        return getInputStream().equals(that.getInputStream());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + getInputStream().hashCode();
+        return result;
+    }
+
 }

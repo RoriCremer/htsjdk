@@ -2,31 +2,25 @@ package htsjdk.plugin.bundle;
 
 import htsjdk.utils.ValidationUtils;
 
-import java.util.List;
-
 /**
  * Builder class for {@link InputBundle}s.
+ * - immutable
+ * - no List<T> constructor since it allows other subclasses (OutputResources)
  */
-public class InputBundleBuilder extends BundleBuilder<InputResource> {
+public final class InputBundleBuilder extends BundleBuilder<InputResource> {
 
     static public InputBundleBuilder start() {
         return new InputBundleBuilder();
     }
 
-    final public InputBundleBuilder add(final InputResource resource) {
-        ValidationUtils.nonNull(resource, "A non-null resource is required");
+    public InputBundleBuilder add(final InputResource resource) {
+        ValidationUtils.nonNull(resource, "resource");
         bundleResources.add(resource);
         return this;
     }
 
-    final public InputBundleBuilder add(final List<InputResource> resources) {
-        ValidationUtils.nonNull(resources, "A non-null resource list is required");
-        ValidationUtils.nonEmpty(resources, "A non-empty resource list is required");
-        bundleResources.addAll(resources);
-        return this;
-    }
-
-    final public InputBundle getBundle() {
+    public InputBundle getBundle() {
         return new InputBundle(bundleResources);
     }
+
 }
