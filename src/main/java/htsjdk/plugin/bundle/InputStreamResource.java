@@ -71,4 +71,8 @@ public class InputStreamResource extends InputResource {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s: %s", super.toString(), inputStream);
+    }
 }

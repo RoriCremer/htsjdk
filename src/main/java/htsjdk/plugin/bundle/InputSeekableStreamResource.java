@@ -68,4 +68,8 @@ public class InputSeekableStreamResource extends InputStreamResource implements 
         return result;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s: %s", super.toString(), seekableStream);
+    }
 }

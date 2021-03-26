@@ -50,7 +50,7 @@ public class InputIOPathResource extends InputResource implements Serializable {
         return Optional.of(ioPath.getInputStream());
     }
 
-    //TODO: generate a seekable stream for underlying file/path, override isSeekable ?
+    //TODO: this should generate a seekable stream for underlying file/path, and override isSeekable to match
     @Override
     public Optional<SeekableStream> getSeekableStream() {
         return Optional.empty();
@@ -73,4 +73,5 @@ public class InputIOPathResource extends InputResource implements Serializable {
         result = 31 * result + ioPath.hashCode();
         return result;
     }
+
 }

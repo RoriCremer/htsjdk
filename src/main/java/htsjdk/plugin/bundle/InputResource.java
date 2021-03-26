@@ -27,8 +27,11 @@ public abstract class InputResource extends BundleResource implements Serializab
 
     public abstract Optional<SeekableStream> getSeekableStream();
 
-    //TODO: isRandomAccess ? isQueryable ?
-    // if isSeekable == true, then you can call getSeekableStream
+    //TODO: rename this to isRandomAccess ? isQueryable ?
+    /**
+     * If isSeekable == true, then its safe to call getSeekableStream
+     * @return
+     */
     public boolean isSeekable() { return false; }
 
 }

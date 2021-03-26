@@ -4,8 +4,11 @@ import htsjdk.io.IOPath;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Base class for {@link InputResource} or {@link OutputResource}.
@@ -56,6 +59,27 @@ public abstract class BundleResource implements Serializable {
      * @return Map of attribute/value pairs for this instance. May be empty if no tags are present. May not be null.
      */
     public Optional<Map<String, String>> getTagAttributes() { return tagAttributes; }
+
+    @Override
+    public String toString() {
+        final List<String> tagAndAttributeStrings = new ArrayList<>();
+        if (getTag().isPresent()) {
+            tagAndAttributeStrings.add(getTag().get());
+        }
+        if (getTagAttributes().isPresent()) {
+            getTagAttributes().get().entrySet().stream()
+                    .map((e) -> String.format("%s:%s", e.getKey(), e.getValue()))
+                    .forEach(s -> tagAndAttributeStrings.add(s));
+        }
+        return String.format(
+                "%s: %s/%s%s",
+                getClass().getSimpleName(),
+                getContentType(),
+                getSubContentType().orElse("NONE"),
+                tagAndAttributeStrings.isEmpty() ?
+                        "" :
+                        " " + tagAndAttributeStrings.stream().collect(Collectors.joining(" ")));
+    }
 
     @Override
     public boolean equals(Object o) {

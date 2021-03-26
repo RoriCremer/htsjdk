@@ -77,4 +77,8 @@ public class OutputStreamResource extends OutputResource {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s: %s", super.toString(), outputStream);
+    }
 }

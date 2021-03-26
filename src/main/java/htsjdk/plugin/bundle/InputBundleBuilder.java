@@ -4,8 +4,6 @@ import htsjdk.utils.ValidationUtils;
 
 /**
  * Builder class for {@link InputBundle}s.
- * - immutable
- * - no List<T> constructor since it allows other subclasses (OutputResources)
  */
 public final class InputBundleBuilder extends BundleBuilder<InputResource> {
 
