@@ -1,0 +1,35 @@
+package htsjdk.beta.codecs.reads.bam;
+
+import htsjdk.io.IOPath;
+import htsjdk.beta.plugin.reads.ReadsFormat;
+import htsjdk.beta.plugin.reads.ReadsEncoder;
+
+import java.io.OutputStream;
+
+// TODO: handle presorted
+
+/**
+ * Base class for BAM encoders.
+ */
+public abstract class BAMEncoder implements ReadsEncoder {
+    final private String displayName;
+    protected IOPath outputPath;
+    protected OutputStream os;
+
+    public BAMEncoder(final IOPath outputPath) {
+        this.outputPath = outputPath;
+        this.displayName = outputPath.getRawInputString();
+    }
+
+    public BAMEncoder(final OutputStream os, final String displayName) {
+        this.os = os;
+        this.displayName = displayName;
+    }
+
+    @Override
+    final public ReadsFormat getFormat() { return ReadsFormat.BAM; }
+
+    @Override
+    final public String getDisplayName() { return displayName; }
+
+}
