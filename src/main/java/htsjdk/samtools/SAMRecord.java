@@ -23,7 +23,7 @@
  */
 package htsjdk.samtools;
 
-import htsjdk.plugin.HtsRecord;
+import htsjdk.beta.plugin.HtsRecord;
 import htsjdk.samtools.util.BinaryCodec;
 import htsjdk.samtools.util.CoordMath;
 import htsjdk.samtools.util.Locatable;

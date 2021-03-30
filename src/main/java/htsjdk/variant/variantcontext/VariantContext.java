@@ -25,7 +25,7 @@
 
 package htsjdk.variant.variantcontext;
 
-import htsjdk.plugin.HtsRecord;
+import htsjdk.beta.plugin.HtsRecord;
 import htsjdk.tribble.Feature;
 import htsjdk.tribble.TribbleException;
 import htsjdk.tribble.util.ParsingUtils;

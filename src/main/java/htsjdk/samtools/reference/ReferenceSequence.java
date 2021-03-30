@@ -24,7 +24,7 @@
 
 package htsjdk.samtools.reference;
 
-import htsjdk.plugin.HtsRecord;
+import htsjdk.beta.plugin.HtsRecord;
 import htsjdk.samtools.util.StringUtil;
 
 /**

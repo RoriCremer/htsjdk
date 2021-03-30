@@ -23,8 +23,7 @@
  */
 package htsjdk.samtools;
 
-import htsjdk.plugin.HtsHeader;
-import htsjdk.plugin.HtsRecord;
+import htsjdk.beta.plugin.HtsHeader;
 import htsjdk.samtools.util.Log;
 
 import java.io.Serializable;
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
 
 
 import static htsjdk.samtools.SAMSequenceRecord.*;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Collection of SAMSequenceRecords.

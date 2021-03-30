@@ -24,7 +24,7 @@
 package htsjdk.samtools;
 
 
-import htsjdk.plugin.HtsHeader;
+import htsjdk.beta.plugin.HtsHeader;
 import htsjdk.samtools.util.BufferedLineReader;
 import htsjdk.samtools.util.CollectionUtil;
 import htsjdk.samtools.util.Log;

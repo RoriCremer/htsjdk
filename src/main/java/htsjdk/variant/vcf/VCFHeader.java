@@ -25,7 +25,7 @@
 
 package htsjdk.variant.vcf;
 
-import htsjdk.plugin.HtsHeader;
+import htsjdk.beta.plugin.HtsHeader;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SAMSequenceRecord;
 import htsjdk.tribble.TribbleException;
