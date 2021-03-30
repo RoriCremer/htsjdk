@@ -101,30 +101,6 @@ public class InputBundleTest extends HtsjdkTest {
                                 BundleResourceTestData.inputIndexNoSubType.get(),
                                 new InputIOPathResource(new HtsPath("myreads.CUSTOM"),"CUSTOM"))
                 },
-
-                // single tag
-                {
-                        "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"my.bam\",\"subtype\":\"BAM\",\"tag\":\"testTAG\"}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsWithTag.get())
-                },
-                // tag, plus one attribute
-                {
-                        "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"my.bam\"," +
-                                "\"subtype\":\"BAM\",\"attributes\":{\"attribute1\":\"value1\"},\"tag\":\"testTAG\"}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsWithTagOneAttribute.get())
-                },
-                // tag plus two attributes
-                {
-                        "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"my.bam\"," +
-                                "\"subtype\":\"BAM\",\"attributes\":{\"attribute1\":\"value1\",\"attribute2\":\"value2\"},\"tag\":\"testTAG\"}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsWithTagTwoAttributes.get())
-                },
-                // attributes only
-                {
-                        "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"my.bam\"," +
-                                "\"subtype\":\"BAM\",\"attributes\":{\"attribute1\":\"value1\",\"attribute2\":\"value2\"}}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsNoTagTwoAttributes.get())
-                },
         };
     }
 

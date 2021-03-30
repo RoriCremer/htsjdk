@@ -27,8 +27,8 @@ import java.util.function.Function;
 //    {
 //        "schemaName":"htsbundle",
 //        "schemaVersion":"0.1.0",
-//        "READS":{"path":"myFile.bam","subtype":"BAM"}
-//        "INDEX":{"path":"myFile.bai","subtype":"BAI"},
+//        "READS":{"path":"myFile.bam","subtype":"BAM", "keypath":"keyfile"}
+//        "INDEX":{"path":"myFile.csi","subtype":"CSI"},
 //    }
 //
 // Htsjdk, bundle with tag and attributes:
@@ -36,6 +36,7 @@ import java.util.function.Function;
 //  {
 //      "schemaVersion":"0.1.0",
 //      "schemaName":"htsbundle",
+//      "primary":"READS",
 //      "READS":{
 //          "path":"my.bam",
 //          "subtype":"BAM",
@@ -44,16 +45,7 @@ import java.util.function.Function;
 //      }
 //   }
 
-// - only IOPathResources can be serialized to/from JSON (the JSON deserializer can't recreate a stream resource)
-// - InputResource and OutputResource are the same serialized format (you can't tell the difference from the serialized file)
-//      input vs output is a runtime thing only
-// - schema doesn't vary by input/output or by type (READS, etc.)
-// - GATKPath tag/attributes vs. BundleResource tag/attributes
-//   - an be in conflict
-//   - createJSONBundle tool will propagate tag/attributes
-// - schema won't handle multiple resources with the same contentType key
-
-//TODO: move to BETA package
+//TODO: schema won't handle multiple resources with the same contentType key
 //TODO: use GSON to get pretty printing ? (jar is about 275k; check other dependencies)
 //TODO: need better JSON schema/versioning support
 //TODO: add schema validation: https://github.com/bolerio/mjson/wiki/A-Tour-of-the-API#validating-with-json-schema
@@ -85,8 +77,6 @@ public abstract class Bundle<T extends BundleResource> implements Iterable<T>, S
     public static String JSON_PROPERTY_SCHEMA_VERSION   = "schemaVersion";
     public static String JSON_PROPERTY_PATH             = "path";
     public static String JSON_PROPERTY_SUB_CONTENT_TYPE = "subtype";
-    public static String JSON_PROPERTY_TAG              = "tag";
-    public static String JSON_PROPERTY_ATTRIBUTES       = "attributes";
 
     public static String JSON_SCHEMA_NAME = "htsbundle";
     public static String JSON_SCHEMA_VERSION = "0.1.0"; // TODO: bump this to 1.0.0
@@ -185,12 +175,6 @@ public abstract class Bundle<T extends BundleResource> implements Iterable<T>, S
             final mjson.Json resourceJSON = mjson.Json.object().set(JSON_PROPERTY_PATH, resourcePath.get().toString());
             if (bundleResource.getSubContentType().isPresent()) {
                 resourceJSON.set(JSON_PROPERTY_SUB_CONTENT_TYPE, bundleResource.getSubContentType().get());
-            }
-            if (bundleResource.getTag().isPresent()) {
-                resourceJSON.set(JSON_PROPERTY_TAG, bundleResource.getTag().get());
-            }
-            if (bundleResource.getTagAttributes().isPresent()) {
-                resourceJSON.set(JSON_PROPERTY_ATTRIBUTES, bundleResource.getTagAttributes().get());
             }
             outerJSON.set(bundleResource.getContentType(), resourceJSON);
         });

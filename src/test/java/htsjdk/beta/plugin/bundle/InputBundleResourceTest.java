@@ -12,15 +12,8 @@ public class InputBundleResourceTest extends HtsjdkTest {
         return new Object[][]{
                 { BundleResourceTestData.inputReadsWithSubType.get(), BundleResourceTestData.inputReadsWithSubType.get(), true },
                 { BundleResourceTestData.inputReadsNoSubType.get(), BundleResourceTestData.inputReadsNoSubType.get(), true },
-                { BundleResourceTestData.inputReadsWithTag.get(), BundleResourceTestData.inputReadsWithTag.get(), true },
-                { BundleResourceTestData.inputReadsWithTagOneAttribute.get(), BundleResourceTestData.inputReadsWithTagOneAttribute.get(), true },
-                { BundleResourceTestData.inputReadsWithTagTwoAttributes.get(), BundleResourceTestData.inputReadsWithTagTwoAttributes.get(), true },
-                { BundleResourceTestData.inputReadsNoTagTwoAttributes.get(), BundleResourceTestData.inputReadsNoTagTwoAttributes.get(), true },
 
                 { BundleResourceTestData.inputReadsWithSubType.get(), BundleResourceTestData.inputReadsNoSubType.get(), false },
-                { BundleResourceTestData.inputReadsWithSubType.get(), BundleResourceTestData.inputReadsWithTag.get(), false },
-                { BundleResourceTestData.inputReadsWithTag.get(), BundleResourceTestData.inputReadsWithTagOneAttribute.get(), false },
-                { BundleResourceTestData.inputReadsWithTagOneAttribute.get(), BundleResourceTestData.inputReadsWithTagTwoAttributes.get(), false },
         };
     }
 

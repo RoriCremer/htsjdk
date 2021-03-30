@@ -21,24 +21,9 @@ public class InputIOPathResource extends InputResource implements Serializable {
     }
 
     public InputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType) {
-        this(ioPath, contentType, subContentType, null);
-    }
-
-    public InputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType, final String tag) {
-        this(ioPath,  contentType, subContentType, tag, null);
-    }
-
-    public InputIOPathResource(
-            final IOPath ioPath,
-            final String contentType,
-            final String subContentType,
-            final String tag,
-            final Map<String, String> tagAttributes) {
         super(ValidationUtils.nonNull(ioPath, "ioPath").getRawInputString(),
                 contentType,
-                subContentType,
-                tag,
-                tagAttributes);
+                subContentType);
         this.ioPath = ioPath;
     }
 

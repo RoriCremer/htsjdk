@@ -22,26 +22,7 @@ public class InputStreamResource extends InputResource {
             final String displayName,
             final String contentType,
             final String subContentType) {
-        this(inputStream, displayName, contentType, subContentType, null);
-    }
-
-    public InputStreamResource(
-            final InputStream inputStream,
-            final String displayName,
-            final String contentType,
-            final String subContentType,
-            final String tag) {
-        this(inputStream, displayName, contentType, subContentType, tag, null);
-    }
-
-    public InputStreamResource(
-            final InputStream inputStream,
-            final String displayName,
-            final String contentType,
-            final String subContentType,
-            final String tag,
-            final Map<String, String> tagAttributes) {
-        super(displayName, contentType, subContentType, tag, tagAttributes);
+        super(displayName, contentType, subContentType);
         ValidationUtils.nonNull(inputStream, "input stream");
         this.inputStream = inputStream;
     }

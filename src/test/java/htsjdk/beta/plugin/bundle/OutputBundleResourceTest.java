@@ -11,14 +11,7 @@ public class OutputBundleResourceTest extends HtsjdkTest {
     public Object[][] getOutputResourceEquality() {
         return new Object[][]{
                 { BundleResourceTestData.outputReadsWithSubType.get(), BundleResourceTestData.outputReadsWithSubType.get(), true },
-                { BundleResourceTestData.outputReadsWithTag.get(), BundleResourceTestData.outputReadsWithTag.get(), true },
-                { BundleResourceTestData.outputReadsWithTagOneAttribute.get(), BundleResourceTestData.outputReadsWithTagOneAttribute.get(), true },
-                { BundleResourceTestData.outputReadsWithTagTwoAttributes.get(), BundleResourceTestData.outputReadsWithTagTwoAttributes.get(), true },
-
                 { BundleResourceTestData.outputReadsWithSubType.get(), BundleResourceTestData.outputReadsNoSubType.get(), false },
-                { BundleResourceTestData.outputReadsWithSubType.get(), BundleResourceTestData.outputReadsWithTag.get(), false },
-                { BundleResourceTestData.outputReadsWithTagTwoAttributes.get(), BundleResourceTestData.outputReadsWithTagOneAttribute.get(), false },
-                { BundleResourceTestData.outputReadsWithSubType.get(), BundleResourceTestData.outputReadsWithTagTwoAttributes.get(), false },
         };
     }
 

@@ -27,19 +27,9 @@ public class BundleResourceTest extends HtsjdkTest {
         return new Object[][]{
                 // input resources
                 { BundleResourceTestData.inputReadsNoSubType.get(), "InputIOPathResource: READS/NONE" },
-                { BundleResourceTestData.inputReadsWithTag.get(), "InputIOPathResource: READS/BAM testTAG" },
-                { BundleResourceTestData.inputReadsWithTagOneAttribute.get(),
-                        "InputIOPathResource: READS/BAM testTAG attribute1:value1" },
-                { BundleResourceTestData.inputReadsWithTagTwoAttributes.get(),
-                        "InputIOPathResource: READS/BAM testTAG attribute1:value1 attribute2:value2" },
 
                 // output resources
                 { BundleResourceTestData.outputReadsNoSubType.get(), "OutputIOPathResource: READS/NONE" },
-                { BundleResourceTestData.outputReadsWithTag.get(), "OutputIOPathResource: READS/BAM testTAG" },
-                { BundleResourceTestData.outputReadsWithTagOneAttribute.get(),
-                        "OutputIOPathResource: READS/BAM testTAG attribute1:value1" },
-                { BundleResourceTestData.outputReadsWithTagTwoAttributes.get(),
-                        "OutputIOPathResource: READS/BAM testTAG attribute1:value1 attribute2:value2" }
         };
     }
 

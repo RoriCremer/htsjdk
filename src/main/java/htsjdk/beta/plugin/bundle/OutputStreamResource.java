@@ -22,26 +22,7 @@ public class OutputStreamResource extends OutputResource {
             final String displayName,
             final String contentType,
             final String subContentType) {
-        this(outputStream, displayName, contentType, subContentType, null);
-    }
-
-    public OutputStreamResource(
-            final OutputStream outputStream,
-            final String displayName,
-            final String contentType,
-            final String subContentType,
-            final String tag) {
-        this(outputStream, displayName, contentType, subContentType, tag, null);
-    }
-
-    public OutputStreamResource(
-            final OutputStream outputStream,
-            final String displayName,
-            final String contentType,
-            final String subContentType,
-            final String tag,
-            final Map<String, String> tagAttributes) {
-        super(displayName, contentType, subContentType, tag, tagAttributes);
+        super(displayName, contentType, subContentType);
         ValidationUtils.nonNull(outputStream, "output stream");
         this.outputStream = outputStream;
     }

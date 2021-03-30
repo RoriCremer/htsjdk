@@ -23,26 +23,7 @@ public class InputSeekableStreamResource extends InputStreamResource implements 
             final String displayName,
             final String contentType,
             final String subContentType) {
-        this(seekableStream, displayName, contentType, subContentType, null);
-    }
-
-    public InputSeekableStreamResource(
-            final SeekableStream seekableStream,
-            final String displayName,
-            final String contentType,
-            final String subContentType,
-            final String tag) {
-        this(seekableStream, displayName, contentType, subContentType, tag, null);
-    }
-
-    public InputSeekableStreamResource(
-            final SeekableStream seekableStream,
-            final String displayName,
-            final String contentType,
-            final String subContentType,
-            final String tag,
-            final Map<String, String> tagAttributes) {
-        super(seekableStream, displayName, contentType, subContentType, tag, tagAttributes);
+        super(seekableStream, displayName, contentType, subContentType);
         ValidationUtils.nonNull(seekableStream, "seekable input stream");
         this.seekableStream = seekableStream;
     }

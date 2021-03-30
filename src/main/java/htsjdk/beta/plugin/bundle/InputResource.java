@@ -16,10 +16,8 @@ public abstract class InputResource extends BundleResource implements Serializab
     public InputResource(
             final String displayName,
             final String contentType,
-            final String subContentType,
-            final String tag,
-            final Map<String, String> tagAttributes) {
-        super(displayName, contentType, subContentType, tag, tagAttributes);
+            final String subContentType) {
+        super(displayName, contentType, subContentType);
     }
 
     public abstract Optional<InputStream> getInputStream();

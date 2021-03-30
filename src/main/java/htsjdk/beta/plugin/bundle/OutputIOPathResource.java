@@ -20,24 +20,9 @@ public class OutputIOPathResource extends OutputResource implements Serializable
     }
 
     public OutputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType) {
-        this(ioPath, contentType, subContentType,null);
-    }
-
-    public OutputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType, final String tag) {
-        this(ioPath, contentType, subContentType, tag, null);
-    }
-
-    public OutputIOPathResource(
-            final IOPath ioPath,
-            final String contentType,
-            final String subContentType,
-            final String tag,
-            final Map<String, String> tagAttributes) {
         super(ValidationUtils.nonNull(ioPath, "output path").getRawInputString(),
                 contentType,
-                subContentType,
-                tag,
-                tagAttributes);
+                subContentType);
         this.ioPath = ioPath;
     }
 
