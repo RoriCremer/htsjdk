@@ -1,16 +1,14 @@
 package htsjdk.beta.plugin.bundle;
 
-import htsjdk.io.IOPath;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.Optional;
 
 /**
  * An output resource backed by an {@link java.io.OutputStream}.
  */
-public class OutputStreamResource extends OutputResource {
+public class OutputStreamResource extends BundleResource {
     private final OutputStream outputStream;
 
     public OutputStreamResource(final OutputStream outputStream, final String displayName, final String contentType) {
@@ -27,9 +25,6 @@ public class OutputStreamResource extends OutputResource {
         this.outputStream = outputStream;
     }
 
-    @Override
-    public Optional<IOPath> getIOPath() { return Optional.empty(); }
-
     /**
      * once this stream has been consumed, retrieving it will no longer be useful...
      * @return
@@ -38,6 +33,9 @@ public class OutputStreamResource extends OutputResource {
     public Optional<OutputStream> getOutputStream() {
         return Optional.of(outputStream);
     }
+
+    @Override
+    public boolean isOutputResource() { return true; }
 
     @Override
     public boolean equals(Object o) {

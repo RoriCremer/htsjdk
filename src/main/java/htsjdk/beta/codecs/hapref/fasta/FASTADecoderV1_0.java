@@ -1,9 +1,9 @@
 package htsjdk.beta.codecs.hapref.fasta;
 
 import htsjdk.beta.codecs.hapref.HapRefDecoder;
+import htsjdk.beta.plugin.bundle.Bundle;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.HtsCodecVersion;
-import htsjdk.beta.plugin.bundle.InputBundle;
 import htsjdk.beta.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.reference.ReferenceSequence;
@@ -26,7 +26,7 @@ public class FASTADecoderV1_0 extends HapRefDecoder {
         referenceSequenceFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(inputPath.toPath());
     }
 
-    public FASTADecoderV1_0(final InputBundle inputBundle) {
+    public FASTADecoderV1_0(final Bundle inputBundle) {
         super(inputBundle);
         referenceSequenceFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(inputPath.toPath());
     }

@@ -1,17 +1,16 @@
 package htsjdk.beta.plugin.bundle;
 
 import htsjdk.io.IOPath;
+import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.utils.ValidationUtils;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * Base class for {@link InputResource} or {@link OutputResource}.
+ * Base class for various BundleResource implementations. }.
  */
 public abstract class BundleResource implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -40,7 +39,17 @@ public abstract class BundleResource implements Serializable {
         return subContentType;
     }
 
-    public Optional<IOPath> getIOPath() { return Optional.empty(); };   // may be None for some sub-types
+    public Optional<IOPath> getIOPath() { return Optional.empty(); }
+
+    public Optional<InputStream> getInputStream() { return Optional.empty(); }
+
+    public Optional<OutputStream> getOutputStream() { return Optional.empty(); }
+
+    public Optional<SeekableStream> getSeekableStream() { return Optional.empty(); }
+
+    public boolean isInputResource() { return false; }
+
+    public boolean isOutputResource() { return false; }
 
     @Override
     public String toString() {

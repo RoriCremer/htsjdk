@@ -1,14 +1,14 @@
 package htsjdk.beta.codecs.reads.bam;
 
 import htsjdk.HtsjdkTest;
+import htsjdk.beta.plugin.bundle.Bundle;
+import htsjdk.beta.plugin.bundle.BundleBuilder;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.HtsCodecRegistry;
 import htsjdk.beta.plugin.HtsDecoder;
 import htsjdk.beta.plugin.bundle.BundleResourceType;
-import htsjdk.beta.plugin.bundle.InputBundle;
-import htsjdk.beta.plugin.bundle.InputBundleBuilder;
-import htsjdk.beta.plugin.bundle.InputIOPathResource;
+import htsjdk.beta.plugin.bundle.IOPathResource;
 import htsjdk.beta.plugin.interval.HtsQueryRule;
 import htsjdk.beta.plugin.reads.ReadsDecoderOptions;
 import htsjdk.samtools.QueryInterval;
@@ -86,10 +86,10 @@ public class HtsBAMCodecQueryTest extends HtsjdkTest {
 
     @Test(dataProvider = "queryIntervalsData")
     public void testQueryIntervals(final HtsQueryRule queryRule, final int expected) {
-        final InputBundle readsBundle =
-                InputBundleBuilder.start()
-                        .add(new InputIOPathResource(TEST_BAM, BundleResourceType.READS))
-                        .add(new InputIOPathResource(TEST_BAI, BundleResourceType.INDEX))
+        final Bundle readsBundle =
+                BundleBuilder.start()
+                        .add(new IOPathResource(TEST_BAM, BundleResourceType.READS))
+                        .add(new IOPathResource(TEST_BAI, BundleResourceType.INDEX))
                         .getBundle();
         try (final HtsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(readsBundle, new ReadsDecoderOptions())) {
             final Iterator<SAMRecord> it = bamDecoder.query("chr1", 202661637, 202661812, queryRule);

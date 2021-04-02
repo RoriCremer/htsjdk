@@ -3,11 +3,11 @@ package htsjdk.beta.codecs.reads.cram.cramV3_0;
 import htsjdk.beta.codecs.reads.cram.CRAMCodec;
 import htsjdk.beta.codecs.reads.cram.CRAMDecoder;
 import htsjdk.beta.codecs.reads.cram.CRAMDecoderOptions;
+import htsjdk.beta.plugin.bundle.Bundle;
+import htsjdk.beta.plugin.bundle.BundleResource;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.HtsCodecVersion;
 import htsjdk.beta.plugin.bundle.BundleResourceType;
-import htsjdk.beta.plugin.bundle.InputBundle;
-import htsjdk.beta.plugin.bundle.InputResource;
 import htsjdk.beta.plugin.reads.ReadsDecoderOptions;
 import htsjdk.samtools.CRAMFileReader;
 import htsjdk.samtools.SAMFileHeader;
@@ -43,7 +43,7 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
         samFileHeader = cramReader.getFileHeader();
     }
 
-    public CRAMDecoderV3_0(final InputBundle bundle, final ReadsDecoderOptions readsDecoderOptions) {
+    public CRAMDecoderV3_0(final Bundle bundle, final ReadsDecoderOptions readsDecoderOptions) {
         super(bundle, readsDecoderOptions);
         this.cramDecoderOptions = readsDecoderOptions instanceof CRAMDecoderOptions ?
                 (CRAMDecoderOptions) readsDecoderOptions :
@@ -114,7 +114,7 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
             }
         } else {
             // use the bundle
-            final Optional<InputResource> readsInput = inputBundle.get(BundleResourceType.READS);
+            final Optional<BundleResource> readsInput = inputBundle.get(BundleResourceType.READS);
             if (!readsInput.isPresent()) {
                 throw new IllegalArgumentException("No source of reads was provided");
             }
@@ -124,7 +124,7 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
             }
             final SamInputResource readsResource = SamInputResource.of(readsPath.get().toPath());
 
-            final Optional<InputResource> indexInput = inputBundle.get(BundleResourceType.INDEX);
+            final Optional<BundleResource> indexInput = inputBundle.get(BundleResourceType.INDEX);
             if (indexInput.isPresent()) {
                 final Optional<IOPath> indexPath = indexInput.get().getIOPath();
                 if (!indexPath.isPresent()) {

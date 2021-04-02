@@ -1,5 +1,6 @@
 package htsjdk.beta.plugin.bundle;
 
+import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.samtools.util.Log;
 import htsjdk.utils.ValidationUtils;
@@ -45,6 +46,7 @@ import java.util.function.Function;
 //      }
 //   }
 
+//TODO these should live in the IO package
 //TODO: schema won't handle multiple resources with the same contentType key
 //TODO: use GSON to get pretty printing ? (jar is about 275k; check other dependencies)
 //TODO: need better JSON schema/versioning support
@@ -63,13 +65,10 @@ import java.util.function.Function;
  * for that resource (such as an HtsPath, in the case of a URI, Path or file name); a stream; or a
  * seekable stream.
  *
- * A serialized bundle is not marked as input vs output - its just a bundle.
  * There is a single schema for all serialized bundles that is not specific to READS, REFERENCE.
  *
- * @param <T> a type that determines whether this bundle contains InputResources (that can be read)
- *           or OutputResources (that can be written)
  */
-public abstract class Bundle<T extends BundleResource> implements Iterable<T>, Serializable {
+public class Bundle implements Iterable<BundleResource>, Serializable {
     private static final long serialVersionUID = 1L;
     private static final Log LOG = Log.getInstance(Bundle.class);
 
@@ -81,9 +80,9 @@ public abstract class Bundle<T extends BundleResource> implements Iterable<T>, S
     public static String JSON_SCHEMA_NAME = "htsbundle";
     public static String JSON_SCHEMA_VERSION = "0.1.0"; // TODO: bump this to 1.0.0
 
-    private final Map<String, T> resources = new HashMap<>();
+    private final Map<String, BundleResource> resources = new HashMap<>();
 
-    public Bundle(final Collection<T> resources) {
+    public Bundle(final Collection<BundleResource> resources) {
         ValidationUtils.nonNull(resources, "resource collection");
         ValidationUtils.validateArg(!resources.isEmpty(), "non empty resource collection must be provided");
 
@@ -94,6 +93,10 @@ public abstract class Bundle<T extends BundleResource> implements Iterable<T>, S
             }
             this.resources.put(r.getContentType(), r);
         });
+    }
+
+    public Bundle(final String jsonString) {
+        this(ValidationUtils.nonNull(jsonString, "resource list"), HtsPath::new);
     }
 
     //TODO: move the schema code to code somewhere that handles schemas by version
@@ -148,12 +151,18 @@ public abstract class Bundle<T extends BundleResource> implements Iterable<T>, S
         }
     }
 
-    public Optional<T> get(final String targetContent) {
+    public Optional<BundleResource> get(final String targetContent) {
         ValidationUtils.nonNull(targetContent, "target content string");
         return Optional.ofNullable(resources.get(targetContent));
     }
 
-    public Iterator<T> iterator() {
+    // if true, you can get an InputStream for each resource in the bundle
+    public boolean isInputBundle() { return resources.values().stream().allMatch(BundleResource::isInputResource); }
+
+    // if true, you can get an OutputStream for each resource in the bundle
+    public boolean isOutputBundle() { return !isInputBundle(); }
+
+    public Iterator<BundleResource> iterator() {
         return resources.values().iterator();
     }
 
@@ -181,10 +190,21 @@ public abstract class Bundle<T extends BundleResource> implements Iterable<T>, S
         return outerJSON.toString();
     }
 
-    protected abstract T createBundleResourceFromJSON(
+    protected BundleResource createBundleResourceFromJSON(
             final String contentType,
-            final Map<String, Object> doc,
-            final Function<String, IOPath> customPathConstructor);
+            final Map<String, Object> jsonMap,
+            final Function<String, IOPath> customPathConstructor) {
+        ValidationUtils.nonNull(contentType, "content type string");
+        ValidationUtils.nonNull(jsonMap, "json document map");
+        ValidationUtils.nonNull(customPathConstructor, "IOPath-derived class constructor");
+
+        return new IOPathResource(
+                customPathConstructor.apply(getJSONPropertyAsString(jsonMap, Bundle.JSON_PROPERTY_PATH)),
+                contentType,
+                jsonMap.get(Bundle.JSON_PROPERTY_SUB_CONTENT_TYPE) == null ?
+                        null :
+                        getJSONPropertyAsString(jsonMap, Bundle.JSON_PROPERTY_SUB_CONTENT_TYPE));
+    }
 
     protected String getJSONPropertyAsString(final Map<String, Object> jsonElement, final String propertyName) {
         final Object element = jsonElement.get(propertyName);
@@ -202,7 +222,7 @@ public abstract class Bundle<T extends BundleResource> implements Iterable<T>, S
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Bundle<?> bundle = (Bundle<?>) o;
+        Bundle bundle = (Bundle) o;
 
         return resources.equals(bundle.resources);
     }

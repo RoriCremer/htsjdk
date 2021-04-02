@@ -1,7 +1,7 @@
 package htsjdk.beta.codecs.hapref;
 
+import htsjdk.beta.plugin.bundle.Bundle;
 import htsjdk.io.IOPath;
-import htsjdk.beta.plugin.bundle.InputBundle;
 import htsjdk.beta.plugin.hapref.HaploidReferenceDecoder;
 
 /**
@@ -9,7 +9,7 @@ import htsjdk.beta.plugin.hapref.HaploidReferenceDecoder;
  */
 public abstract class HapRefDecoder implements HaploidReferenceDecoder {
     protected IOPath inputPath;
-    protected InputBundle haprefBundle;
+    protected Bundle haprefBundle;
     private final String displayName;
 
     public HapRefDecoder(final IOPath inputPath) {
@@ -17,7 +17,7 @@ public abstract class HapRefDecoder implements HaploidReferenceDecoder {
         this.displayName = inputPath.getRawInputString();
     }
 
-    public HapRefDecoder(final InputBundle inputBundle) {
+    public HapRefDecoder(final Bundle inputBundle) {
         this.haprefBundle = inputBundle;
         //TODO: fix this
         this.displayName = "TEMP";

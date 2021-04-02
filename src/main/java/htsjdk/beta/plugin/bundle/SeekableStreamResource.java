@@ -4,21 +4,21 @@ import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * An input resource backed by an {@link htsjdk.samtools.seekablestream.SeekableStream}.
  */
-public class InputSeekableStreamResource extends InputStreamResource implements Serializable {
+public class SeekableStreamResource extends InputStreamResource implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final SeekableStream seekableStream;
 
-    public InputSeekableStreamResource(final SeekableStream seekableStream, final String displayName, final String contentType) {
+    public SeekableStreamResource(final SeekableStream seekableStream, final String displayName, final String contentType) {
         this(seekableStream, displayName, contentType, null);
     }
 
-    public InputSeekableStreamResource(
+    public SeekableStreamResource(
             final SeekableStream seekableStream,
             final String displayName,
             final String contentType,
@@ -28,15 +28,19 @@ public class InputSeekableStreamResource extends InputStreamResource implements 
         this.seekableStream = seekableStream;
     }
 
-    public SeekableStream getSeekableInputStream() { return seekableStream; }
+    @Override
+    public Optional<SeekableStream> getSeekableStream() { return Optional.of(seekableStream); }
+
+    @Override
+    public boolean isInputResource() { return true; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof InputSeekableStreamResource)) return false;
+        if (!(o instanceof SeekableStreamResource)) return false;
         if (!super.equals(o)) return false;
 
-        InputSeekableStreamResource that = (InputSeekableStreamResource) o;
+        SeekableStreamResource that = (SeekableStreamResource) o;
 
         return getSeekableStream().equals(that.getSeekableStream());
     }

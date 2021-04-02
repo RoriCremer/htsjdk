@@ -7,29 +7,31 @@ import org.testng.annotations.Test;
 
 public class BundleResourceTest extends HtsjdkTest {
 
-    @Test
-    public void testInputOutputResourceInequality() {
-        final InputResource inputResource = new InputIOPathResource(
-                BundleResourceTestData.READS_FILE,
-                BundleResourceType.READS,
-                BundleResourceType.READS_BAM);
+    @DataProvider(name="resourceEquality")
+    public Object[][] getResourceEquality() {
+        return new Object[][]{
+                { BundleResourceTestData.inputReadsWithSubType.get(), BundleResourceTestData.inputReadsWithSubType.get(), true },
+                { BundleResourceTestData.inputReadsNoSubType.get(), BundleResourceTestData.inputReadsNoSubType.get(), true },
 
-        final OutputResource outputResource = new OutputIOPathResource(
-                BundleResourceTestData.READS_FILE,
-                BundleResourceType.READS,
-                BundleResourceType.READS_BAM);
-
-        Assert.assertNotEquals(inputResource, outputResource);
+                { BundleResourceTestData.inputReadsWithSubType.get(), BundleResourceTestData.inputReadsNoSubType.get(), false },
+        };
     }
+
+    @Test(dataProvider="resourceEquality")
+    public void testInputResourceEquality(
+            final BundleResource inputResource1,
+            final BundleResource inputResource2,
+            final boolean expectedEquals) {
+        Assert.assertEquals(inputResource1.equals(inputResource2), expectedEquals);
+        Assert.assertEquals(inputResource2.equals(inputResource1), expectedEquals);
+    }
+
 
     @DataProvider(name="toString")
     public Object[][] getToStringData() {
         return new Object[][]{
                 // input resources
-                { BundleResourceTestData.inputReadsNoSubType.get(), "InputIOPathResource: READS/NONE" },
-
-                // output resources
-                { BundleResourceTestData.outputReadsNoSubType.get(), "OutputIOPathResource: READS/NONE" },
+                { BundleResourceTestData.inputReadsNoSubType.get(), "IOPathResource: READS/NONE" },
         };
     }
 

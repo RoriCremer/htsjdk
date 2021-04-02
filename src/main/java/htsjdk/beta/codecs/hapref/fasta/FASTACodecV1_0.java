@@ -3,11 +3,11 @@ package htsjdk.beta.codecs.hapref.fasta;
 import htsjdk.beta.codecs.hapref.HapRefCodec;
 import htsjdk.beta.codecs.hapref.HapRefDecoder;
 import htsjdk.beta.codecs.hapref.HapRefEncoder;
+import htsjdk.beta.plugin.bundle.Bundle;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.HtsDecoderOptions;
 import htsjdk.beta.plugin.HtsEncoderOptions;
 import htsjdk.beta.plugin.HtsCodecVersion;
-import htsjdk.beta.plugin.bundle.InputBundle;
 import htsjdk.beta.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.samtools.util.FileExtensions;
 import htsjdk.utils.ValidationUtils;
@@ -59,7 +59,7 @@ public class FASTACodecV1_0 extends HapRefCodec {
     }
 
     @Override
-    public HapRefDecoder getDecoder(final InputBundle inputBundle, final HtsDecoderOptions options) {
+    public HapRefDecoder getDecoder(final Bundle inputBundle, final HtsDecoderOptions options) {
         ValidationUtils.validateArg(options == null, "reference reader options must be null");
         return new FASTADecoderV1_0(inputBundle);
     }

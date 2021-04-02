@@ -1,12 +1,12 @@
 package htsjdk.beta.plugin;
 
+import htsjdk.beta.plugin.bundle.Bundle;
+import htsjdk.beta.plugin.bundle.BundleBuilder;
+import htsjdk.beta.plugin.bundle.BundleResource;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.bundle.BundleResourceType;
-import htsjdk.beta.plugin.bundle.InputBundle;
-import htsjdk.beta.plugin.bundle.InputBundleBuilder;
-import htsjdk.beta.plugin.bundle.InputIOPathResource;
-import htsjdk.beta.plugin.bundle.InputResource;
+import htsjdk.beta.plugin.bundle.IOPathResource;
 import htsjdk.beta.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.beta.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.beta.plugin.hapref.HaploidReferenceDecoder;
@@ -37,17 +37,18 @@ import java.util.*;
 //      add a new HtsCodecsForType variable to the registry
 //      update registerCodec to register discovered codecs of that type
 //      add getEncoder and getDecoder entry points to the registry:
+//
 //        getTDecoder(IOPath)
 //        getTDecoder(IOPath, ReadOptions)
-//        getTDecoder(InputBundle)
-//        getTDecoder(InputBundle, ReadOptions)
-//        getTDecoder(InputBundle, ReadOptions, HtsCodecVersion)
+//        getTDecoder(Bundle)
+//        getTDecoder(Bundle, ReadOptions)
+//        getTDecoder(Bundle, ReadOptions, HtsCodecVersion)
+//
 //        getTEncoder(IOPath)
 //        getTEncoder(IOPath, WriteOptions)
-//        getTEncoder(OutputBundle)
-//        getTEncoder(OutputBundle, WriteOptions)
-//        getTEncoder(OutputBundle, WriteOptions, HtsCodecVersion)
-//
+//        getTEncoder(Bundle)
+//        getTEncoder(Bundle, WriteOptions)
+//        getTEncoder(Bundle, WriteOptions, HtsCodecVersion)
 
 /**
  * Registry/cache for binding to encoders/decoders.
@@ -102,8 +103,8 @@ public class HtsCodecRegistry {
     public static ReadsDecoder getReadsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         return getReadsDecoder(
-                InputBundleBuilder.start()
-                        .add(new InputIOPathResource(inputPath, BundleResourceType.READS))
+                BundleBuilder.start()
+                        .add(new IOPathResource(inputPath, BundleResourceType.READS))
                         .getBundle(),
                 new ReadsDecoderOptions()
         );
@@ -116,20 +117,20 @@ public class HtsCodecRegistry {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
         return getReadsDecoder(
-                InputBundleBuilder.start()
-                        .add(new InputIOPathResource(inputPath, BundleResourceType.READS))
+                BundleBuilder.start()
+                        .add(new IOPathResource(inputPath, BundleResourceType.READS))
                         .getBundle(),
                 readsDecoderOptions);
     }
 
     @SuppressWarnings("unchecked")
     public static ReadsDecoder getReadsDecoder(
-            final InputBundle inputBundle,
+            final Bundle inputBundle,
             final ReadsDecoderOptions readsDecoderOptions) {
         ValidationUtils.nonNull(inputBundle, "Input bundle must not be null");
         ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
 
-        final Optional<InputResource> readsInput = inputBundle.get(BundleResourceType.READS);
+        final Optional<BundleResource> readsInput = inputBundle.get(BundleResourceType.READS);
         if (!readsInput.isPresent()) {
             throw new IllegalArgumentException(String.format("No source of reads was found in input bundle", inputBundle));
         }

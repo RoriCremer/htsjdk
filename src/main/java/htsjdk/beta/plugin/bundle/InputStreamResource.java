@@ -1,16 +1,14 @@
 package htsjdk.beta.plugin.bundle;
 
-import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.InputStream;
-import java.util.Map;
 import java.util.Optional;
 
 /**
  * An input resource backed by an {@link java.io.InputStream}.
  */
-public class InputStreamResource extends InputResource {
+public class InputStreamResource extends BundleResource {
     private final InputStream inputStream;
 
     public InputStreamResource(final InputStream inputStream, final String displayName, final String contentType) {
@@ -27,12 +25,11 @@ public class InputStreamResource extends InputResource {
         this.inputStream = inputStream;
     }
 
+    @Override
     public Optional<InputStream> getInputStream() { return Optional.of(inputStream); }
 
     @Override
-    public Optional<SeekableStream> getSeekableStream() {
-        return Optional.empty();
-    }
+    public boolean isInputResource() { return true; }
 
     @Override
     public boolean equals(Object o) {

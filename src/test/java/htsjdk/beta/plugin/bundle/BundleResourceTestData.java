@@ -15,37 +15,23 @@ public class BundleResourceTestData {
         }
     }
 
+    //TODO: change all of these names
+
     // input resources
 
-    public static final Supplier<InputResource> inputReadsWithSubType = () -> new InputIOPathResource(
+    public static final Supplier<BundleResource> inputReadsWithSubType = () -> new IOPathResource(
             READS_FILE,
             BundleResourceType.READS,
             BundleResourceType.READS_BAM);
-    public static final Supplier<InputResource> inputReadsNoSubType = () -> new InputIOPathResource(
+    public static final Supplier<BundleResource> inputReadsNoSubType = () -> new IOPathResource(
             READS_FILE,
             BundleResourceType.READS);
-    public static final Supplier<InputResource> inputIndexWithSubType = () -> new InputIOPathResource(
+    public static final Supplier<BundleResource> inputIndexWithSubType = () -> new IOPathResource(
             READS_INDEX,
             BundleResourceType.INDEX,
             BundleResourceType.READS_INDEX_BAI);
-    public static final Supplier<InputResource> inputIndexNoSubType = () -> new InputIOPathResource(
+    public static final Supplier<BundleResource> inputIndexNoSubType = () -> new IOPathResource(
             READS_INDEX,
             BundleResourceType.INDEX);
 
-    // output resources
-
-    public static final Supplier<OutputResource> outputReadsWithSubType = () -> new OutputIOPathResource(
-            READS_FILE,
-            BundleResourceType.READS,
-            BundleResourceType.READS_BAM);
-    public static final Supplier<OutputResource> outputReadsNoSubType = () -> new OutputIOPathResource(
-            READS_FILE,
-            BundleResourceType.READS);
-    public static final Supplier<OutputResource> outputIndexWithSubType = () -> new OutputIOPathResource(
-            READS_INDEX,
-            BundleResourceType.INDEX,
-            BundleResourceType.READS_INDEX_BAI);
-    public static final Supplier<OutputResource> outputIndexNoSubType = () -> new OutputIOPathResource(
-            READS_INDEX,
-            BundleResourceType.INDEX);
 }

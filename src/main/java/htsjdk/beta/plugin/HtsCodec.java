@@ -1,7 +1,7 @@
 package htsjdk.beta.plugin;
 
 import htsjdk.io.IOPath;
-import htsjdk.beta.plugin.bundle.InputBundle;
+import htsjdk.beta.plugin.bundle.Bundle;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,7 +54,7 @@ public interface HtsCodec<
     boolean canDecodeSignature(final InputStream inputStream, final String sourceName);
 
     //TODO: we should get rid of all of these overloads, and just implement one each for decoder
-    // and encoder that takes an InputBundle or OutputBundle.
+    // and encoder that takes a Bundle ?
 
     HtsDecoder<F, ?, ? extends HtsRecord> getDecoder(final IOPath inputPath);
 
@@ -62,7 +62,7 @@ public interface HtsCodec<
 
     HtsDecoder<F, ?, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName);
 
-    HtsDecoder<F, ?, ? extends HtsRecord> getDecoder(final InputBundle bundle, final D decodeOptions);
+    HtsDecoder<F, ?, ? extends HtsRecord> getDecoder(final Bundle bundle, final D decodeOptions);
 
     HtsDecoder<F, ?, ? extends HtsRecord> getDecoder(final InputStream is, final String displayName, final D decodeOptions);
 

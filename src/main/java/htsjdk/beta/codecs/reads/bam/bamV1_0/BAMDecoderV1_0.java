@@ -1,13 +1,13 @@
 package htsjdk.beta.codecs.reads.bam.bamV1_0;
 
 import htsjdk.beta.codecs.reads.bam.BAMDecoder;
+import htsjdk.beta.plugin.bundle.Bundle;
+import htsjdk.beta.plugin.bundle.BundleResource;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.HtsCodecVersion;
 import htsjdk.beta.plugin.HtsDecoderOptions;
 import htsjdk.beta.plugin.bundle.BundleResourceType;
-import htsjdk.beta.plugin.bundle.InputBundle;
-import htsjdk.beta.plugin.bundle.InputResource;
 import htsjdk.beta.plugin.interval.HtsInterval;
 import htsjdk.beta.plugin.interval.HtsQueryRule;
 
@@ -48,7 +48,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
         samFileHeader = samReader.getFileHeader();
     }
 
-    public BAMDecoderV1_0(final InputBundle inputBundle, final ReadsDecoderOptions decoderOptions) {
+    public BAMDecoderV1_0(final Bundle inputBundle, final ReadsDecoderOptions decoderOptions) {
         super(inputBundle, decoderOptions);
         ValidationUtils.nonNull(decoderOptions);
         samReader = getSamReader(decoderOptions);
@@ -152,7 +152,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
             reader = readsDecoderOptions.getSamReaderFactory().open(SamInputResource.of(inputPath.toPath()));
         } else {
             // use the bundle
-            final Optional<InputResource> readsInput = inputBundle.get(BundleResourceType.READS);
+            final Optional<BundleResource> readsInput = inputBundle.get(BundleResourceType.READS);
             if (!readsInput.isPresent()) {
                 throw new IllegalArgumentException("No source of reads was provided");
             }
@@ -162,7 +162,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
             }
             final SamInputResource readsResource = SamInputResource.of(readsPath.get().toPath());
 
-            final Optional<InputResource> indexInput = inputBundle.get(BundleResourceType.INDEX);
+            final Optional<BundleResource> indexInput = inputBundle.get(BundleResourceType.INDEX);
             if (indexInput.isPresent()) {
                 final Optional<IOPath> indexPath = indexInput.get().getIOPath();
                 if (!indexPath.isPresent()) {

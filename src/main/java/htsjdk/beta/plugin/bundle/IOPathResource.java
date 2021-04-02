@@ -1,26 +1,29 @@
 package htsjdk.beta.plugin.bundle;
 
 import htsjdk.io.IOPath;
+import htsjdk.samtools.seekablestream.SeekablePathStream;
 import htsjdk.samtools.seekablestream.SeekableStream;
+import htsjdk.samtools.util.RuntimeIOException;
 import htsjdk.utils.ValidationUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.Map;
 import java.util.Optional;
 
 /**
- * An input resource backed by an {@link IOPath}.
+ * An bundle resource backed by an {@link IOPath}.
  */
-public class InputIOPathResource extends InputResource implements Serializable {
+public class IOPathResource extends BundleResource implements Serializable {
     private static final long serialVersionUID = 1L;
     private final IOPath ioPath;
 
-    public InputIOPathResource(final IOPath ioPath, final String contentType) {
+    public IOPathResource(final IOPath ioPath, final String contentType) {
         this(ioPath, contentType,null);
     }
 
-    public InputIOPathResource(final IOPath ioPath, final String contentType, final String subContentType) {
+    public IOPathResource(final IOPath ioPath, final String contentType, final String subContentType) {
         super(ValidationUtils.nonNull(ioPath, "ioPath").getRawInputString(),
                 contentType,
                 subContentType);
@@ -35,10 +38,22 @@ public class InputIOPathResource extends InputResource implements Serializable {
         return Optional.of(ioPath.getInputStream());
     }
 
-    //TODO: this should generate a seekable stream for underlying file/path, and override isSeekable to match
+    @Override
+    public Optional<OutputStream> getOutputStream() { return Optional.of(ioPath.getOutputStream()); }
+
+    @Override
+    public boolean isInputResource() { return true; }
+
+    @Override
+    public boolean isOutputResource() { return true; }
+
     @Override
     public Optional<SeekableStream> getSeekableStream() {
-        return Optional.empty();
+        try {
+            return Optional.of(new SeekablePathStream(getIOPath().get().toPath()));
+        } catch (final IOException e) {
+            throw new RuntimeIOException(toString(), e);
+        }
     }
 
     @Override
@@ -47,7 +62,7 @@ public class InputIOPathResource extends InputResource implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        InputIOPathResource that = (InputIOPathResource) o;
+        IOPathResource that = (IOPathResource) o;
 
         return ioPath.equals(that.ioPath);
     }
