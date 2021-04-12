@@ -14,46 +14,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-// Original GATK branch:
-//
-//    {
-//        "schemaType": "ReadsBundle",
-//        "schemaVersion": "0.1.0",
-//        "reads":{"path":"a file", "fileType":"bam"},
-//        "index":{"path":"an index", "fileType":"bai"}
-//    }
-//
-// Htsjdk, simple bundle:
-//
-//    {
-//        "schemaName":"htsbundle",
-//        "schemaVersion":"0.1.0",
-//        "READS":{"path":"myFile.bam","subtype":"BAM", "keypath":"keyfile"}
-//        "INDEX":{"path":"myFile.csi","subtype":"CSI"},
-//    }
-//
-// Htsjdk, bundle with tag and attributes:
-//
-//  {
-//      "schemaVersion":"0.1.0",
-//      "schemaName":"htsbundle",
-//      "primary":"READS",
-//      "READS":{
-//          "path":"my.bam",
-//          "subtype":"BAM",
-//          "tag":"testTAG",
-//          "attributes":{"attribute1":"value1","attribute2":"value2"}
-//      }
-//   }
+//TODO: should we allow bundles to be empty (should they be serializable) ?
+//TODO: should GATK propagate the argument tag and attributes to the primary resource in the bundle JSON deserialization ?
+//TODO: should these classes live in the io package (or beta.io) ?
+//TODO: ReadsBundle subContentType is always inferred, never explicitly provided...
+//TODO: Should we try to validate that, say, a reads input bundle LOOKS like a reads bundle (i.e, that
+//      it has a sam/bam/cram/sra input) ? htsget uris are hard to disambiguate...
+//TODO: validate index content type as well as reads
 
-//TODO these should live in the IO package
-//TODO: schema won't handle multiple resources with the same contentType key
 //TODO: use GSON to get pretty printing ? (jar is about 275k; check other dependencies)
 //TODO: need better JSON schema/versioning support
 //TODO: add schema validation: https://github.com/bolerio/mjson/wiki/A-Tour-of-the-API#validating-with-json-schema
 //TODO: the current serialization schema won't handle multiple resources with the same contentType key (i.e., two
 //      index resources) unless we write them as a JSON array, since the contentType is the JSON property key
-//TODO: are JSON names case sensitive?
+//TODO: change all reads codecs/tests to use ReadsBundle
 
 /**
  * Aa immutable container for a collection of related resources (a primary resource such as reads,
@@ -69,85 +43,105 @@ import java.util.function.Function;
  *
  */
 public class Bundle implements Iterable<BundleResource>, Serializable {
+    public static final String BUNDLE_EXTENSION = ".json";
     private static final long serialVersionUID = 1L;
     private static final Log LOG = Log.getInstance(Bundle.class);
 
     public static String JSON_PROPERTY_SCHEMA_NAME      = "schemaName";
     public static String JSON_PROPERTY_SCHEMA_VERSION   = "schemaVersion";
+    public static String JSON_PROPERTY_PRIMARY          = "primary";
     public static String JSON_PROPERTY_PATH             = "path";
     public static String JSON_PROPERTY_SUB_CONTENT_TYPE = "subtype";
-
-    public static String JSON_SCHEMA_NAME = "htsbundle";
-    public static String JSON_SCHEMA_VERSION = "0.1.0"; // TODO: bump this to 1.0.0
+    public static String JSON_SCHEMA_NAME               = "htsbundle";
+    public static String JSON_SCHEMA_VERSION            = "0.1.0"; // TODO: bump this to 1.0.0
 
     private final Map<String, BundleResource> resources = new HashMap<>();
+    private final String primaryResourceKey;
 
-    public Bundle(final Collection<BundleResource> resources) {
-        ValidationUtils.nonNull(resources, "resource collection");
-        ValidationUtils.validateArg(!resources.isEmpty(), "non empty resource collection must be provided");
+    /**
+     * @param primaryResourceKey the content type of the primary resource in this bundle. may not be null.
+     *                           a resource with this content type must be included in resources
+     * @param resources resources to include in this bundle, may not be null or empty
+     */
+    public Bundle(final String primaryResourceKey, final Collection<BundleResource> resources) {
+        ValidationUtils.nonNull(primaryResourceKey, "primary resource");
+        ValidationUtils.validateArg(primaryResourceKey.length() > 0,
+                "A non-zero length primary resource key must be provided");
+        ValidationUtils.nonNull(resources, "secondary resource collection");
+        ValidationUtils.validateArg(!resources.isEmpty(), "A non-empty secondary resource collection must be provided");
 
         resources.forEach(r -> {
-            if (this.resources.containsKey(r.getContentType())) {
+            if (null != this.resources.putIfAbsent(r.getContentType(), r)) {
                 throw new IllegalArgumentException(
                         String.format("Attempt to add a duplicate resource for bundle key: %s", r.getContentType()));
             }
-            this.resources.put(r.getContentType(), r);
         });
+        this.primaryResourceKey = primaryResourceKey;
+
+        // validate that the primary resource actually exists in the resources
+        if (!this.resources.containsKey(primaryResourceKey)) {
+            throw new IllegalArgumentException(
+                    String.format("Primary resource key %s is not present in the resource list", primaryResourceKey));
+        }
     }
 
     public Bundle(final String jsonString) {
         this(ValidationUtils.nonNull(jsonString, "resource list"), HtsPath::new);
     }
 
-    //TODO: move the schema code to code somewhere that handles schemas by version
-    protected Bundle(final String jsonString, final Function<String, IOPath> customPathConstructor) {
+    protected Bundle(final String jsonString, final Function<String, IOPath> ioPathConstructor) {
         ValidationUtils.nonNull(jsonString, "JSON string");
-        ValidationUtils.nonNull(customPathConstructor, "IOPath-derived class constructor");
+        ValidationUtils.nonNull(ioPathConstructor, "IOPath-derived class constructor");
 
         try {
-            final mjson.Json jsonDocument = Json.read(jsonString);
+            final Json jsonDocument = Json.read(jsonString);
             if (jsonDocument == null || jsonString.length() < 1) {
                 throw new IllegalArgumentException(
                         String.format("JSON file parsing failed %s", jsonString));
             }
 
-            final mjson.Json schemaName = jsonDocument.at(Bundle.JSON_PROPERTY_SCHEMA_NAME);
-            if (schemaName == null) {
+            // validate the schema name
+            final String schemaName = getPropertyAsString(Bundle.JSON_PROPERTY_SCHEMA_NAME, jsonDocument);
+            if (!schemaName.equals(Bundle.JSON_SCHEMA_NAME)) {
                 throw new IllegalArgumentException(
-                        String.format("JSON file is missing the required property %s", Bundle.JSON_PROPERTY_SCHEMA_NAME));
-            } else if (!schemaName.isString() || !schemaName.asString().equals(Bundle.JSON_SCHEMA_NAME)) {
-                throw new IllegalArgumentException(
-                        String.format("Expected bundle schema %s but found %s", Bundle.JSON_SCHEMA_NAME, schemaName));
+                        String.format("Expected bundle schema name %s but found %s", Bundle.JSON_SCHEMA_NAME, schemaName));
             }
 
-            final mjson.Json schemaVersion = jsonDocument.at(Bundle.JSON_PROPERTY_SCHEMA_VERSION);
-            if (schemaVersion == null) {
-                throw new IllegalArgumentException(String.format("Bundle JSON is missing required property %s",
-                        Bundle.JSON_PROPERTY_SCHEMA_VERSION));
-            } else if (!schemaVersion.isString() || !schemaVersion.asString().equals(Bundle.JSON_SCHEMA_VERSION)) {
-                throw new IllegalArgumentException(String.format("Expected bundle version %s but found %s",
+            // validate the schema version
+            final String schemaVersion = getPropertyAsString(Bundle.JSON_PROPERTY_SCHEMA_VERSION, jsonDocument);
+            if (!schemaVersion.equals(Bundle.JSON_SCHEMA_VERSION)) {
+                throw new IllegalArgumentException(String.format("Expected bundle schema version %s but found %s",
                         Bundle.JSON_SCHEMA_VERSION, schemaVersion));
             }
+            this.primaryResourceKey = getPropertyAsString(Bundle.JSON_PROPERTY_PRIMARY, jsonDocument);
 
-            jsonDocument.asMap().forEach((String key, Object doc) -> {
-                if (!key.equals(Bundle.JSON_PROPERTY_SCHEMA_NAME) && !key.equals(Bundle.JSON_PROPERTY_SCHEMA_VERSION)) {
-                    if (doc == null) {
-                        throw new IllegalArgumentException(
-                                String.format("Missing value for JSON property %s", key));
-                    }
-                    if (doc instanceof Map) {
-                        resources.put(key, createBundleResourceFromJSON(key, (Map<String, Object>) doc, customPathConstructor));
-                    } else {
-                        throw new IllegalArgumentException(
-                                String.format("Expected a map value but got %s for JSON property %s", doc, key));
-                    }
+            jsonDocument.asJsonMap().forEach((String contentType, Json jsonDoc) -> {
+                if (!contentType.equals(Bundle.JSON_PROPERTY_SCHEMA_NAME) &&
+                        !contentType.equals(Bundle.JSON_PROPERTY_SCHEMA_VERSION) &&
+                        !contentType.equals(Bundle.JSON_PROPERTY_PRIMARY)) {
+                    final Json subContentType = jsonDoc.at(Bundle.JSON_PROPERTY_SUB_CONTENT_TYPE);
+                    final IOPathResource ioPathResource = new IOPathResource(
+                            ioPathConstructor.apply(getPropertyAsString(Bundle.JSON_PROPERTY_PATH, jsonDoc)),
+                            contentType,
+                            subContentType == null ?
+                                    null :
+                                    getPropertyAsString(Bundle.JSON_PROPERTY_SUB_CONTENT_TYPE, jsonDoc));
+                    resources.put(contentType, ioPathResource);
                 }
             });
-            if (resources.isEmpty()) {
+            if (this.resources.isEmpty()) {
                 LOG.warn("Empty resource bundle found: ", jsonString);
             }
-        } catch (mjson.Json.MalformedJsonException | java.lang.UnsupportedOperationException e) {
+        } catch (Json.MalformedJsonException | java.lang.UnsupportedOperationException e) {
             throw new IllegalArgumentException(e);
+        }
+
+        // validate that the primary resource actually exists in the resources
+        if (!this.resources.containsKey(this.primaryResourceKey)) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "The resource specified by the primary property is not present in the resource list %s",
+                            primaryResourceKey));
         }
     }
 
@@ -156,23 +150,28 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
         return Optional.ofNullable(resources.get(targetContent));
     }
 
+    public String getPrimaryResourceKey() { return primaryResourceKey; }
+
+    public BundleResource getPrimaryResource() {
+        return resources.get(primaryResourceKey);
+    }
+
     // if true, you can get an InputStream for each resource in the bundle
     public boolean isInputBundle() { return resources.values().stream().allMatch(BundleResource::isInputResource); }
 
     // if true, you can get an OutputStream for each resource in the bundle
     public boolean isOutputBundle() { return !isInputBundle(); }
 
-    public Iterator<BundleResource> iterator() {
-        return resources.values().iterator();
-    }
+    public Iterator<BundleResource> iterator() { return resources.values().iterator(); }
 
     /**
      * Note: only IOPath resources can be serialized to JSON...
      */
     public String toJSON() {
-        final mjson.Json outerJSON = mjson.Json.object()
+        final Json outerJSON = Json.object()
                 .set(JSON_PROPERTY_SCHEMA_NAME, JSON_SCHEMA_NAME)
-                .set(JSON_PROPERTY_SCHEMA_VERSION, JSON_SCHEMA_VERSION);
+                .set(JSON_PROPERTY_SCHEMA_VERSION, JSON_SCHEMA_VERSION)
+                .set(JSON_PROPERTY_PRIMARY, getPrimaryResourceKey());
 
         resources.keySet().forEach(key -> {
             final BundleResource bundleResource = resources.get(key);
@@ -180,8 +179,9 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
             if (!resourcePath.isPresent()) {
                 throw new IllegalArgumentException("Bundle resource requires a valid path to be serialized");
             }
+
             // generate JSON for each bundle resource
-            final mjson.Json resourceJSON = mjson.Json.object().set(JSON_PROPERTY_PATH, resourcePath.get().toString());
+            final Json resourceJSON = Json.object().set(JSON_PROPERTY_PATH, resourcePath.get().toString());
             if (bundleResource.getSubContentType().isPresent()) {
                 resourceJSON.set(JSON_PROPERTY_SUB_CONTENT_TYPE, bundleResource.getSubContentType().get());
             }
@@ -190,31 +190,20 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
         return outerJSON.toString();
     }
 
-    protected BundleResource createBundleResourceFromJSON(
-            final String contentType,
-            final Map<String, Object> jsonMap,
-            final Function<String, IOPath> customPathConstructor) {
-        ValidationUtils.nonNull(contentType, "content type string");
-        ValidationUtils.nonNull(jsonMap, "json document map");
-        ValidationUtils.nonNull(customPathConstructor, "IOPath-derived class constructor");
-
-        return new IOPathResource(
-                customPathConstructor.apply(getJSONPropertyAsString(jsonMap, Bundle.JSON_PROPERTY_PATH)),
-                contentType,
-                jsonMap.get(Bundle.JSON_PROPERTY_SUB_CONTENT_TYPE) == null ?
-                        null :
-                        getJSONPropertyAsString(jsonMap, Bundle.JSON_PROPERTY_SUB_CONTENT_TYPE));
-    }
-
-    protected String getJSONPropertyAsString(final Map<String, Object> jsonElement, final String propertyName) {
-        final Object element = jsonElement.get(propertyName);
-        if (element == null) {
-            throw new IllegalArgumentException(String.format("Property %s is missing", propertyName));
-        } else if (element instanceof Map) {
+    private String getPropertyAsString(final String propertyName, final Json jsonDocument) {
+        final Json propertyValue = jsonDocument.at(propertyName);
+        if (propertyValue == null) {
             throw new IllegalArgumentException(
-                    String.format("Expected a string value for %s but got %s", propertyName, element));
+                    String.format("JSON bundle is missing the required property %s (%s)",
+                            propertyName,
+                            jsonDocument.toString()));
+        } else if (!propertyValue.isString()) {
+            throw new IllegalArgumentException(
+                    String.format("Expected string value for bundle property %s but found %s",
+                            propertyName,
+                            propertyValue.toString()));
         }
-        return element.toString();
+        return propertyValue.asString();
     }
 
     @Override
@@ -222,14 +211,16 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Bundle bundle = (Bundle) o;
+        Bundle that = (Bundle) o;
 
-        return resources.equals(bundle.resources);
+        if (!resources.equals(that.resources)) return false;
+        return primaryResourceKey.equals(that.primaryResourceKey);
     }
 
     @Override
     public int hashCode() {
-        return resources.hashCode();
+        int result = resources.hashCode();
+        result = 31 * result + primaryResourceKey.hashCode();
+        return result;
     }
-
 }

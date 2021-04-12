@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -19,28 +20,73 @@ import java.util.Optional;
 //{
 // "schemaName":"htsbundle",
 // "schemaVersion":"0.1.0",
+// "READS",
 // "INDEX":{"path":"myFile.bai","subtype":"NONE"},
 // "READS":{"path":"myFile.bam","subtype":"NONE"}
 // }
 
-//TODO: are JSON names case sensitive ?
-
 public class BundleTest extends HtsjdkTest {
 
     @Test
-    public void testBundleIterator() {
+    public void testPrimaryResource() {
+        final String primaryKey = BundleResourceType.READS;
+        final IOPathResource ioPathResource = new IOPathResource(
+                new HtsPath("somefile.bam"),
+                BundleResourceType.READS);
+        final Bundle bundle = new Bundle(primaryKey, Collections.singletonList(ioPathResource));
+        Assert.assertEquals(bundle.getPrimaryResourceKey(), primaryKey);
+        Assert.assertEquals(bundle.getPrimaryResource(), ioPathResource);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testNullPrimaryResource() {
+        new Bundle(null, Collections.singletonList(
+                new IOPathResource(new HtsPath("somefile.bam"), BundleResourceType.READS)));
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testPrimaryResourceNotInBundle() {
+        // the primary resource is specified but the resource specified is not in the bundle
+        final String primaryKey = "MISSING_RESOURCE";
+        final IOPathResource ioPathResource = new IOPathResource(
+                new HtsPath("somefile.bam"),
+                BundleResourceType.READS);
+        try {
+            new Bundle(primaryKey, Collections.singletonList(ioPathResource));
+        } catch (final IllegalArgumentException e) {
+            Assert.assertTrue(e.getMessage().contains("not present in the resource list"));
+            throw e;
+        }
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testDuplicateResource() {
+        final String primaryKey = BundleResourceType.READS;
+        final IOPathResource ioPathResource = new IOPathResource(
+                new HtsPath("somefile.bam"),
+                BundleResourceType.READS);
+        try {
+            new Bundle(primaryKey, Arrays.asList(ioPathResource, ioPathResource));
+        } catch (final IllegalArgumentException e) {
+            Assert.assertTrue(e.getMessage().contains("Attempt to add a duplicate resource"));
+            throw e;
+        }
+    }
+
+    @Test
+    public void testResourceIterator() {
         final Bundle bundle =
                 BundleBuilder.start()
-                        .add(BundleResourceTestData.inputReadsWithSubType.get())
-                        .add(BundleResourceTestData.inputIndexNoSubType.get())
+                        .addPrimary(BundleResourceTestData.readsWithSubContentType)
+                        .add(BundleResourceTestData.indexNoSubContentType)
                         .getBundle();
         final Iterator<BundleResource> it = bundle.iterator();
         while (it.hasNext()) {
             final BundleResource ir = it.next();
             if (ir.getContentType().equals(BundleResourceType.READS)) {
-                Assert.assertEquals(ir, BundleResourceTestData.inputReadsWithSubType.get());
+                Assert.assertEquals(ir, BundleResourceTestData.readsWithSubContentType);
             } else {
-                Assert.assertEquals(ir, BundleResourceTestData.inputIndexNoSubType.get());
+                Assert.assertEquals(ir, BundleResourceTestData.indexNoSubContentType);
             }
         }
     }
@@ -49,41 +95,62 @@ public class BundleTest extends HtsjdkTest {
     public Object[][] getRoundTripJSON() {
         return new Object[][]{
                 //NOTE that these JSON strings contain the resources in the same order that they're serialized by mjson
-                // so that we can uses these cases to validate in both directions
+                // so that we can use these cases to validate in both directions
 
-                // json string, corresponding array of resources
-
-                // input resources
+                // json string, primary key, corresponding array of resources
                 {
-                        "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\",\"subtype\":\"BAM\"}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsWithSubType.get())
+                    "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads" +
+                            ".bam\",\"subtype\":\"BAM\"},\"primary\":\"READS\"}",
+                        BundleResourceType.READS,
+                        Arrays.asList(BundleResourceTestData.readsWithSubContentType)
                 },
                 {
-                        "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsNoSubType.get())
-                },
-                {
-                        "{\"schemaVersion\":\"0.1.0\",\"INDEX\":{\"path\":\"myreads.bai\",\"subtype\":\"BAI\"},\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\",\"subtype\":\"BAM\"}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsWithSubType.get(), BundleResourceTestData.inputIndexWithSubType.get())
+                        "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads" +
+                                ".bam\"},\"primary\":\"READS\"}",
+                        BundleResourceType.READS,
+                        Arrays.asList(BundleResourceTestData.readsNoSubContentType)
                 },
                 {
                         "{\"schemaVersion\":\"0.1.0\",\"INDEX\":{\"path\":\"myreads.bai\",\"subtype\":\"BAI\"}," +
-                                "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsNoSubType.get(), BundleResourceTestData.inputIndexWithSubType.get())
+                                "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"," +
+                                "\"subtype\":\"BAM\"},\"primary\":\"READS\"}",
+                        BundleResourceType.READS,
+                        Arrays.asList(
+                                BundleResourceTestData.readsWithSubContentType,
+                                BundleResourceTestData.indexWithSubContentType)
+                },
+                {
+                        "{\"schemaVersion\":\"0.1.0\",\"INDEX\":{\"path\":\"myreads.bai\",\"subtype\":\"BAI\"}," +
+                                "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"}," +
+                                "\"primary\":\"READS\"}",
+                        BundleResourceType.READS,
+                        Arrays.asList(
+                                BundleResourceTestData.readsNoSubContentType,
+                                BundleResourceTestData.indexWithSubContentType)
                 },
                 {
                         "{\"schemaVersion\":\"0.1.0\",\"INDEX\":{\"path\":\"myreads.bai\"}," +
-                                "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\",\"subtype\":\"BAM\"}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsWithSubType.get(), BundleResourceTestData.inputIndexNoSubType.get()) },
+                                "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"," +
+                                "\"subtype\":\"BAM\"},\"primary\":\"READS\"}",
+                        BundleResourceType.READS,
+                        Arrays.asList(
+                                BundleResourceTestData.readsWithSubContentType,
+                                BundleResourceTestData.indexNoSubContentType) },
                 {
                         "{\"schemaVersion\":\"0.1.0\",\"INDEX\":{\"path\":\"myreads.bai\"}," +
-                                "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"}}",
-                        Arrays.asList(BundleResourceTestData.inputReadsNoSubType.get(), BundleResourceTestData.inputIndexNoSubType.get())
+                                "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"}," +
+                                "\"primary\":\"READS\"}",
+                        BundleResourceType.READS,
+                        Arrays.asList(
+                                BundleResourceTestData.readsNoSubContentType,
+                                BundleResourceTestData.indexNoSubContentType)
                 },
 
                 // bundle with a single resource that has a custom content type
                 {
-                        "{\"schemaVersion\":\"0.1.0\",\"CUSTOM\":{\"path\":\"myreads.CUSTOM\"},\"schemaName\":\"htsbundle\"}",
+                        "{\"schemaVersion\":\"0.1.0\",\"CUSTOM\":{\"path\":\"myreads.CUSTOM\"}," +
+                                "\"schemaName\":\"htsbundle\",\"primary\":\"CUSTOM\"}",
+                        "CUSTOM",
                         Arrays.asList(new IOPathResource(new HtsPath("myreads.CUSTOM"),"CUSTOM"))
                 },
 
@@ -91,24 +158,29 @@ public class BundleTest extends HtsjdkTest {
                 {
                         "{\"schemaVersion\":\"0.1.0\",\"CUSTOM\":{\"path\":\"myreads.CUSTOM\"}," +
                                 "\"INDEX\":{\"path\":\"myreads.bai\"},\"schemaName\":\"htsbundle\"," +
-                                "\"READS\":{\"path\":\"myreads.bam\"}}",
+                                "\"READS\":{\"path\":\"myreads.bam\"},\"primary\":\"READS\"}",
+                        "READS",
                         Arrays.asList(
-                                BundleResourceTestData.inputReadsNoSubType.get(),
-                                BundleResourceTestData.inputIndexNoSubType.get(),
+                                BundleResourceTestData.readsNoSubContentType,
+                                BundleResourceTestData.indexNoSubContentType,
                                 new IOPathResource(new HtsPath("myreads.CUSTOM"),"CUSTOM"))
                 },
         };
     }
 
     @Test(dataProvider = "roundTripJSON")
-    public void testRoundTripJSON(final String jsonString, final List<BundleResource> resources) {
-        final Bundle bundleFromResources = new Bundle(resources);
+    public void testRoundTripJSON(final String jsonString, final String primaryKey, final List<BundleResource> resources) {
+        final Bundle bundleFromResources = new Bundle(primaryKey, resources);
         final String actualJSONString = bundleFromResources.toJSON();
+        System.out.println(actualJSONString);
         Assert.assertEquals(actualJSONString, jsonString);
 
         // now recreate the bundle from JSON
         final Bundle bundleFromJSON = new Bundle(jsonString);
+
         Assert.assertNotNull(bundleFromJSON);
+        Assert.assertEquals(bundleFromJSON.getPrimaryResourceKey(), primaryKey);
+
         resources.forEach(expectedResource -> {
             final Optional<BundleResource> jsonResource = bundleFromJSON.get(expectedResource.getContentType());
             Assert.assertTrue(jsonResource.isPresent());
@@ -117,9 +189,10 @@ public class BundleTest extends HtsjdkTest {
     }
 
     @Test(dataProvider = "roundTripJSON")
-    public void testFromJSONValidWithPathOverride(final String jsonString, final List<BundleResource> expectedResources) {
-        final Bundle bundleFromJSON = new Bundle(jsonString, BundleResourceTestData.TestHtsPathSubclass::new);
+    public void testFromJSONValidWithPathOverride(final String jsonString, final String primaryKey, final List<BundleResource> expectedResources) {
+        final Bundle bundleFromJSON = new Bundle(jsonString, BundleResourceTestData.CustomHtsPath::new);
         Assert.assertNotNull(bundleFromJSON);
+        Assert.assertEquals(bundleFromJSON.getPrimaryResourceKey(), primaryKey);
         expectedResources.forEach(expectedResource -> {
             final Optional<BundleResource> jsonResource = bundleFromJSON.get(expectedResource.getContentType());
             Assert.assertTrue(jsonResource.isPresent());
@@ -130,8 +203,9 @@ public class BundleTest extends HtsjdkTest {
             final IOPathResource ioPathResource = ((IOPathResource) jsonResource.get());
             Assert.assertTrue(ioPathResource.getIOPath().isPresent());
             final IOPath ioPath = ioPathResource.getIOPath().get();
-            Assert.assertEquals(ioPath.getClass().getSimpleName(), BundleResourceTestData.TestHtsPathSubclass.class.getSimpleName());
-            final BundleResourceTestData.TestHtsPathSubclass subClass = (BundleResourceTestData.TestHtsPathSubclass) ioPath;
+            Assert.assertEquals(ioPath.getClass().getSimpleName(), BundleResourceTestData.CustomHtsPath.class.getSimpleName());
+            // typecast just to make sure
+            final BundleResourceTestData.CustomHtsPath subClass = (BundleResourceTestData.CustomHtsPath) ioPath;
         });
     }
 
@@ -140,18 +214,39 @@ public class BundleTest extends HtsjdkTest {
         return new Object[][]{
                 { null, "cannot be null" },
                 { "", "end of input" },
+
                 // missing schema name
                 { "{}" , "missing the required property schemaName" },
+
                 // still missing schema name
                 { "{\"schemaVersion\":\"0.1.0\"}", "missing the required property schemaName" },
+
                 // incorrect schema name
-                { "{\"schemaName\":\"bogusname\", \"schemaVersion\":\"0.1.0\"}", "Expected bundle schema" },
+                { "{\"schemaName\":\"bogusname\", \"schemaVersion\":\"0.1.0\"}", "Expected bundle schema name" },
+
                 // missing schema version
-                { "{\"schemaName\":\"htsbundle\"}", "missing required property schemaVersion" },
+                { "{\"schemaName\":\"htsbundle\"}", "missing the required property schemaVersion" },
+
                 // incorrect schema version
-                { "{\"schemaName\":\"htsbundle\", \"schemaVersion\":\"99.99.99\"}", "Expected bundle version" },
+                { "{\"schemaName\":\"htsbundle\", \"schemaVersion\":\"99.99.99\"}", "Expected bundle schema version" },
+
+                // missing primary property
+                { "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads" +
+                                ".bam\",\"subtype\":\"BAM\"}}",
+                   "missing the required property primary"},
+
+                // primary property is present, but the resource it specifies is not in the bundle
+                { "{\"schemaVersion\":\"0.1.0\",\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads" +
+                        ".bam\",\"subtype\":\"BAM\"},\"primary\":\"MISSING_RESOURCE\"}",
+                   "resource specified by the primary property is not present in the resource list"},
+
+                // syntax error (missing quote in before schemaName
+                { "{\"schemaVersion\":\"0.1.0\",schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads" +
+                        ".bam\",\"subtype\":\"BAM\"},\"primary\":\"READS\"}",
+                   "Invalid JSON near position: 25" },
                 // no enclosing {} -> UnsupportedOperationException (no text message)
-                {"\"schemaName\":\"htsbundle\", \"schemaVersion\":\"0.1.0\"", "", },
+                {"\"schemaName\":\"htsbundle\", \"schemaVersion\":\"0.1.0\"",
+                   "", },
         };
     }
 
@@ -169,7 +264,7 @@ public class BundleTest extends HtsjdkTest {
     public void testToJSONNonIOPath() throws IOException {
         try (final InputStream is = new ByteArrayInputStream(new byte[0])) {
             final Bundle bundle = BundleBuilder.start()
-                    .add(new InputStreamResource(is,"displayName","contentType"))
+                    .addPrimary(new InputStreamResource(is,"displayName","contentType"))
                     .getBundle();
             // can't serialize a resource that isn't backed by an IOPath
             bundle.toJSON();

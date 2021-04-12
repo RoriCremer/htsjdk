@@ -54,8 +54,9 @@ public abstract class BundleResource implements Serializable {
     @Override
     public String toString() {
         return String.format(
-                "%s: %s/%s",
+                "%s (%s): %s/%s",
                 getClass().getSimpleName(),
+                getDisplayName(),
                 getContentType(),
                 getSubContentType().orElse("NONE"));
     }

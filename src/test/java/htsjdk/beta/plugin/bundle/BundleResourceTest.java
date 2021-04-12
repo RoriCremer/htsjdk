@@ -7,17 +7,137 @@ import org.testng.annotations.Test;
 
 public class BundleResourceTest extends HtsjdkTest {
 
-    @DataProvider(name="resourceEquality")
-    public Object[][] getResourceEquality() {
+    @DataProvider(name="inputOutputTestData")
+    public Object[][] getInputOutputTestData() {
         return new Object[][]{
-                { BundleResourceTestData.inputReadsWithSubType.get(), BundleResourceTestData.inputReadsWithSubType.get(), true },
-                { BundleResourceTestData.inputReadsNoSubType.get(), BundleResourceTestData.inputReadsNoSubType.get(), true },
-
-                { BundleResourceTestData.inputReadsWithSubType.get(), BundleResourceTestData.inputReadsNoSubType.get(), false },
+                // bundle resource, isInput, isOutput
+                { BundleResourceTestData.readsWithSubContentType, true, true},
+                { new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName", BundleResourceType.READS), true, false},
+                { new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName", BundleResourceType.READS), false, true},
         };
     }
 
-    @Test(dataProvider="resourceEquality")
+    @Test(dataProvider = "inputOutputTestData")
+    public void testIsInputOutput(final BundleResource resource, final boolean expectedIsInput, final boolean expectedIsOutput) {
+        Assert.assertEquals(resource.isInputResource(), expectedIsInput);
+        Assert.assertEquals(resource.isOutputResource(), expectedIsOutput);
+    }
+
+    @DataProvider(name="resourceEqualityTestData")
+    public Object[][] getResourceEqualityTestData() {
+        return new Object[][]{
+
+                // equal
+                {
+                        BundleResourceTestData.readsWithSubContentType,
+                        BundleResourceTestData.readsWithSubContentType,
+                        true
+                },
+                {
+                        BundleResourceTestData.readsNoSubContentType,
+                        BundleResourceTestData.readsNoSubContentType,
+                        true
+                },
+                {
+                        new IOPathResource(BundleResourceTestData.READS_FILE, BundleResourceType.READS),
+                        new IOPathResource(BundleResourceTestData.READS_FILE, BundleResourceType.READS),
+                        true
+                },
+                {
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName",
+                                BundleResourceType.READS),
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName",
+                                BundleResourceType.READS),
+                        true
+                },
+                {
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName",
+                                BundleResourceType.READS),
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName",
+                                BundleResourceType.READS),
+                        true
+                },
+
+                // not equal
+                {
+                        new IOPathResource(BundleResourceTestData.READS_FILE, BundleResourceType.READS),
+                        new IOPathResource(BundleResourceTestData.READS_FILE, "NOTREADS"),
+                        false
+                },
+                {
+                        BundleResourceTestData.readsWithSubContentType,
+                        BundleResourceTestData.readsNoSubContentType,
+                        false
+                },
+                {
+                        BundleResourceTestData.indexWithSubContentType,
+                        BundleResourceTestData.readsNoSubContentType,
+                        false
+                },
+
+                // not equal inputstreams
+                {
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName",
+                                BundleResourceType.READS),
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "differentDisplayName",
+                                BundleResourceType.READS),
+                        false
+                },
+                {
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName",
+                                BundleResourceType.READS, BundleResourceType.READS_BAM),
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName",
+                                BundleResourceType.READS),
+                        false
+                },
+                {
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName",
+                                BundleResourceType.READS, BundleResourceType.READS_BAM),
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName",
+                                BundleResourceType.READS, BundleResourceType.READS_CRAM),
+                        false
+                },
+                {
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName",
+                                BundleResourceType.READS),
+                        new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName",
+                                BundleResourceType.VARIANTS),
+                        false
+                },
+
+                // not equal outputstreams
+                {
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName",
+                                BundleResourceType.READS),
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "differentDisplayName",
+                                BundleResourceType.READS),
+                        false
+                },
+                {
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName",
+                                BundleResourceType.READS, BundleResourceType.READS_BAM),
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName",
+                                BundleResourceType.READS),
+                        false
+                },
+                {
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName",
+                                BundleResourceType.READS, BundleResourceType.READS_BAM),
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName",
+                                BundleResourceType.READS, BundleResourceType.READS_CRAM),
+                        false
+                },
+                {
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName",
+                                BundleResourceType.READS),
+                        new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName",
+                                BundleResourceType.VARIANTS),
+                        false
+                },
+        };
+    }
+
+    @Test(dataProvider="resourceEqualityTestData")
     public void testInputResourceEquality(
             final BundleResource inputResource1,
             final BundleResource inputResource2,
@@ -26,18 +146,27 @@ public class BundleResourceTest extends HtsjdkTest {
         Assert.assertEquals(inputResource2.equals(inputResource1), expectedEquals);
     }
 
-
-    @DataProvider(name="toString")
-    public Object[][] getToStringData() {
+    @DataProvider(name="toStringTestData")
+    public Object[][] getToStringTestData() {
         return new Object[][]{
-                // input resources
-                { BundleResourceTestData.inputReadsNoSubType.get(), "IOPathResource: READS/NONE" },
+                {BundleResourceTestData.readsWithSubContentType, "IOPathResource (myreads.bam): READS/BAM"},
+                {BundleResourceTestData.readsNoSubContentType, "IOPathResource (myreads.bam): READS/NONE"},
+                {BundleResourceTestData.indexNoSubContentType, "IOPathResource (myreads.bai): INDEX/NONE"},
+                {BundleResourceTestData.indexWithSubContentType, "IOPathResource (myreads.bai): INDEX/BAI"},
+                {new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName", BundleResourceType.READS),
+                        "InputStreamResource (displayName): READS/NONE"},
+                {new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName", BundleResourceType.READS, BundleResourceType.READS_BAM),
+                        "InputStreamResource (displayName): READS/BAM"},
+                {new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName", BundleResourceType.READS),
+                        "OutputStreamResource (displayName): READS/NONE"},
+                {new OutputStreamResource(BundleResourceTestData.fakeOutputStream, "displayName", BundleResourceType.READS, BundleResourceType.READS_BAM),
+                        "OutputStreamResource (displayName): READS/BAM"},
         };
     }
 
-    @Test(dataProvider = "toString")
+    @Test(dataProvider = "toStringTestData")
     public void testToString(final BundleResource resource, final String expectedString) {
-        System.out.println(resource.toString());
-        Assert.assertEquals(resource.toString(), expectedString);
+        Assert.assertTrue(resource.toString().contains(expectedString));
     }
+
 }
