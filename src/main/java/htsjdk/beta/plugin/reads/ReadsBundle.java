@@ -47,7 +47,6 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
                         toInputResource(
                                 BundleResourceType.READS,
                                 ValidationUtils.nonNull(reads, "reads"))));
-        validateContentTypes(BundleResourceType.READS, reads);
         cachedReadsPath = getReadsResourceOrThrow();
     }
 
@@ -59,7 +58,6 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
                 Arrays.asList(
                         toInputResource(BundleResourceType.READS, ValidationUtils.nonNull(reads, "reads")),
                         toInputResource(BundleResourceType.READS_INDEX, ValidationUtils.nonNull(index, "index"))));
-        validateContentTypes(BundleResourceType.READS, reads);
         cachedReadsPath = getReadsResourceOrThrow();
     }
 
@@ -85,7 +83,6 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
     public ReadsBundle(final String jsonString, final Function<String, IOPath> htsPathConstructor) {
         super(jsonString, htsPathConstructor);
         cachedReadsPath = getReadsResourceOrThrow();
-        validateContentTypes(BundleResourceType.READS, cachedReadsPath);
     }
 
     /**
@@ -152,9 +149,7 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
         }
     }
 
-    //TODO: is it worth trying to infer the content type from the IOPath, and warning if it doesn't look
-    // like a legitimate reads source?
-    //get the inferred contentType/subType from an IOPath, ie., READS/BAM
+    //try to infer the contentType/subType, i.e., READS/BAM from an IOPath
     private static <T extends IOPath> Optional<Tuple<String, String>> getInferredContentTypes(final T ioPath) {
         ValidationUtils.nonNull(ioPath, "ioPath");
         final Optional<String> extension = ioPath.getExtension();
@@ -172,10 +167,4 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
         return Optional.empty();
     }
 
-    private static <T extends IOPath> boolean validateContentTypes(final String expectedContentType, final T ioPath) {
-        final Optional<Tuple<String, String>> inferredType = getInferredContentTypes(ioPath);
-        return inferredType.isPresent() ?
-                inferredType.get().a.equals(expectedContentType) :
-                false;
-    }
 }
