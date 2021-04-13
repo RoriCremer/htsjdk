@@ -88,7 +88,7 @@ public class HtsBAMCodecQueryTest extends HtsjdkTest {
     public void testQueryIntervals(final HtsQueryRule queryRule, final int expected) {
         final Bundle readsBundle =
                 BundleBuilder.start()
-                        .add(new IOPathResource(TEST_BAM, BundleResourceType.READS))
+                        .addPrimary(new IOPathResource(TEST_BAM, BundleResourceType.READS))
                         .add(new IOPathResource(TEST_BAI, BundleResourceType.INDEX))
                         .getBundle();
         try (final HtsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(readsBundle, new ReadsDecoderOptions())) {

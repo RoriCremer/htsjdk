@@ -17,7 +17,7 @@ import java.util.function.Function;
 //TODO: bundles cannot be empty (if we decide to allow that, should they be serializable) ?
 //TODO: should GATK propagate the @Argument tag and attributes to the primary resource in the bundle
 //      on JSON deserialization ?
-//TODO: should these classes live in the the bundle package, or beta.io package ?
+//TODO: should these Bundle classes live in the the bundle package, or beta.io package ?
 
 //TODO: Should we try to validate that, say, a reads input bundle LOOKS like a reads bundle (i.e, that
 //      its resources look like a recognizable sam/bam/cram/sra input) ? htsget URIs are hard to disambiguate...
@@ -25,10 +25,7 @@ import java.util.function.Function;
 //TODO: ReadsBundle subContentType is always inferred, never explicitly provided
 
 //TODO: use GSON to get pretty printing ? (jar is about 275k; check other dependencies)
-//TODO: need better JSON schema/versioning support
-//TODO: add schema validation: https://github.com/bolerio/mjson/wiki/A-Tour-of-the-API#validating-with-json-schema
-//TODO: the current serialization schema won't handle multiple resources with the same contentType key (i.e., two
-//      index resources) unless we write them as a JSON array, since the contentType is the JSON property key
+//TODO: need better JSON schema/validation/versioning support: https://github.com/bolerio/mjson/wiki/A-Tour-of-the-API#validating-with-json-schema
 
 /**
  * An immutable collection of related resources (a primary resource, such as READS,
