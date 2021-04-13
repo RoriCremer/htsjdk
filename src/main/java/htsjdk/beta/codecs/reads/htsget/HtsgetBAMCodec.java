@@ -27,8 +27,8 @@ import java.util.Set;
 // An Htsget codec for reading BAM.
 // Note: there is no Htsget encoder
 public abstract class HtsgetBAMCodec implements ReadsCodec {
-    public static HtsCodecVersion HTSGET_VERSION = new HtsCodecVersion(1, 2, 0);
-    public static HtsCodecVersion BAM_DEFAULT_VERSION = new HtsCodecVersion(1, 0,0);
+    public static final HtsCodecVersion HTSGET_VERSION = new HtsCodecVersion(1, 2, 0);
+    public static final HtsCodecVersion BAM_DEFAULT_VERSION = new HtsCodecVersion(1, 0,0);
 
     private final Set<String> extensionMap = new HashSet(Arrays.asList(FileExtensions.BAM));
 

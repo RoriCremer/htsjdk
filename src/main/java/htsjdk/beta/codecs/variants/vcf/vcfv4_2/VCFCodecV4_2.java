@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
 
 public class VCFCodecV4_2 extends VCFCodec {
-    public static HtsCodecVersion VCF_V42_VERSION = new HtsCodecVersion(4, 2,0);
+    public static final HtsCodecVersion VCF_V42_VERSION = new HtsCodecVersion(4, 2,0);
     protected static final String VCF_V42_MAGIC = "##fileformat=VCFv4.2";
 
     @Override

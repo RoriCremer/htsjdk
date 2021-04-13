@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-//TODO: we don't allow bundles to be empty (if we decide to allow them, should they be serializable) ?
+//TODO: bundles cannot be empty (if we decide to allow that, should they be serializable) ?
 //TODO: should GATK propagate the @Argument tag and attributes to the primary resource in the bundle
 //      on JSON deserialization ?
 //TODO: should these classes live in the the bundle package, or beta.io package ?
@@ -29,7 +29,6 @@ import java.util.function.Function;
 //TODO: add schema validation: https://github.com/bolerio/mjson/wiki/A-Tour-of-the-API#validating-with-json-schema
 //TODO: the current serialization schema won't handle multiple resources with the same contentType key (i.e., two
 //      index resources) unless we write them as a JSON array, since the contentType is the JSON property key
-//TODO: change all reads codecs/tests to use ReadsBundle
 
 /**
  * An immutable collection of related resources (a primary resource, such as READS,
@@ -53,13 +52,13 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
     private static final long serialVersionUID = 1L;
     private static final Log LOG = Log.getInstance(Bundle.class);
 
-    public static String JSON_PROPERTY_SCHEMA_NAME      = "schemaName";
-    public static String JSON_PROPERTY_SCHEMA_VERSION   = "schemaVersion";
-    public static String JSON_PROPERTY_PRIMARY          = "primary";
-    public static String JSON_PROPERTY_PATH             = "path";
-    public static String JSON_PROPERTY_SUB_CONTENT_TYPE = "subtype";
-    public static String JSON_SCHEMA_NAME               = "htsbundle";
-    public static String JSON_SCHEMA_VERSION            = "0.1.0"; // TODO: bump this to 1.0.0
+    public static final String JSON_PROPERTY_SCHEMA_NAME      = "schemaName";
+    public static final String JSON_PROPERTY_SCHEMA_VERSION   = "schemaVersion";
+    public static final String JSON_PROPERTY_PRIMARY          = "primary";
+    public static final String JSON_PROPERTY_PATH             = "path";
+    public static final String JSON_PROPERTY_SUB_CONTENT_TYPE = "subtype";
+    public static final String JSON_SCHEMA_NAME               = "htsbundle";
+    public static final String JSON_SCHEMA_VERSION            = "0.1.0"; // TODO: bump this to 1.0.0
 
     private final Map<String, BundleResource> resources = new HashMap<>();
     private final String primaryResourceKey;
