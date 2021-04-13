@@ -1,9 +1,7 @@
 package htsjdk.beta.plugin.bundle;
 
-//import java.util.HashSet;
-
 /**
- * Defines a namespace for a bunch of constants to identify the resources in a {@link Bundle}.
+ * Namespace for a standard constants to specify content type and sub content type in resources in a {@link Bundle}.
  */
 public class BundleResourceType {
 
@@ -32,19 +30,4 @@ public class BundleResourceType {
     public static final String READS_INDEX_CSI = "CSI";
     public static final String READS_INDEX_SELF_INDEXING = "SELF";
 
-
-// Method to determine if a dynamic content type string clashes with any built-in string
-//
-//    public static HashSet<String> predefinedTypes = new HashSet() {{
-//        add(READS);
-//        add(REFERENCE);
-//        add(DICTIONARY);
-//        add(VARIANTS);
-//        add(FEATURES);
-//        add(INDEX);
-//        add(MD5);
-//    }};
-//
-//    // determine if a custom type clashes with an existing type
-//    public static boolean isPredefinedResourceType(final String target) { return predefinedTypes.contains(target);  }
 }

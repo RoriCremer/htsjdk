@@ -19,10 +19,19 @@ public class IOPathResource extends BundleResource implements Serializable {
     private static final long serialVersionUID = 1L;
     private final IOPath ioPath;
 
+    /**
+     * @param ioPath The IOPath for this resource. May not be null.
+     * @param contentType The content type for this resource. May not be null or 0-length.
+     */
     public IOPathResource(final IOPath ioPath, final String contentType) {
         this(ioPath, contentType,null);
     }
 
+    /**
+     * @param ioPath The IOPath for this resource. May not be null.
+     * @param contentType The content type for this resource. May not be mull or 0-length.
+     * @param subContentType The sub content type for this resource. May not be null or 0-length.
+     */
     public IOPathResource(final IOPath ioPath, final String contentType, final String subContentType) {
         super(ValidationUtils.nonNull(ioPath, "ioPath").getRawInputString(),
                 contentType,

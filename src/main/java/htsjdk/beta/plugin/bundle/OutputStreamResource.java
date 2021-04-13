@@ -2,6 +2,7 @@ package htsjdk.beta.plugin.bundle;
 
 import htsjdk.utils.ValidationUtils;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
 
@@ -11,10 +12,21 @@ import java.util.Optional;
 public class OutputStreamResource extends BundleResource {
     private final OutputStream outputStream;
 
+    /**
+     * @param outputStream The {@link OutputStream} to use for this resource. May not be null.
+     * @param displayName The display name for this resource. May not be null or 0-length.
+     * @param contentType The content type for this resource. May not be null or 0-length.
+     */
     public OutputStreamResource(final OutputStream outputStream, final String displayName, final String contentType) {
         this(outputStream, displayName, contentType, null);
     }
 
+    /**
+     * @param outputStream The {@link OutputStream} to use for this resource. May not be null.
+     * @param displayName The display name for this resource. May not be null or 0-length.
+     * @param contentType The content type for this resource. May not be null or 0-length.
+     * @param subContentType The sub content type for this resource. May not be null or 0-length.
+     */
     public OutputStreamResource(
             final OutputStream outputStream,
             final String displayName,
@@ -25,10 +37,6 @@ public class OutputStreamResource extends BundleResource {
         this.outputStream = outputStream;
     }
 
-    /**
-     * once this stream has been consumed, retrieving it will no longer be useful...
-     * @return
-     */
     @Override
     public Optional<OutputStream> getOutputStream() {
         return Optional.of(outputStream);

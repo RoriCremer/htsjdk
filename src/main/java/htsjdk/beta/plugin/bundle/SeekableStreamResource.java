@@ -7,17 +7,28 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * An input resource backed by an {@link htsjdk.samtools.seekablestream.SeekableStream}.
+ * An input resource backed by a {@link htsjdk.samtools.seekablestream.SeekableStream}.
  */
 public class SeekableStreamResource extends InputStreamResource implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final SeekableStream seekableStream;
 
+    /**
+     * @param seekableStream The {@link SeekableStream} to use for this resource. May not be null.
+     * @param displayName The display name for this resource. May not be null or 0-length.
+     * @param contentType The content type for this resource. May not be null or 0-length.
+     */
     public SeekableStreamResource(final SeekableStream seekableStream, final String displayName, final String contentType) {
         this(seekableStream, displayName, contentType, null);
     }
 
+    /**
+     * @param seekableStream The {@link SeekableStream} to use for this resource. May not be null.
+     * @param displayName The display name for this resource. May not be null or 0-length.
+     * @param contentType The content type for this resource. May not be null or 0-length.
+     * @param subContentType The sub content type for this resource. May not be null or 0-length.
+     */
     public SeekableStreamResource(
             final SeekableStream seekableStream,
             final String displayName,

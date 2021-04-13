@@ -14,13 +14,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-//TODO: should we allow bundles to be empty (should they be serializable) ?
-//TODO: should GATK propagate the argument tag and attributes to the primary resource in the bundle JSON deserialization ?
-//TODO: should these classes live in the io package (or beta.io) ?
-//TODO: ReadsBundle subContentType is always inferred, never explicitly provided...
+//TODO: we don't allow bundles to be empty (if we decide to allow them, should they be serializable) ?
+//TODO: should GATK propagate the @Argument tag and attributes to the primary resource in the bundle
+//      on JSON deserialization ?
+//TODO: should these classes live in the the bundle package, or beta.io package ?
+
 //TODO: Should we try to validate that, say, a reads input bundle LOOKS like a reads bundle (i.e, that
-//      it has a sam/bam/cram/sra input) ? htsget uris are hard to disambiguate...
-//TODO: validate index content type as well as reads
+//      its resources look like a recognizable sam/bam/cram/sra input) ? htsget URIs are hard to disambiguate...
+//TODO: validate index content type as well as reads ?
+//TODO: ReadsBundle subContentType is always inferred, never explicitly provided
 
 //TODO: use GSON to get pretty printing ? (jar is about 275k; check other dependencies)
 //TODO: need better JSON schema/versioning support
@@ -30,17 +32,21 @@ import java.util.function.Function;
 //TODO: change all reads codecs/tests to use ReadsBundle
 
 /**
- * Aa immutable container for a collection of related resources (a primary resource such as reads,
+ * An immutable collection of related resources (a primary resource, such as READS,
  * variants, features, or a reference, etc.), plus zero or more related companion resources (index,
- * dictionary, MD5, etc.). This is essentially a more generic version of SamInputResource, suitable
- * for handling both inputs and output resources for any codec type).
+ * dictionary, MD5, etc.).
  *
- * Each resource is represented by a BundleResource, which in turn describes a binding mechanism
- * for that resource (such as an HtsPath, in the case of a URI, Path or file name); a stream; or a
- * seekable stream.
+ * Each resource in a bundle is represented by a {@link BundleResource}, which in turn describes a binding
+ * mechanism for that resource (such as an {@link IOPath}, in the case of a URI, Path or file name; a stream;
+ * or a seekable stream), and a "content type" string such as "READS" that describes the content of that
+ * resource. Any string can be used as a content type. Predefined content type strings are defined in {@link
+ * BundleResourceType}.
  *
- * There is a single schema for all serialized bundles that is not specific to READS, REFERENCE.
+ * A valid bundle must have a "primary" key, which is a content type string that represents the primary resource
+ * in that bundle. A bundle resource with the primary content type must be present in the bundle.
  *
+ * Bundles that contain only serializable ({@link IOPathResource}) resources may be serialized to, and deserialized
+ * from JSON.
  */
 public class Bundle implements Iterable<BundleResource>, Serializable {
     public static final String BUNDLE_EXTENSION = ".json";
@@ -85,10 +91,20 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
         }
     }
 
+    /**
+     * @param jsonString a valid JSON string conforming to the bundle schema
+     */
     public Bundle(final String jsonString) {
         this(ValidationUtils.nonNull(jsonString, "resource list"), HtsPath::new);
     }
 
+    /**
+     *
+     * @param jsonString a valid JSON string conforming to the bundle schema
+     * @param ioPathConstructor a Function that takes a String and returns an object of a class that implements
+     *                          IOPath. This can be used to create bundles from JSON that contain caller-specific
+     *                          IOPath derived objects.
+     */
     protected Bundle(final String jsonString, final Function<String, IOPath> ioPathConstructor) {
         ValidationUtils.nonNull(jsonString, "JSON string");
         ValidationUtils.nonNull(ioPathConstructor, "IOPath-derived class constructor");
@@ -145,27 +161,54 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
         }
     }
 
-    public Optional<BundleResource> get(final String targetContent) {
-        ValidationUtils.nonNull(targetContent, "target content string");
-        return Optional.ofNullable(resources.get(targetContent));
+    /**
+     * Return the BundleResource for the provided targetContentType string.
+     *
+     * @param targetContentType the content type to be retrieved from the bundle
+     * @return an Optional<BundleResource> that contains the targetContent type
+     */
+    public Optional<BundleResource> get(final String targetContentType) {
+        ValidationUtils.nonNull(targetContentType, "target content string");
+        return Optional.ofNullable(resources.get(targetContentType));
     }
 
+    /**
+     * Return the primary content type for this bundle.
+     * @return the primary content type for this bundle
+     */
     public String getPrimaryResourceKey() { return primaryResourceKey; }
 
+    /**
+     * Return the primary {@link BundleResource} for this bundle.
+     * @return the primary {@link BundleResource} for this bundle.
+     */
     public BundleResource getPrimaryResource() {
         return resources.get(primaryResourceKey);
     }
 
-    // if true, you can get an InputStream for each resource in the bundle
+    /**
+     * If true, you can obtain an InputStream for each resource in the bundle
+     * @return true if all resources in the bundle can be used for input
+     */
     public boolean isInputBundle() { return resources.values().stream().allMatch(BundleResource::isInputResource); }
 
-    // if true, you can get an OutputStream for each resource in the bundle
+    /**
+     * If true, you can get obtain an OutputStream for each resource in the bundle
+     * @return true if all resources in the bundle can be used for input
+     */
     public boolean isOutputBundle() { return !isInputBundle(); }
 
+    /**
+     * Obtain an iterator of BundleResources for this bundle.
+     * @return iterator of BundleResources for this bundle.
+     */
     public Iterator<BundleResource> iterator() { return resources.values().iterator(); }
 
     /**
-     * Note: only IOPath resources can be serialized to JSON...
+     * Serialize this bundle to a JSON string representation. All resources in the bundle must
+     * be {@link IOPathResource} for serialization to succeed.
+     *
+     * @return a JSON representation of this bundle
      */
     public String toJSON() {
         final Json outerJSON = Json.object()

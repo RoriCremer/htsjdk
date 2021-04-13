@@ -5,6 +5,7 @@ import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.bundle.BundleResourceType;
 import htsjdk.beta.plugin.bundle.Bundle;
+import htsjdk.beta.plugin.bundle.BundleBuilder;
 import htsjdk.beta.plugin.bundle.IOPathResource;
 import htsjdk.beta.plugin.bundle.BundleResource;
 import htsjdk.samtools.SamFiles;
@@ -17,15 +18,18 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
- * A reads bundle has a primary resource with content type READS; an optional index resource.
+ * A bundle for reads and reads-related resources that are contain {@link IOPathResource}s. A {@link ReadsBundle}
+ * has a primary resource with content type "READS"; and an optional index resource.
+ *
+ * Note that the {@link ReadsBundle} class is simply a convenience wrapper for the common case where a
+ * {@link Bundle}s contains READS sources represented by {@link IOPathResource}s. It mainly provides convenient
+ * constructors, and validation for JSON interconversions. For reads sources that are backed by streams or other
+ * {@link BundleResource} types, the {@link Bundle} and {@link BundleBuilder} classes can be used directly.
  */
 public class ReadsBundle<T extends IOPath> extends Bundle implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -34,6 +38,9 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
 
     private final T cachedReadsPath;
 
+    /**
+     * @param reads An {@link IOPath}-derived object that represents a source of reads.
+     */
     public ReadsBundle(final T reads) {
         super(BundleResourceType.READS,
                 Collections.singletonList(
@@ -44,6 +51,9 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
         cachedReadsPath = getReadsResourceOrThrow();
     }
 
+    /**
+     * @param reads An {@link IOPath}-derived object that represents a source of reads.
+     */
     public ReadsBundle(final T reads, final T index) {
         super(BundleResourceType.READS,
                 Arrays.asList(
@@ -54,21 +64,38 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
     }
 
     /**
-     * A reads bundle can be constructed from a JSON string as long as the bundle has a primary resource with
+     * Construct a {@link ReadsBundle} from a JSON string.
+     *
+     * @param jsonString a bundle-schema conforming JSON string
+     *
+     * A reads bundle can be constructed from a JSON string as long as the JSON bundle has a "primary" resource with
      * content type "READS". It may also have an optional index resource.
      */
     public ReadsBundle(final String jsonString) {
         this(jsonString, HtsPath::new);
     }
 
-    public ReadsBundle(final String jsonString, final Function<String, IOPath> customPathConstructor) {
-        super(jsonString, customPathConstructor);
+    /**
+     * Construct a {@link ReadsBundle} from a JSON string that contains custom IOPath-derived
+     *
+     * @param jsonString a bundle-schema conforming JSON string
+     * @param htsPathConstructor constructor function to be used when creating {@link IOPath} for
+     * {@link IOPathResource}s in this bundle
+     */
+    public ReadsBundle(final String jsonString, final Function<String, IOPath> htsPathConstructor) {
+        super(jsonString, htsPathConstructor);
         cachedReadsPath = getReadsResourceOrThrow();
         validateContentTypes(BundleResourceType.READS, cachedReadsPath);
     }
 
+    /**
+     * @return the reads object of type T for this resource
+     */
     public T getReads() { return cachedReadsPath; }
 
+    /**
+     * @return optional index for this resource, or Optional.empty if not present
+     */
     public Optional<T> getIndex() {
         final Supplier<RuntimeException> ex = () -> new RuntimeException("Index resource is present with a null path");
         final Optional<BundleResource> inputResource = get(BundleResourceType.INDEX);

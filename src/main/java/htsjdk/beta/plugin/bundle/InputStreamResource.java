@@ -11,10 +11,21 @@ import java.util.Optional;
 public class InputStreamResource extends BundleResource {
     private final InputStream inputStream;
 
+    /**
+     * @param inputStream The {@link InputStream} to use for this resource. May not be null.
+     * @param displayName The display name for this resource. May not be null or 0-length.
+     * @param contentType The content type for this resource. May not be null or 0-length.
+     */
     public InputStreamResource(final InputStream inputStream, final String displayName, final String contentType) {
         this(inputStream, displayName, contentType, null);
     }
 
+    /**
+     * @param inputStream The {@link InputStream} to use for this resource. May not be null.
+     * @param displayName The display name for this resource. May not be null or 0-length.
+     * @param contentType The content type for this resource. May not be null or 0-length.
+     * @param subContentType The sub content type for this resource. May not be null or 0-length.
+     */
     public InputStreamResource(
             final InputStream inputStream,
             final String displayName,

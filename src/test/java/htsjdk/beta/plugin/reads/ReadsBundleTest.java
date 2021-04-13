@@ -11,12 +11,8 @@ import org.testng.annotations.Test;
 
 // TEST cases:
 // a READS bundle that contains some non-reads resource
-// inference: reads bundle primary resources doesn't look look reads
-// fromPathLists
-// fromLists
 // resolveIndex
 // looksLikeAReadsBundle
-
 public class ReadsBundleTest extends HtsjdkTest {
 
     private final static String BAM_FILE = "reads.bam";

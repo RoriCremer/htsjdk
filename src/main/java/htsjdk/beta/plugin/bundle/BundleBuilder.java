@@ -6,24 +6,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A builder class for {@link Bundle}.
+ * A builder class for {@link Bundle}s.
  */
-public class BundleBuilder {
+public final class BundleBuilder {
 
-    //TODO: use List here in order to allow duplicates ?
-    //TODO: add a test to ensure that duplicates work
     private final List<BundleResource> resources = new ArrayList<>();
     private String primaryResource;
 
+    /**
+     * Start a new {@link BundleBuilder}.
+     * @return a {@link BundleBuilder}
+     */
     static public BundleBuilder start() {
         return new BundleBuilder();
     }
 
     protected BundleBuilder() { }
 
+    /**
+     * Add the primary resource to the bundle. The content type of resource will be the bundle's primary key.
+     *
+     * @param resource the resource which will be the primary resource for the bundle
+     * @return this {@link BundleBuilder}
+     */
     public BundleBuilder addPrimary(final BundleResource resource) {
         ValidationUtils.nonNull(resource, "resource");
-        add(resource);
         if (primaryResource != null) {
                 throw new IllegalStateException(String.format(
                         "Can't add primary resource %s to a bundle that already has primary resource %s",
@@ -31,20 +38,36 @@ public class BundleBuilder {
                         primaryResource));
         }
         primaryResource = resource.getContentType();
+        add(resource);
         return this;
     }
 
+    /**
+     * Add a (non-primary) resource to the bundle.
+     *
+     * @param resource the resource to be added
+     * @return this {@link BundleBuilder}
+     */
     public BundleBuilder add(final BundleResource resource) {
         ValidationUtils.nonNull(resource, "resource");
         resources.add(resource);
         return this;
     }
 
+    /**
+     * Create a bundle from accumulated builder state, and reset the builder state. At least one (primary)
+     * resource must have been previously added to create a valid bundle.
+     *
+     * @return a {@link Bundle}.
+     */
     public Bundle getBundle() {
         if (primaryResource == null) {
             throw new IllegalStateException("A bundle must have a primary resource.");
         }
-        return new Bundle(primaryResource, resources);
+        final Bundle bundle = new Bundle(primaryResource, resources);
+        primaryResource = null;
+        resources.clear();
+        return bundle;
     }
 }
 
