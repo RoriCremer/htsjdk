@@ -23,11 +23,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * A bundle for reads and reads-related resources that are contain {@link IOPathResource}s. A {@link ReadsBundle}
- * has a primary resource with content type "READS"; and an optional index resource.
+ * A {@link Bundle} subclass for reads and reads-related resources that contain {@link IOPathResource}s.
+ * A {@link ReadsBundle} has a primary resource with content type "READS"; and an optional index resource.
  *
  * Note that the {@link ReadsBundle} class is simply a convenience wrapper for the common case where a
- * {@link Bundle}s contains READS sources represented by {@link IOPathResource}s. It mainly provides convenient
+ * {@link Bundle}s contains READS sources backed by {@link IOPathResource}s. It mainly provides convenient
  * constructors, and validation for JSON interconversions. For reads sources that are backed by streams or other
  * {@link BundleResource} types, the {@link Bundle} and {@link BundleBuilder} classes can be used directly.
  */
@@ -58,7 +58,7 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
         super(BundleResourceType.READS,
                 Arrays.asList(
                         toInputResource(BundleResourceType.READS, ValidationUtils.nonNull(reads, "reads")),
-                        toInputResource(BundleResourceType.INDEX, ValidationUtils.nonNull(index, "index"))));
+                        toInputResource(BundleResourceType.READS_INDEX, ValidationUtils.nonNull(index, "index"))));
         validateContentTypes(BundleResourceType.READS, reads);
         cachedReadsPath = getReadsResourceOrThrow();
     }
@@ -98,7 +98,7 @@ public class ReadsBundle<T extends IOPath> extends Bundle implements Serializabl
      */
     public Optional<T> getIndex() {
         final Supplier<RuntimeException> ex = () -> new RuntimeException("Index resource is present with a null path");
-        final Optional<BundleResource> inputResource = get(BundleResourceType.INDEX);
+        final Optional<BundleResource> inputResource = get(BundleResourceType.READS_INDEX);
         // its OK for there to be no index resource, but if there *is* an index resource, it must contain
         // a non-null path...
         return inputResource.isPresent() ?

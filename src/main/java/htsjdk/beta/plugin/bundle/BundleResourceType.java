@@ -5,18 +5,24 @@ package htsjdk.beta.plugin.bundle;
  */
 public class BundleResourceType {
 
-    // content types
+    /**
+     * predefined content types
+     */
     public static final String READS = "READS";
     public static final String REFERENCE = "REFERENCE";
     public static final String DICTIONARY = "DICTIONARY";
     public static final String VARIANTS = "VARIANTS";
     public static final String FEATURES = "FEATURES";
-    public static final String INDEX = "INDEX";
+    public static final String READS_INDEX = "READS_INDEX";
 
-    // content subtypes
+    /**
+     * predefined sub content types
+     */
     public static final String SUB_TYPE_UNKNOWN = "UNKNOWN";
 
-    // content subtypes - reads
+    /**
+     * sub content types for content type {@link BundleResourceType#READS}
+     */
     public static final String READS_SAM = "SAM";
     public static final String READS_BAM = "BAM";
     public static final String READS_CRAM = "CRAM";
@@ -24,7 +30,9 @@ public class BundleResourceType {
     public static final String READS_HTSGET_BAM = "HTSGET_BAM";
     public static final String READS_HTSGET_SAM = "HTSGET_SAM";
 
-    // content subtypes - reads index
+    /**
+     * sub content types for content type {@link BundleResourceType#READS_INDEX}
+     */
     public static final String READS_INDEX_BAI = "BAI";
     public static final String READS_INDEX_CRAI = "CRAI";
     public static final String READS_INDEX_CSI = "CSI";

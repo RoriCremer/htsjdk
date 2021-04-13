@@ -20,11 +20,11 @@ public class BundleResourceTestData {
             BundleResourceType.READS);
     public static final BundleResource indexWithSubContentType = new IOPathResource(
             READS_INDEX,
-            BundleResourceType.INDEX,
+            BundleResourceType.READS_INDEX,
             BundleResourceType.READS_INDEX_BAI);
     public static final BundleResource indexNoSubContentType = new IOPathResource(
             READS_INDEX,
-            BundleResourceType.INDEX);
+            BundleResourceType.READS_INDEX);
 
     public final static class CustomHtsPath extends HtsPath {
         public CustomHtsPath(final String pathString) {

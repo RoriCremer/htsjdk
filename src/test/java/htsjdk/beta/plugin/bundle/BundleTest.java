@@ -21,7 +21,7 @@ import java.util.Optional;
 // "schemaName":"htsbundle",
 // "schemaVersion":"0.1.0",
 // "READS",
-// "INDEX":{"path":"myFile.bai","subtype":"NONE"},
+// "READS_INDEX":{"path":"myFile.bai","subtype":"NONE"},
 // "READS":{"path":"myFile.bam","subtype":"NONE"}
 // }
 
@@ -111,7 +111,7 @@ public class BundleTest extends HtsjdkTest {
                         Arrays.asList(BundleResourceTestData.readsNoSubContentType)
                 },
                 {
-                        "{\"schemaVersion\":\"0.1.0\",\"INDEX\":{\"path\":\"myreads.bai\",\"subtype\":\"BAI\"}," +
+                        "{\"schemaVersion\":\"0.1.0\",\"READS_INDEX\":{\"path\":\"myreads.bai\",\"subtype\":\"BAI\"}," +
                                 "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"," +
                                 "\"subtype\":\"BAM\"},\"primary\":\"READS\"}",
                         BundleResourceType.READS,
@@ -120,7 +120,7 @@ public class BundleTest extends HtsjdkTest {
                                 BundleResourceTestData.indexWithSubContentType)
                 },
                 {
-                        "{\"schemaVersion\":\"0.1.0\",\"INDEX\":{\"path\":\"myreads.bai\",\"subtype\":\"BAI\"}," +
+                        "{\"schemaVersion\":\"0.1.0\",\"READS_INDEX\":{\"path\":\"myreads.bai\",\"subtype\":\"BAI\"}," +
                                 "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"}," +
                                 "\"primary\":\"READS\"}",
                         BundleResourceType.READS,
@@ -129,7 +129,7 @@ public class BundleTest extends HtsjdkTest {
                                 BundleResourceTestData.indexWithSubContentType)
                 },
                 {
-                        "{\"schemaVersion\":\"0.1.0\",\"INDEX\":{\"path\":\"myreads.bai\"}," +
+                        "{\"schemaVersion\":\"0.1.0\",\"READS_INDEX\":{\"path\":\"myreads.bai\"}," +
                                 "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"," +
                                 "\"subtype\":\"BAM\"},\"primary\":\"READS\"}",
                         BundleResourceType.READS,
@@ -137,7 +137,7 @@ public class BundleTest extends HtsjdkTest {
                                 BundleResourceTestData.readsWithSubContentType,
                                 BundleResourceTestData.indexNoSubContentType) },
                 {
-                        "{\"schemaVersion\":\"0.1.0\",\"INDEX\":{\"path\":\"myreads.bai\"}," +
+                        "{\"schemaVersion\":\"0.1.0\",\"READS_INDEX\":{\"path\":\"myreads.bai\"}," +
                                 "\"schemaName\":\"htsbundle\",\"READS\":{\"path\":\"myreads.bam\"}," +
                                 "\"primary\":\"READS\"}",
                         BundleResourceType.READS,
@@ -156,8 +156,9 @@ public class BundleTest extends HtsjdkTest {
 
                 // three resources, one of which is a custom content type
                 {
-                        "{\"schemaVersion\":\"0.1.0\",\"CUSTOM\":{\"path\":\"myreads.CUSTOM\"}," +
-                                "\"INDEX\":{\"path\":\"myreads.bai\"},\"schemaName\":\"htsbundle\"," +
+                        "{\"schemaVersion\":\"0.1.0\"," +
+                                "\"READS_INDEX\":{\"path\":\"myreads.bai\"},\"CUSTOM\":{\"path\":\"myreads.CUSTOM\"}," +
+                                "\"schemaName\":\"htsbundle\"," +
                                 "\"READS\":{\"path\":\"myreads.bam\"},\"primary\":\"READS\"}",
                         "READS",
                         Arrays.asList(

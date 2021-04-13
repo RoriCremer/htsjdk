@@ -89,7 +89,7 @@ public class HtsBAMCodecQueryTest extends HtsjdkTest {
         final Bundle readsBundle =
                 BundleBuilder.start()
                         .addPrimary(new IOPathResource(TEST_BAM, BundleResourceType.READS))
-                        .add(new IOPathResource(TEST_BAI, BundleResourceType.INDEX))
+                        .add(new IOPathResource(TEST_BAI, BundleResourceType.READS_INDEX))
                         .getBundle();
         try (final HtsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(readsBundle, new ReadsDecoderOptions())) {
             final Iterator<SAMRecord> it = bamDecoder.query("chr1", 202661637, 202661812, queryRule);

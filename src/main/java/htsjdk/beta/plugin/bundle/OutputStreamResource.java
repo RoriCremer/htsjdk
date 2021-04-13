@@ -2,7 +2,6 @@ package htsjdk.beta.plugin.bundle;
 
 import htsjdk.utils.ValidationUtils;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
 

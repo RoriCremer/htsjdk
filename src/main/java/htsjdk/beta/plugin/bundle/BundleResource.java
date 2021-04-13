@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * Base class for various {@link BundleResource} implementations. }.
+ * Base class for {@link BundleResource} implementations. }.
  */
 public abstract class BundleResource implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -20,12 +20,12 @@ public abstract class BundleResource implements Serializable {
 
     /**
      *
-     * @param displayName A user-recognizable name for this resource. used for error messages. May not be null or
+     * @param displayName A user-recognizable name for this resource. Used for error messages. May not be null or
      *                    0 length.
      * @param contentType The content type for this resource. Can be any string, but it must be unique for this
      *                    resource. May not be null or zero length.
      * @param subContentType The (optional) sub content type for this resource. Can be any string, i.e, "BAM" for
-     *                       a resource with content type "READS". Predefined subcontent type stringss are defined
+     *                       a resource with content type "READS". Predefined sub content type strings are defined
      *                       in {@link BundleResourceType}.
      */
     public BundleResource(

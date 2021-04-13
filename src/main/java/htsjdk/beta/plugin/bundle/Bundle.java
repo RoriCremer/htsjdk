@@ -14,27 +14,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-//TODO: bundles cannot be empty (if we decide to allow that, should they be serializable) ?
-//TODO: should GATK propagate the @Argument tag and attributes to the primary resource in the bundle
-//      on JSON deserialization ?
-//TODO: should these Bundle classes live in the the bundle package, or beta.io package ?
-
-//TODO: Should we try to validate that, say, a reads input bundle LOOKS like a reads bundle (i.e, that
-//      its resources look like a recognizable sam/bam/cram/sra input) ? htsget URIs are hard to disambiguate...
-//TODO: validate index content type as well as reads ?
-//TODO: ReadsBundle subContentType is always inferred, never explicitly provided
-
-//TODO: use GSON to get pretty printing ? (jar is about 275k; check other dependencies)
-//TODO: need better JSON schema/validation/versioning support: https://github.com/bolerio/mjson/wiki/A-Tour-of-the-API#validating-with-json-schema
-
 /**
- * An immutable collection of related resources (a primary resource, such as READS,
- * variants, features, or a reference, etc.), plus zero or more related companion resources (index,
- * dictionary, MD5, etc.).
+ * An immutable collection of related resources (a primary resource, such as reads variants, features,
+ * or a reference), plus zero or more related companion resources (index, dictionary, MD5, etc.).
  *
  * Each resource in a bundle is represented by a {@link BundleResource}, which in turn describes a binding
- * mechanism for that resource (such as an {@link IOPath}, in the case of a URI, Path or file name; a stream;
- * or a seekable stream), and a "content type" string such as "READS" that describes the content of that
+ * mechanism for that resource, such as an {@link IOPath}, in the case of a URI, Path or file name; or a
+ * stream; or a seekable stream, and a "content type" string such as "READS" that describes the content of that
  * resource. Any string can be used as a content type. Predefined content type strings are defined in {@link
  * BundleResourceType}.
  *
@@ -226,7 +212,8 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
             }
             outerJSON.set(bundleResource.getContentType(), resourceJSON);
         });
-        return outerJSON.toString();
+
+        return outerJSON.toString(); //TODO: implement pretty printing
     }
 
     private String getPropertyAsString(final String propertyName, final Json jsonDocument) {

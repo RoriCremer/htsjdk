@@ -9,10 +9,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-// TEST cases:
-// a READS bundle that contains some non-reads resource
-// resolveIndex
-// looksLikeAReadsBundle
 public class ReadsBundleTest extends HtsjdkTest {
 
     private final static String BAM_FILE = "reads.bam";

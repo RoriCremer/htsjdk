@@ -124,7 +124,7 @@ public class CRAMDecoderV3_0 extends CRAMDecoder {
             }
             final SamInputResource readsResource = SamInputResource.of(readsPath.get().toPath());
 
-            final Optional<BundleResource> indexInput = inputBundle.get(BundleResourceType.INDEX);
+            final Optional<BundleResource> indexInput = inputBundle.get(BundleResourceType.READS_INDEX);
             if (indexInput.isPresent()) {
                 final Optional<IOPath> indexPath = indexInput.get().getIOPath();
                 if (!indexPath.isPresent()) {
