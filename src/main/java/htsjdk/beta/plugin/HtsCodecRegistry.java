@@ -1,12 +1,11 @@
 package htsjdk.beta.plugin;
 
 import htsjdk.beta.plugin.bundle.Bundle;
-import htsjdk.beta.plugin.bundle.BundleBuilder;
 import htsjdk.beta.plugin.bundle.BundleResource;
+import htsjdk.beta.plugin.reads.ReadsBundle;
 import htsjdk.exception.HtsjdkIOException;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.bundle.BundleResourceType;
-import htsjdk.beta.plugin.bundle.IOPathResource;
 import htsjdk.beta.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.beta.plugin.hapref.HaploidReferenceFormat;
 import htsjdk.beta.plugin.hapref.HaploidReferenceDecoder;
@@ -58,12 +57,9 @@ public class HtsCodecRegistry {
     private static final HtsCodecRegistry htsCodecRegistry = new HtsCodecRegistry();
 
     // maps of codec versions, by format, for each codec type
-    private static HtsCodecsForType<HaploidReferenceFormat, HaploidReferenceCodec>
-            haprefCodecs = new HtsCodecsForType<>();
-    private static HtsCodecsForType<ReadsFormat, ReadsCodec>
-            readsCodecs = new HtsCodecsForType<>();
-    private static HtsCodecsForType<VariantsFormat, VariantsCodec>
-            variantCodecs = new HtsCodecsForType<>();
+    private static HtsCodecsForType<HaploidReferenceFormat, HaploidReferenceCodec> haprefCodecs = new HtsCodecsForType<>();
+    private static HtsCodecsForType<ReadsFormat, ReadsCodec> readsCodecs = new HtsCodecsForType<>();
+    private static HtsCodecsForType<VariantsFormat, VariantsCodec> variantCodecs = new HtsCodecsForType<>();
 
     private final static String NO_CODEC_MSG_FORMAT_STRING = "A %s codec capable of handling \"%s\" could not be found";
 
@@ -102,12 +98,7 @@ public class HtsCodecRegistry {
     @SuppressWarnings("unchecked")
     public static ReadsDecoder getReadsDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
-        return getReadsDecoder(
-                BundleBuilder.start()
-                        .addPrimary(new IOPathResource(inputPath, BundleResourceType.READS))
-                        .getBundle(),
-                new ReadsDecoderOptions()
-        );
+        return getReadsDecoder(new ReadsBundle(inputPath), new ReadsDecoderOptions());
     }
 
     @SuppressWarnings("unchecked")
@@ -116,11 +107,7 @@ public class HtsCodecRegistry {
             final ReadsDecoderOptions readsDecoderOptions) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(readsDecoderOptions, "Decoder options must not be null");
-        return getReadsDecoder(
-                BundleBuilder.start()
-                        .addPrimary(new IOPathResource(inputPath, BundleResourceType.READS))
-                        .getBundle(),
-                readsDecoderOptions);
+        return getReadsDecoder(new ReadsBundle(inputPath), new ReadsDecoderOptions());
     }
 
     @SuppressWarnings("unchecked")

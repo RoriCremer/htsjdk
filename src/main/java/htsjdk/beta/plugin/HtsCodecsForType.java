@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Class used by the registry to track all codec formats and versions for a single codec type.
  * @param <F> enum representing the formats for this codec type
- * @param <C> the codec type
+ * @param <C> the HtsCodec type
  */
 final class HtsCodecsForType<F extends Enum<F>, C extends HtsCodec<F, ?, ?>> {
 
