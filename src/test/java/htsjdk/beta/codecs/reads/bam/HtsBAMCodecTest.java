@@ -3,7 +3,7 @@ package htsjdk.beta.codecs.reads.bam;
 import htsjdk.HtsjdkTest;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
-import htsjdk.beta.plugin.HtsCodecRegistry;
+import htsjdk.beta.plugin.registry.HtsReadsCodecs;
 import htsjdk.beta.plugin.reads.ReadsFormat;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMRecord;
@@ -17,7 +17,7 @@ public class HtsBAMCodecTest  extends HtsjdkTest {
     public void testBAMDecoder() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
-        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsCodecRegistry.getReadsDecoder(inputPath)) {
+        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsReadsCodecs.getReadsDecoder(inputPath)) {
             Assert.assertNotNull(bamDecoder);
             Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.BAM);
 
@@ -31,7 +31,7 @@ public class HtsBAMCodecTest  extends HtsjdkTest {
     @Test
     public void testBAMEncoder() {
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
-        try (final BAMEncoder bamEncoder = (BAMEncoder) HtsCodecRegistry.getReadsEncoder(outputPath)) {
+        try (final BAMEncoder bamEncoder = (BAMEncoder) HtsReadsCodecs.getReadsEncoder(outputPath)) {
             Assert.assertNotNull(bamEncoder);
             Assert.assertEquals(bamEncoder.getFormat(), ReadsFormat.BAM);
         }
@@ -42,8 +42,8 @@ public class HtsBAMCodecTest  extends HtsjdkTest {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
 
-        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsCodecRegistry.getReadsDecoder(inputPath);
-             final BAMEncoder bamEncoder = (BAMEncoder) HtsCodecRegistry.getReadsEncoder(outputPath)) {
+        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsReadsCodecs.getReadsDecoder(inputPath);
+             final BAMEncoder bamEncoder = (BAMEncoder) HtsReadsCodecs.getReadsEncoder(outputPath)) {
 
             Assert.assertNotNull(bamDecoder);
             Assert.assertEquals(bamDecoder.getFormat(), ReadsFormat.BAM);

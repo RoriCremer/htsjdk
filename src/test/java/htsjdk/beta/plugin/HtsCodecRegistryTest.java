@@ -3,6 +3,8 @@ package htsjdk.beta.plugin;
 import htsjdk.HtsjdkTest;
 import htsjdk.beta.codecs.hapref.fasta.FASTACodecV1_0;
 import htsjdk.beta.codecs.reads.bam.BAMCodec;
+import htsjdk.beta.plugin.registry.HtsHapRefCodecs;
+import htsjdk.beta.plugin.registry.HtsReadsCodecs;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.hapref.HaploidReferenceDecoder;
@@ -26,7 +28,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     public void testReadsDecoderForBAM() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
-        try (final ReadsDecoder readsDecoder = HtsCodecRegistry.getReadsDecoder(inputPath)) {
+        try (final ReadsDecoder readsDecoder = HtsReadsCodecs.getReadsDecoder(inputPath)) {
             Assert.assertNotNull(readsDecoder);
             Assert.assertEquals(readsDecoder.getFormat(), ReadsFormat.BAM);
             Assert.assertEquals(readsDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
@@ -45,7 +47,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
         final ReadsDecoderOptions readsDecoderOptions = new ReadsDecoderOptions();
         readsDecoderOptions.getSamReaderFactory().validationStringency(ValidationStringency.SILENT);
 
-        try (final ReadsDecoder readsDecoder = HtsCodecRegistry.getReadsDecoder(inputPath, readsDecoderOptions)) {
+        try (final ReadsDecoder readsDecoder = HtsReadsCodecs.getReadsDecoder(inputPath, readsDecoderOptions)) {
             Assert.assertNotNull(readsDecoder);
             Assert.assertEquals(readsDecoder.getFormat(), ReadsFormat.BAM);
             Assert.assertEquals(readsDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
@@ -62,7 +64,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     public void testReadsEncoderForBAM() {
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
 
-        try (final ReadsEncoder readsEncoder = HtsCodecRegistry.getReadsEncoder(outputPath)) {
+        try (final ReadsEncoder readsEncoder = HtsReadsCodecs.getReadsEncoder(outputPath)) {
             Assert.assertNotNull(readsEncoder);
             Assert.assertEquals(readsEncoder.getFormat(), ReadsFormat.BAM);
             Assert.assertEquals(readsEncoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
@@ -75,7 +77,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     public void testReadsEncoderForVersion() {
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
 
-        try (final ReadsEncoder readsEncoder = HtsCodecRegistry.getReadsEncoder(
+        try (final ReadsEncoder readsEncoder = HtsReadsCodecs.getReadsEncoder(
                 outputPath,
                 ReadsFormat.BAM,
                 BAMCodec.BAM_DEFAULT_VERSION)) {
@@ -90,8 +92,8 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
 
-        try (final ReadsDecoder readDecoder = HtsCodecRegistry.getReadsDecoder(inputPath);
-             final ReadsEncoder readsEncoder = HtsCodecRegistry.getReadsEncoder(outputPath)) {
+        try (final ReadsDecoder readDecoder = HtsReadsCodecs.getReadsDecoder(inputPath);
+             final ReadsEncoder readsEncoder = HtsReadsCodecs.getReadsEncoder(outputPath)) {
 
             Assert.assertNotNull(readDecoder);
             Assert.assertEquals(readDecoder.getFormat(), ReadsFormat.BAM);
@@ -112,7 +114,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
     public void testHapRefDecoder() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "/hg19mini.fasta");
 
-        try (final HaploidReferenceDecoder hapRefDecoder = HtsCodecRegistry.getHapRefDecoder(inputPath)) {
+        try (final HaploidReferenceDecoder hapRefDecoder = HtsHapRefCodecs.getHapRefDecoder(inputPath)) {
             Assert.assertNotNull(hapRefDecoder);
             Assert.assertEquals(hapRefDecoder.getFormat(), HaploidReferenceFormat.FASTA);
             Assert.assertEquals(hapRefDecoder.getVersion(), FASTACodecV1_0.VERSION_1);

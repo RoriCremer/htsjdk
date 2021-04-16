@@ -5,7 +5,7 @@ import htsjdk.beta.plugin.bundle.Bundle;
 import htsjdk.beta.plugin.bundle.BundleBuilder;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
-import htsjdk.beta.plugin.HtsCodecRegistry;
+import htsjdk.beta.plugin.registry.HtsReadsCodecs;
 import htsjdk.beta.plugin.HtsDecoder;
 import htsjdk.beta.plugin.bundle.BundleResourceType;
 import htsjdk.beta.plugin.bundle.IOPathResource;
@@ -91,7 +91,7 @@ public class HtsBAMCodecQueryTest extends HtsjdkTest {
                         .addPrimary(new IOPathResource(TEST_BAM, BundleResourceType.READS))
                         .add(new IOPathResource(TEST_BAI, BundleResourceType.READS_INDEX))
                         .getBundle();
-        try (final HtsDecoder bamDecoder = HtsCodecRegistry.getReadsDecoder(readsBundle, new ReadsDecoderOptions())) {
+        try (final HtsDecoder bamDecoder = HtsReadsCodecs.getReadsDecoder(readsBundle, new ReadsDecoderOptions())) {
             final Iterator<SAMRecord> it = bamDecoder.query("chr1", 202661637, 202661812, queryRule);
             Assert.assertEquals(countElements(it), expected);
         }
@@ -195,7 +195,7 @@ public class HtsBAMCodecQueryTest extends HtsjdkTest {
     }
 
     private static List<String> getReferenceNames(final IOPath bamFile) {
-        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsCodecRegistry.getReadsDecoder(bamFile)) {
+        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsReadsCodecs.getReadsDecoder(bamFile)) {
             final List<String> result = new ArrayList<>();
             final List<SAMSequenceRecord> seqRecords = bamDecoder.getHeader().getSequenceDictionary().getSequences();
             for (final SAMSequenceRecord seqRecord : seqRecords) {
@@ -209,8 +209,8 @@ public class HtsBAMCodecQueryTest extends HtsjdkTest {
 
     private int runQueryTest(final IOPath bamFile, final String sequence, final int startPos, final int endPos, final HtsQueryRule queryRule) {
         verbose("Testing query " + sequence + ":" + startPos + "-" + endPos + " ...");
-        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsCodecRegistry.getReadsDecoder(bamFile);
-             final BAMDecoder bamDecoder2 = (BAMDecoder) HtsCodecRegistry.getReadsDecoder(bamFile)) {
+        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsReadsCodecs.getReadsDecoder(bamFile);
+             final BAMDecoder bamDecoder2 = (BAMDecoder) HtsReadsCodecs.getReadsDecoder(bamFile)) {
             final Iterator<SAMRecord> iter1 = bamDecoder.query(sequence, startPos, endPos, queryRule);
             final Iterator<SAMRecord> iter2 = bamDecoder2.iterator();
             // Compare ordered iterators.

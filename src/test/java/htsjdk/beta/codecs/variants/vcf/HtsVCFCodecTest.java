@@ -2,9 +2,9 @@ package htsjdk.beta.codecs.variants.vcf;
 
 import htsjdk.HtsjdkTest;
 import htsjdk.beta.codecs.variants.vcf.vcfv4_2.VCFCodecV4_2;
+import htsjdk.beta.plugin.registry.HtsVariantsCodecs;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
-import htsjdk.beta.plugin.HtsCodecRegistry;
 import htsjdk.beta.plugin.variants.VariantsDecoder;
 import htsjdk.beta.plugin.variants.VariantsEncoder;
 import htsjdk.beta.plugin.variants.VariantsFormat;
@@ -30,8 +30,8 @@ public class HtsVCFCodecTest extends HtsjdkTest {
     public void testRoundTripVCF(final IOPath inputPath) {
         final IOPath outputPath = new HtsPath("pluginVariants.vcf");
 
-        try (final VariantsDecoder variantsDecoder = HtsCodecRegistry.getVariantsDecoder(inputPath);
-             final VariantsEncoder variantsEncoder = HtsCodecRegistry.getVariantsEncoder(outputPath)) {
+        try (final VariantsDecoder variantsDecoder = HtsVariantsCodecs.getVariantsDecoder(inputPath);
+             final VariantsEncoder variantsEncoder = HtsVariantsCodecs.getVariantsEncoder(outputPath)) {
 
             Assert.assertNotNull(variantsDecoder);
             Assert.assertEquals(variantsDecoder.getFormat(), VariantsFormat.VCF);

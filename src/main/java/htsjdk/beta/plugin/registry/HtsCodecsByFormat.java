@@ -1,5 +1,7 @@
-package htsjdk.beta.plugin;
+package htsjdk.beta.plugin.registry;
 
+import htsjdk.beta.plugin.HtsCodec;
+import htsjdk.beta.plugin.HtsCodecVersion;
 import htsjdk.io.IOPath;
 import htsjdk.utils.ValidationUtils;
 
@@ -17,7 +19,7 @@ import java.util.stream.Collectors;
  * @param <F> enum representing the formats for this codec type
  * @param <C> the HtsCodec type
  */
-final class HtsCodecsForType<F extends Enum<F>, C extends HtsCodec<F, ?, ?>> {
+final class HtsCodecsByFormat<F extends Enum<F>, C extends HtsCodec<F, ?, ?>> {
 
     private final Map<F, Map<HtsCodecVersion, C>> codecs = new HashMap<>();
     private final Map<F, HtsCodecVersion> newestVersion = new HashMap<>();
