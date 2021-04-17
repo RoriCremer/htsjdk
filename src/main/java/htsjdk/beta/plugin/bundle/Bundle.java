@@ -7,12 +7,17 @@ import htsjdk.utils.ValidationUtils;
 import mjson.Json;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * An immutable collection of related resources (a primary resource, such as reads variants, features,
@@ -42,6 +47,12 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
     public static final String JSON_PROPERTY_SUB_CONTENT_TYPE = "subtype";
     public static final String JSON_SCHEMA_NAME               = "htsbundle";
     public static final String JSON_SCHEMA_VERSION            = "0.1.0"; // TODO: bump this to 1.0.0
+
+    final static Set<String> TOP_LEVEL_PROPERTIES = new HashSet<String>() {{
+        add(JSON_PROPERTY_SCHEMA_NAME);
+        add(JSON_PROPERTY_SCHEMA_VERSION);
+        add(JSON_PROPERTY_PRIMARY);
+    }};
 
     private final Map<String, BundleResource> resources = new HashMap<>();
     private final String primaryResourceKey;
@@ -114,9 +125,7 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
             this.primaryResourceKey = getPropertyAsString(Bundle.JSON_PROPERTY_PRIMARY, jsonDocument);
 
             jsonDocument.asJsonMap().forEach((String contentType, Json jsonDoc) -> {
-                if (!contentType.equals(Bundle.JSON_PROPERTY_SCHEMA_NAME) &&
-                        !contentType.equals(Bundle.JSON_PROPERTY_SCHEMA_VERSION) &&
-                        !contentType.equals(Bundle.JSON_PROPERTY_PRIMARY)) {
+                if (!TOP_LEVEL_PROPERTIES.contains(contentType)) {
                     final Json subContentType = jsonDoc.at(Bundle.JSON_PROPERTY_SUB_CONTENT_TYPE);
                     final IOPathResource ioPathResource = new IOPathResource(
                             ioPathConstructor.apply(getPropertyAsString(Bundle.JSON_PROPERTY_PATH, jsonDoc)),
@@ -213,7 +222,64 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
             outerJSON.set(bundleResource.getContentType(), resourceJSON);
         });
 
-        return outerJSON.toString(); //TODO: implement pretty printing
+        return prettyPrintJSON(outerJSON);
+    }
+
+    //{
+    //   "schemaName":"htsbundle",
+    //   "schemaVersion":"0.1.0",
+    //   "primary":"READS",
+    //   "READS":{"path":"myFile.bam","subtype":"NONE"},
+    //   "READS_INDEX":{"path":"myFile.bai","subtype":"NONE"}
+    // }
+    private String prettyPrintJSON(final Json jsonDocument) {
+        final StringBuilder sb = new StringBuilder();
+        final String TOP_LEVEL_PROPERTY_FORMAT = "  \"%s\":\"%s\"";
+
+        try {
+            sb.append("{\n");
+
+            // schema name
+            final String schemaName = getPropertyAsString(Bundle.JSON_PROPERTY_SCHEMA_NAME, jsonDocument);
+            sb.append(String.format(TOP_LEVEL_PROPERTY_FORMAT, Bundle.JSON_PROPERTY_SCHEMA_NAME, schemaName));
+            sb.append(",\n");
+
+            // schema version
+            final String schemaVersion = getPropertyAsString(Bundle.JSON_PROPERTY_SCHEMA_VERSION, jsonDocument);
+            sb.append(String.format(TOP_LEVEL_PROPERTY_FORMAT, Bundle.JSON_PROPERTY_SCHEMA_VERSION, schemaVersion));
+            sb.append(",\n");
+
+            // primary
+            final String primary = getPropertyAsString(Bundle.JSON_PROPERTY_PRIMARY, jsonDocument);
+            sb.append(String.format(TOP_LEVEL_PROPERTY_FORMAT, Bundle.JSON_PROPERTY_PRIMARY, primary));
+            sb.append(",\n");
+
+            final List<String> formattedResources = new ArrayList<>();
+            jsonDocument.asJsonMap().forEach((String contentType, Json jsonDoc) -> {
+                if (!TOP_LEVEL_PROPERTIES.contains(contentType)) {
+                    final Json subContentType = jsonDoc.at(Bundle.JSON_PROPERTY_SUB_CONTENT_TYPE);
+                    final StringBuilder resSB = new StringBuilder();
+                    if (subContentType != null) {
+                        resSB.append(String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}",
+                                JSON_PROPERTY_PATH,
+                                getPropertyAsString(JSON_PROPERTY_PATH, jsonDoc),
+                                Bundle.JSON_PROPERTY_SUB_CONTENT_TYPE,
+                                getPropertyAsString(JSON_PROPERTY_SUB_CONTENT_TYPE, jsonDoc)));
+                    } else {
+                        resSB.append(String.format("{\"%s\":\"%s\"}",
+                                JSON_PROPERTY_PATH,
+                                getPropertyAsString(JSON_PROPERTY_PATH, jsonDoc)));
+                    }
+                    formattedResources.add(String.format("  \"%s\":%s", contentType, resSB.toString()));
+                }
+            });
+            sb.append(formattedResources.stream().collect(Collectors.joining(",\n", "", "\n")));
+            sb.append("}\n");
+        } catch (Json.MalformedJsonException | java.lang.UnsupportedOperationException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        return sb.toString();
     }
 
     private String getPropertyAsString(final String propertyName, final Json jsonDocument) {
