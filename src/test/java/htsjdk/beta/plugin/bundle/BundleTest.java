@@ -93,17 +93,26 @@ public class BundleTest extends HtsjdkTest {
 
     @DataProvider(name = "roundTripJSON")
     public Object[][] getRoundTripJSON() {
+        final IOPathResource CUSTOM_RESOURCE =
+                new IOPathResource(new HtsPath("file://myreads.CUSTOM"),"CUSTOM");
+
         return new Object[][]{
-                //NOTE that these JSON strings contain the resources in the same order that they're serialized by mjson
-                // so that we can use these cases to validate in both directions
+                // NOTE that these JSON strings contain the resources in the same order as they're serialized by
+                // mjson so that we can validate conversions in both directions.
+                //
+                // The strings need to contain path strings that are full URIs, since that's what the JSON
+                // serializer for bundles uses when serializing IOPaths as JSON.
 
                 // json string, primary key, corresponding array of resources
+
                 {
                     "{\n" +
                             "  \"schemaName\":\"htsbundle\",\n" +
                             "  \"schemaVersion\":\"0.1.0\",\n" +
                             "  \"primary\":\"READS\",\n" +
-                            "  \"READS\":{\"path\":\"myreads.bam\",\"subtype\":\"BAM\"}\n" +
+                            "  \"READS\":{\"path\":\"" +
+                                    getURIStringFromIOPath(BundleResourceTestData.readsWithSubContentType) +
+                                    "\",\"subtype\":\"BAM\"}\n" +
                             "}\n",
                         BundleResourceType.READS,
                         Arrays.asList(BundleResourceTestData.readsWithSubContentType)
@@ -113,7 +122,8 @@ public class BundleTest extends HtsjdkTest {
                             "  \"schemaName\":\"htsbundle\",\n" +
                             "  \"schemaVersion\":\"0.1.0\",\n" +
                             "  \"primary\":\"READS\",\n" +
-                            "  \"READS\":{\"path\":\"myreads.bam\"}\n" +
+                            "  \"READS\":{\"path\":\"" +
+                                    getURIStringFromIOPath(BundleResourceTestData.readsNoSubContentType) + "\"}\n" +
                             "}\n",
                         BundleResourceType.READS,
                         Arrays.asList(BundleResourceTestData.readsNoSubContentType)
@@ -123,8 +133,12 @@ public class BundleTest extends HtsjdkTest {
                                 "  \"schemaName\":\"htsbundle\",\n" +
                                 "  \"schemaVersion\":\"0.1.0\",\n" +
                                 "  \"primary\":\"READS\",\n" +
-                                "  \"READS_INDEX\":{\"path\":\"myreads.bai\",\"subtype\":\"BAI\"},\n" +
-                                "  \"READS\":{\"path\":\"myreads.bam\",\"subtype\":\"BAM\"}\n" +
+                                "  \"READS_INDEX\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.indexWithSubContentType) +
+                                        "\",\"subtype\":\"BAI\"},\n" +
+                                "  \"READS\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.readsWithSubContentType) +
+                                        "\",\"subtype\":\"BAM\"}\n" +
                                 "}\n",
                         BundleResourceType.READS,
                         Arrays.asList(
@@ -136,8 +150,12 @@ public class BundleTest extends HtsjdkTest {
                                 "  \"schemaName\":\"htsbundle\",\n" +
                                 "  \"schemaVersion\":\"0.1.0\",\n" +
                                 "  \"primary\":\"READS\",\n" +
-                                "  \"READS_INDEX\":{\"path\":\"myreads.bai\",\"subtype\":\"BAI\"},\n" +
-                                "  \"READS\":{\"path\":\"myreads.bam\"}\n" +
+                                "  \"READS_INDEX\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.indexWithSubContentType) +
+                                        "\",\"subtype\":\"BAI\"},\n" +
+                                "  \"READS\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.readsNoSubContentType) +
+                                        "\"}\n" +
                                 "}\n",
                         BundleResourceType.READS,
                         Arrays.asList(
@@ -149,8 +167,12 @@ public class BundleTest extends HtsjdkTest {
                                 "  \"schemaName\":\"htsbundle\",\n" +
                                 "  \"schemaVersion\":\"0.1.0\",\n" +
                                 "  \"primary\":\"READS\",\n" +
-                                "  \"READS_INDEX\":{\"path\":\"myreads.bai\"},\n" +
-                                "  \"READS\":{\"path\":\"myreads.bam\",\"subtype\":\"BAM\"}\n" +
+                                "  \"READS_INDEX\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.indexNoSubContentType) +
+                                        "\"},\n" +
+                                "  \"READS\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.readsWithSubContentType) +
+                                        "\",\"subtype\":\"BAM\"}\n" +
                                 "}\n",
                         BundleResourceType.READS,
                         Arrays.asList(
@@ -161,8 +183,10 @@ public class BundleTest extends HtsjdkTest {
                                 "  \"schemaName\":\"htsbundle\",\n" +
                                 "  \"schemaVersion\":\"0.1.0\",\n" +
                                 "  \"primary\":\"READS\",\n" +
-                                "  \"READS_INDEX\":{\"path\":\"myreads.bai\"},\n" +
-                                "  \"READS\":{\"path\":\"myreads.bam\"}\n" +
+                                "  \"READS_INDEX\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.indexNoSubContentType) + "\"},\n" +
+                                "  \"READS\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.readsNoSubContentType) + "\"}\n" +
                                 "}\n",
                         BundleResourceType.READS,
                         Arrays.asList(
@@ -176,10 +200,10 @@ public class BundleTest extends HtsjdkTest {
                                 "  \"schemaName\":\"htsbundle\",\n" +
                                 "  \"schemaVersion\":\"0.1.0\",\n" +
                                 "  \"primary\":\"CUSTOM\",\n" +
-                                "  \"CUSTOM\":{\"path\":\"myreads.CUSTOM\"}\n" +
+                                "  \"CUSTOM\":{\"path\":\"" + getURIStringFromIOPath(CUSTOM_RESOURCE) + "\"}\n" +
                                 "}\n",
                         "CUSTOM",
-                        Arrays.asList(new IOPathResource(new HtsPath("myreads.CUSTOM"),"CUSTOM"))
+                        Arrays.asList(CUSTOM_RESOURCE)
                 },
 
                 // three resources, one of which is a custom content type
@@ -188,15 +212,19 @@ public class BundleTest extends HtsjdkTest {
                                 "  \"schemaName\":\"htsbundle\",\n" +
                                 "  \"schemaVersion\":\"0.1.0\",\n" +
                                 "  \"primary\":\"READS\",\n" +
-                                "  \"READS_INDEX\":{\"path\":\"myreads.bai\"},\n" +
-                                "  \"CUSTOM\":{\"path\":\"myreads.CUSTOM\"},\n" +
-                                "  \"READS\":{\"path\":\"myreads.bam\"}\n" +
+                                "  \"READS_INDEX\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.indexNoSubContentType) +
+                                        "\"},\n" +
+                                "  \"CUSTOM\":{\"path\":\"" + getURIStringFromIOPath(CUSTOM_RESOURCE) + "\"},\n" +
+                                "  \"READS\":{\"path\":\"" +
+                                        getURIStringFromIOPath(BundleResourceTestData.readsNoSubContentType) +
+                                        "\"}\n" +
                                 "}\n",
                         "READS",
                         Arrays.asList(
                                 BundleResourceTestData.readsNoSubContentType,
                                 BundleResourceTestData.indexNoSubContentType,
-                                new IOPathResource(new HtsPath("myreads.CUSTOM"),"CUSTOM"))
+                                CUSTOM_RESOURCE)
                 },
         };
     }
@@ -306,4 +334,8 @@ public class BundleTest extends HtsjdkTest {
         }
     }
 
+    // get the URI String from an IOPath in an IOPath resource
+    final private String getURIStringFromIOPath(final IOPathResource resource) {
+        return resource.getIOPath().get().getURIString();
+    }
 }

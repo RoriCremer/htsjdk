@@ -149,10 +149,10 @@ public class BundleResourceTest extends HtsjdkTest {
     @DataProvider(name="toStringTestData")
     public Object[][] getToStringTestData() {
         return new Object[][]{
-                {BundleResourceTestData.readsWithSubContentType, "IOPathResource (myreads.bam): READS/BAM"},
-                {BundleResourceTestData.readsNoSubContentType, "IOPathResource (myreads.bam): READS/NONE"},
-                {BundleResourceTestData.indexNoSubContentType, "IOPathResource (myreads.bai): READS_INDEX/NONE"},
-                {BundleResourceTestData.indexWithSubContentType, "IOPathResource (myreads.bai): READS_INDEX/BAI"},
+                {BundleResourceTestData.readsWithSubContentType, "IOPathResource (file://myreads.bam): READS/BAM"},
+                {BundleResourceTestData.readsNoSubContentType, "IOPathResource (file://myreads.bam): READS/NONE"},
+                {BundleResourceTestData.indexNoSubContentType, "IOPathResource (file://myreads.bai): READS_INDEX/NONE"},
+                {BundleResourceTestData.indexWithSubContentType, "IOPathResource (file://myreads.bai): READS_INDEX/BAI"},
                 {new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName", BundleResourceType.READS),
                         "InputStreamResource (displayName): READS/NONE"},
                 {new InputStreamResource(BundleResourceTestData.fakeInputStream, "displayName", BundleResourceType.READS, BundleResourceType.READS_BAM),

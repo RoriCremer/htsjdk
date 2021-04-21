@@ -8,21 +8,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class BundleResourceTestData {
-    public final static IOPath READS_FILE = new HtsPath("myreads.bam");
-    public final static IOPath READS_INDEX = new HtsPath("myreads.bai");
+    public final static IOPath READS_FILE = new HtsPath("file://myreads.bam");
+    public final static IOPath READS_INDEX = new HtsPath("file://myreads.bai");
 
-    public static final BundleResource readsWithSubContentType = new IOPathResource(
+    public static final IOPathResource readsWithSubContentType = new IOPathResource(
             READS_FILE,
             BundleResourceType.READS,
             BundleResourceType.READS_BAM);
-    public static final BundleResource readsNoSubContentType =new IOPathResource(
+    public static final IOPathResource readsNoSubContentType =new IOPathResource(
             READS_FILE,
             BundleResourceType.READS);
-    public static final BundleResource indexWithSubContentType = new IOPathResource(
+    public static final IOPathResource indexWithSubContentType = new IOPathResource(
             READS_INDEX,
             BundleResourceType.READS_INDEX,
             BundleResourceType.READS_INDEX_BAI);
-    public static final BundleResource indexNoSubContentType = new IOPathResource(
+    public static final IOPathResource indexNoSubContentType = new IOPathResource(
             READS_INDEX,
             BundleResourceType.READS_INDEX);
 

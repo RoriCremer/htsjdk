@@ -215,7 +215,7 @@ public class Bundle implements Iterable<BundleResource>, Serializable {
             }
 
             // generate JSON for each bundle resource
-            final Json resourceJSON = Json.object().set(JSON_PROPERTY_PATH, resourcePath.get().toString());
+            final Json resourceJSON = Json.object().set(JSON_PROPERTY_PATH, resourcePath.get().getURIString());
             if (bundleResource.getSubContentType().isPresent()) {
                 resourceJSON.set(JSON_PROPERTY_SUB_CONTENT_TYPE, bundleResource.getSubContentType().get());
             }
