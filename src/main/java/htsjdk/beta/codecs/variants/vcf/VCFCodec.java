@@ -19,7 +19,7 @@ public abstract class VCFCodec implements VariantsCodec {
 
     @Override
     public boolean canDecodeURI(final IOPath ioPath) {
-        return ioPath.getScheme().equals("file") && extensionMap.stream().anyMatch(ext-> ioPath.hasExtension(ext));
+        return extensionMap.stream().anyMatch(ext-> ioPath.hasExtension(ext));
     }
 
     @Override

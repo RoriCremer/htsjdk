@@ -57,6 +57,9 @@ public class IOPathResource extends BundleResource implements Serializable {
     public boolean isOutputResource() { return true; }
 
     @Override
+    public boolean isRandomAccessResource() { return true; }
+
+    @Override
     public Optional<SeekableStream> getSeekableStream() {
         try {
             return Optional.of(new SeekablePathStream(getIOPath().get().toPath()));

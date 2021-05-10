@@ -1,31 +1,61 @@
-package htsjdk.beta.plugin;
+package htsjdk.beta.plugin.registry;
 
 import htsjdk.HtsjdkTest;
-import htsjdk.beta.codecs.hapref.fasta.FASTACodecV1_0;
 import htsjdk.beta.codecs.reads.bam.BAMCodec;
-import htsjdk.beta.plugin.registry.HtsHapRefCodecs;
-import htsjdk.beta.plugin.registry.HtsReadsCodecs;
+import htsjdk.beta.plugin.bundle.Bundle;
+import htsjdk.beta.plugin.bundle.BundleBuilder;
+import htsjdk.beta.plugin.bundle.BundleResourceType;
+import htsjdk.beta.plugin.bundle.IOPathResource;
+import htsjdk.beta.plugin.bundle.InputStreamResource;
+import htsjdk.beta.plugin.reads.ReadsBundle;
+import htsjdk.beta.plugin.reads.ReadsDecoder;
+import htsjdk.beta.plugin.reads.ReadsDecoderOptions;
+import htsjdk.beta.plugin.reads.ReadsEncoder;
+import htsjdk.beta.plugin.reads.ReadsFormat;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
-import htsjdk.beta.plugin.hapref.HaploidReferenceDecoder;
-import htsjdk.beta.plugin.hapref.HaploidReferenceFormat;
-import htsjdk.beta.plugin.reads.ReadsDecoderOptions;
-import htsjdk.beta.plugin.reads.ReadsFormat;
-import htsjdk.beta.plugin.reads.ReadsDecoder;
-import htsjdk.beta.plugin.reads.ReadsEncoder;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.ValidationStringency;
-import htsjdk.samtools.reference.ReferenceSequence;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class HtsCodecRegistryTest extends HtsjdkTest {
-
+public class HtsReadsCodecTest extends HtsjdkTest {
     final IOPath TEST_DIR = new HtsPath("src/test/resources/htsjdk/samtools/");
 
+    @DataProvider(name="readsCodecTestCases")
+    public Object[][] getCodecInputResolutionSucceeds() {
+        return new Object[][]{
+                { BundleBuilder.start().addPrimary(
+                        new IOPathResource(
+                                new HtsPath(TEST_DIR + "example.bam"),
+                                BundleResourceType.READS)).getBundle() },
+
+                { BundleBuilder.start().addPrimary(
+                        new InputStreamResource(
+                                new HtsPath(TEST_DIR + "example.bam").getInputStream(),
+                                "testReadsStream",
+                                BundleResourceType.READS)).getBundle() },
+        };
+    }
+
+    @Test(dataProvider = "readsCodecTestCases")
+    public void testReadsDecoderForBundle(final Bundle readsBundle) {
+        try (final ReadsDecoder readsDecoder = HtsReadsCodecs.getReadsDecoder(readsBundle)) {
+            Assert.assertNotNull(readsDecoder);
+            Assert.assertEquals(readsDecoder.getFormat(), ReadsFormat.BAM);
+            Assert.assertEquals(readsDecoder.getVersion(), BAMCodec.BAM_DEFAULT_VERSION);
+
+            final SAMFileHeader samFileHeader = readsDecoder.getHeader();
+            Assert.assertNotNull(samFileHeader);
+
+            Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.coordinate);
+        }
+    }
+
     @Test
-    public void testReadsDecoderForBAM() {
+    public void testGetReadsDecoderForIOPath() {
         final IOPath inputPath = new HtsPath(TEST_DIR + "example.bam");
 
         try (final ReadsDecoder readsDecoder = HtsReadsCodecs.getReadsDecoder(inputPath)) {
@@ -60,6 +90,7 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
             Assert.assertEquals(samFileHeader.getSortOrder(), SAMFileHeader.SortOrder.coordinate);
         }
     }
+
     @Test
     public void testReadsEncoderForBAM() {
         final IOPath outputPath = new HtsPath("pluginTestOutput.bam");
@@ -106,21 +137,6 @@ public class HtsCodecRegistryTest extends HtsjdkTest {
             readsEncoder.setHeader(samFileHeader);
             for (final SAMRecord samRec : readDecoder) {
                 readsEncoder.write(samRec);
-            }
-        }
-    }
-
-    @Test
-    public void testHapRefDecoder() {
-        final IOPath inputPath = new HtsPath(TEST_DIR + "/hg19mini.fasta");
-
-        try (final HaploidReferenceDecoder hapRefDecoder = HtsHapRefCodecs.getHapRefDecoder(inputPath)) {
-            Assert.assertNotNull(hapRefDecoder);
-            Assert.assertEquals(hapRefDecoder.getFormat(), HaploidReferenceFormat.FASTA);
-            Assert.assertEquals(hapRefDecoder.getVersion(), FASTACodecV1_0.VERSION_1);
-
-            for (final ReferenceSequence referenceSequence : hapRefDecoder) {
-                Assert.assertNotNull(referenceSequence);
             }
         }
     }

@@ -33,12 +33,14 @@ public class VCFCodecV4_2 extends VCFCodec {
     @Override
     public boolean canDecodeSignature(final InputStream rawInputStream, final String sourceName) {
         final byte[] signatureBytes = new byte[getSignatureSize()];
-        try (final BufferedInputStream bis = new BufferedInputStream(rawInputStream);
-             final InputStream wrappedInputStream = IOUtil.isGZIPInputStream(bis) ? new GZIPInputStream(bis) : bis) {
-                final int numRead = wrappedInputStream.read(signatureBytes);
-                if (numRead <= 0) {
-                    throw new IOException(String.format("0 bytes read from input stream for %s", sourceName));
-                }
+        try {
+            final InputStream wrappedInputStream = IOUtil.isGZIPInputStream(rawInputStream) ?
+                    new GZIPInputStream(rawInputStream) :
+                    rawInputStream;
+            final int numRead = wrappedInputStream.read(signatureBytes);
+            if (numRead <= 0) {
+                throw new IOException(String.format("0 bytes read from input stream for %s", sourceName));
+            }
         } catch (IOException e) {
             throw new HtsjdkIOException(String.format("Failure reading signature from stream for %s", sourceName), e);
         }

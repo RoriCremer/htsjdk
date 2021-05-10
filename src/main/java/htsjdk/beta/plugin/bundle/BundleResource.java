@@ -1,5 +1,6 @@
 package htsjdk.beta.plugin.bundle;
 
+import htsjdk.beta.plugin.registry.SignatureProbingInputStream;
 import htsjdk.io.IOPath;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.utils.ValidationUtils;
@@ -74,6 +75,12 @@ public abstract class BundleResource implements Serializable {
      * BundleResource#isOutputResource()} is false for this resource
      */
     public Optional<OutputStream> getOutputStream() { return Optional.empty(); }
+
+    /**
+     * Obtain a stream over the first bytes of this stream to support signature probing.
+     * @return
+     */
+    public SignatureProbingInputStream getSignatureProbingStream(final int prefixSize) { return null; }
 
     /**
      * @return an {@link SeekableStream} for this resource, or Optional.empty if {@link

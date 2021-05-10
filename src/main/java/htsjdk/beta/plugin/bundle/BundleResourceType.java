@@ -8,7 +8,9 @@ public class BundleResourceType {
     /**
      * predefined content types
      */
+    // TODO: this should be called ALIGNED_READS ?
     public static final String READS = "READS";
+    // TODO: this should be called HAPLOID_REFERENCE ?
     public static final String REFERENCE = "REFERENCE";
     public static final String DICTIONARY = "DICTIONARY";
     public static final String VARIANTS = "VARIANTS";

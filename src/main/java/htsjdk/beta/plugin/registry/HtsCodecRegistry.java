@@ -1,8 +1,6 @@
 package htsjdk.beta.plugin.registry;
 
 import htsjdk.beta.plugin.HtsCodec;
-import htsjdk.exception.HtsjdkIOException;
-import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.hapref.HaploidReferenceCodec;
 import htsjdk.beta.plugin.hapref.HaploidReferenceFormat;
 
@@ -12,11 +10,10 @@ import htsjdk.beta.plugin.reads.ReadsFormat;
 import htsjdk.beta.plugin.variants.VariantsCodec;
 import htsjdk.beta.plugin.variants.VariantsFormat;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 // To add a new codec type T (new interfaces):
+//
 //      define the header and record interfaces
 //      define the corresponding HtsCodec, HtsEncoder and HtsDecoder subinterfaces
 //      add a new HtsCodecsForType variable to the registry
@@ -87,22 +84,7 @@ public class HtsCodecRegistry {
         return variantCodecs;
     }
 
-    public static HtsCodecsByFormat<HaploidReferenceFormat, HaploidReferenceCodec> getHapRefCodecs() {
-        return haprefCodecs;
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static<T extends HtsCodec> boolean canDecodeSignature(final T codec, final IOPath inputPath) {
-        if (inputPath.hasFileSystemProvider()) {
-            try (final InputStream rawInputStream = inputPath.getInputStream()) {
-                return codec.canDecodeSignature(rawInputStream, inputPath.getRawInputString());
-            } catch (IOException e) {
-                throw new HtsjdkIOException(String.format("Failure reading signature from stream for %s", inputPath.getRawInputString()), e);
-            }
-        } else {
-            return codec.canDecodeURI(inputPath);
-        }
-    }
+    public static HtsCodecsByFormat<HaploidReferenceFormat, HaploidReferenceCodec> getHapRefCodecs() { return haprefCodecs; }
 
 }
 

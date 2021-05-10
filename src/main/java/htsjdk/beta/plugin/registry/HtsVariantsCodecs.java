@@ -18,16 +18,7 @@ public class HtsVariantsCodecs {
 
     @SuppressWarnings("unchecked")
     public static VariantsDecoder getVariantsDecoder(final IOPath inputPath) {
-        ValidationUtils.nonNull(inputPath, "Input path must not be null");
-
-        final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
-        final VariantsDecoder decoder = (VariantsDecoder) codecs
-                .stream()
-                .filter(codec -> HtsCodecRegistry.canDecodeSignature(codec, inputPath))
-                .map(codec -> codec.getDecoder(inputPath))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException(String.format(HtsCodecRegistry.NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
-        return decoder;
+        return getVariantsDecoder(inputPath, new VariantsDecoderOptions());
     }
 
     @SuppressWarnings("unchecked")
@@ -37,21 +28,29 @@ public class HtsVariantsCodecs {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
         ValidationUtils.nonNull(variantsDecoderOptions, "Decoder options must not be null");
 
-        final List<VariantsCodec> codecs = variantCodecs.getCodecsForIOPath(inputPath);
+        final List<VariantsCodec> codecs = variantCodecs.getCodecsForInputIOPathObsolete(inputPath);
         final VariantsDecoder decoder = (VariantsDecoder) codecs
                 .stream()
-                .filter(codec -> HtsCodecRegistry.canDecodeSignature(codec, inputPath))
+                .filter(codec -> HtsCodecsByFormat.canDecodeIOPathSignature(codec, inputPath))
                 .map(codec -> codec.getDecoder(inputPath, variantsDecoderOptions))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(String.format(HtsCodecRegistry.NO_CODEC_MSG_FORMAT_STRING, "reads", inputPath)));
         return decoder;
+// enabling this requires updating the decoder to use the input bundle
+//        final Bundle inputBundle = BundleBuilder.start()
+//                .addPrimary(new IOPathResource(inputPath, BundleResourceType.VARIANTS)).getBundle();
+//        final VariantsCodec variantsCodec = variantCodecs.resolveInputCodec(
+//                inputBundle,
+//                BundleResourceType.VARIANTS,
+//                HtsVariantsCodecs::mapVariantsFormatToSubContentType);
+//        return (VariantsDecoder) variantsCodec.getDecoder(inputBundle, variantsDecoderOptions);
     }
 
     @SuppressWarnings("unchecked")
     public static VariantsEncoder getVariantsEncoder(final IOPath outputPath) {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
 
-        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(outputPath);
+        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForInputIOPathObsolete(outputPath);
         return (VariantsEncoder) (variantCodec.map(codec -> codec.getEncoder(outputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(HtsCodecRegistry.NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
     }
@@ -63,7 +62,7 @@ public class HtsVariantsCodecs {
         ValidationUtils.nonNull(outputPath, "Output path must not be null");
         ValidationUtils.nonNull(variantsEncoderOptions, "Encoder options must not be null");
 
-        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForIOPath(outputPath);
+        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForInputIOPathObsolete(outputPath);
         return (VariantsEncoder) (variantCodec.map(codec -> codec.getEncoder(outputPath, variantsEncoderOptions))
                 .orElseThrow(() -> new RuntimeException(String.format(HtsCodecRegistry.NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
     }
@@ -77,9 +76,19 @@ public class HtsVariantsCodecs {
         ValidationUtils.nonNull(variantsFormat, "Format must not be null");
         ValidationUtils.nonNull(codecVersion, "Codec version must not be null");
 
-        final Optional<VariantsCodec> variantCodec = variantCodecs.getCodecForFormatAndVersion(variantsFormat, codecVersion);
-        return (VariantsEncoder) (variantCodec.map(codec -> codec.getEncoder(outputPath))
-                .orElseThrow(() -> new RuntimeException(String.format(HtsCodecRegistry.NO_CODEC_MSG_FORMAT_STRING, "variants", outputPath))));
+        final VariantsCodec variantCodec = variantCodecs.getCodecForFormatAndVersion(variantsFormat, codecVersion);
+        return (VariantsEncoder) variantCodec.getEncoder(outputPath);
+    }
+
+    //TODO:move this to VariantsFormat ?
+    static VariantsFormat mapVariantsFormatToSubContentType(final String subContentType) {
+        ValidationUtils.nonNull(subContentType, "subContentType");
+        for (final VariantsFormat f : VariantsFormat.values()) {
+            if (f.name().equals(subContentType)) {
+                return f;
+            }
+        }
+        return null;
     }
 
 }

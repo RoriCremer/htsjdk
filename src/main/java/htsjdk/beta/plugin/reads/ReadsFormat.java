@@ -7,7 +7,7 @@ public enum ReadsFormat {
     SAM,
     BAM,
     CRAM,
-    HTSGET_BAM,
-    HTSGET_CRAM,
-    SRA
+//    HTSGET_BAM,
+//    HTSGET_CRAM,
+//    SRA
 }

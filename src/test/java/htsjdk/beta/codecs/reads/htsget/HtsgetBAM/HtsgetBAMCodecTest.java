@@ -44,7 +44,7 @@ public class HtsgetBAMCodecTest extends HtsjdkTest {
         final ReadsDecoder htsgetDecoder = HtsReadsCodecs.getReadsDecoder(htsgetBAM, new ReadsDecoderOptions());
         final QueryInterval[] query = new QueryInterval[]{new QueryInterval(0, 1519, 1520), new QueryInterval(1, 470535, 470536)};
         try (final SamReader fileReader = SamReaderFactory.makeDefault().open(bamFile);
-             final CloseableIterator<SAMRecord> csiIterator = fileReader.query(query, false);) {
+             final CloseableIterator<SAMRecord> csiIterator = fileReader.query(query, false)) {
             final Iterator<SAMRecord> htsgetIterator = htsgetDecoder.query(
                     HtsInterval.fromQueryIntervalArray(query, htsgetDecoder.getHeader().getSequenceDictionary()),
                     HtsQueryRule.OVERLAPPING);

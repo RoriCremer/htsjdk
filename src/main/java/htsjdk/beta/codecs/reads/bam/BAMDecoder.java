@@ -35,8 +35,7 @@ public abstract class BAMDecoder implements ReadsDecoder {
 
     public BAMDecoder(final Bundle inputBundle, final ReadsDecoderOptions readsDecoderOptions) {
         this.inputBundle = inputBundle;
-        //TODO: Handle and Optional.empty()
-        this.displayName = inputBundle.get(BundleResourceType.READS).get().getIOPath().get().getRawInputString();
+        this.displayName = inputBundle.get(BundleResourceType.READS).get().getDisplayName();
         this.readsDecoderOptions = readsDecoderOptions;
     }
 

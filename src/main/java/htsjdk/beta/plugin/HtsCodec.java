@@ -28,12 +28,22 @@ public interface HtsCodec<
         E extends HtsEncoderOptions>
         extends Upgradeable {
 
+    /**
+     * This value represents the set of interfaces exposed by this codec. The underlying file format
+     * may vary amongst different codecs that have the same codec type, since the serialized file format
+     * may be different (i.e., both the BAM and HTSGET_BAM codecs have "codec type" ALIGNED_READS because
+     * they render records as SAMRecord, but underlying file formats are different.
+     * @return
+     */
+    // EX: ALIGNED_READS
     HtsCodecType getCodecType();
 
     /**
-     * Return a value representing the underlying file format handled by this codec.
+     * Return a value representing the underlying file format handled by this codec (i.e., for codec type
+     * ALIGNED_READS, the values may be from BAM, CRAM, SAM).
      * @return
      */
+    // EX: BAM
     F getFileFormat();
 
     HtsCodecVersion getVersion();
@@ -42,15 +52,29 @@ public interface HtsCodec<
         return String.format("Codec %s for %s version %s", getFileFormat(), getVersion(), getClass().getName());
     }
 
-    // Get the minimum number of bytes this codec requires to determine whether it can decode a stream.
+    // Get the number of bytes this codec requires to determine whether it can decode a stream.
+    default int getMinimumStreamDecodeSize() { return getSignatureSize(); }
+
+    // Get the number of bytes this codec requires to determine whether a stream contains the correct signature/version.
     int getSignatureSize();
 
-    // Return true if this codec claims to handle the URI scheme and file extension for this IOPath.
+    //TODO: is this really "claimProtocol" ?
+    // Return true if this codec claims to handle the URI protocol scheme (and file extension) for this
+    // IOPath. Codecs should only return true if the supported protocol scheme requires special handling that
+    // precludes use of an NIO file system provider
+    default boolean claimCustomURI(final IOPath resource) { return false; }
+
+    // TODO: all implementations only look at the extension. Protocol scheme is excluded because
+    // codecs don't opt-out based on protocol scheme, only opt-in (via claimURI). Perhaps we
+    // should rename this, or just use canDecodeExtension, which is currently unused ?
     boolean canDecodeURI(final IOPath resource);
 
+    //TODO: remove this Path overload and replace with IOPath overload ? Or do we need this at all ?
     // Return true if this codec claims to handle the file extension for this Path.
     boolean canDecodeExtension(final Path path);
 
+    // Decode the input stream. Read as many bytes as getMinimumStreamDecodeSize() returns for this codec.
+    // Never more than that. Don't close it. Don't mark it. Don't reset it. Ever.
     boolean canDecodeSignature(final InputStream inputStream, final String sourceName);
 
     //TODO: we should get rid of all of these overloads, and just implement one each for decoder

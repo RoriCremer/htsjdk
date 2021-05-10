@@ -10,6 +10,7 @@ import htsjdk.beta.plugin.HtsCodecVersion;
 import htsjdk.beta.plugin.reads.ReadsDecoderOptions;
 import htsjdk.beta.plugin.reads.ReadsEncoderOptions;
 import htsjdk.samtools.SamStreams;
+import htsjdk.samtools.util.BlockCompressedStreamConstants;
 import htsjdk.utils.ValidationUtils;
 
 import java.io.BufferedInputStream;
@@ -21,7 +22,7 @@ import java.io.OutputStream;
  * BAM codec.
  */
 public class BAMCodecV1_0 extends BAMCodec {
-    protected static final String BAM_MAGIC = "BAM\1";
+    //protected static final String BAM_MAGIC = "BAM\1";
     protected static final HtsCodecVersion VERSION_1 = new HtsCodecVersion(1, 0, 0);
 
     @Override
@@ -31,19 +32,17 @@ public class BAMCodecV1_0 extends BAMCodec {
 
     @Override
     public int getSignatureSize() {
-        return BAM_MAGIC.length();
+        return BlockCompressedStreamConstants.DEFAULT_UNCOMPRESSED_BLOCK_SIZE;
     }
 
-    // uses a byte array rather than a stream to reduce the need to repeatedly mark/reset the
-    // stream for each codec
     @Override
     public boolean canDecodeSignature(final InputStream rawInputStream, final String sourceName) {
         ValidationUtils.nonNull(rawInputStream);
         ValidationUtils.nonNull(sourceName);
 
-        try (final BufferedInputStream bis = new BufferedInputStream(rawInputStream)) {
-            // technically this should check the version, but its BAM so there isn't one
-            return SamStreams.isBAMFile(bis);
+        try {
+            // technically this should check the version, but its BAM so there isn't one...
+            return SamStreams.isBAMFile(rawInputStream);
         } catch (IOException e) {
             throw new HtsjdkIOException(String.format("Failure reading signature from stream for %s", sourceName), e);
         }

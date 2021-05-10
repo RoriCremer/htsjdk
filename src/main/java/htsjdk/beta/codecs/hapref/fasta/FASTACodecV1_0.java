@@ -45,7 +45,7 @@ public class FASTACodecV1_0 extends HapRefCodec {
 
     @Override
     public boolean canDecodeURI(final IOPath ioPath) {
-        return ioPath.getScheme().equals("file") && FileExtensions.FASTA.stream().anyMatch(ext-> ioPath.hasExtension(ext));
+        return FileExtensions.FASTA.stream().anyMatch(ext-> ioPath.hasExtension(ext));
     }
 
     @Override

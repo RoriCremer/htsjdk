@@ -36,7 +36,7 @@ public abstract class HtsgetBAMCodec implements ReadsCodec {
     public HtsCodecVersion getVersion() { return HTSGET_VERSION; }
 
     @Override
-    public ReadsFormat getFileFormat() { return ReadsFormat.HTSGET_BAM; }
+    public ReadsFormat getFileFormat() { return ReadsFormat.BAM; }
 
     @Override
     public int getSignatureSize() {
@@ -44,13 +44,20 @@ public abstract class HtsgetBAMCodec implements ReadsCodec {
     }
 
     @Override
-    public boolean canDecodeURI(final IOPath ioPath) {
-        final boolean hasExtension = extensionMap.stream().anyMatch(ext-> ioPath.hasExtension(ext));
+    public boolean claimCustomURI(final IOPath ioPath) {
+        return matchesScheme(ioPath);
+    }
+
+    private boolean matchesScheme(final IOPath ioPath) {
         final String scheme = ioPath.getScheme();
-        final boolean hasScheme =
-                scheme.equals(HtsgetBAMFileReader.HTSGET_SCHEME) ||
-                        scheme.equals("https") ||
-                        scheme.equals("http");
+        return scheme.equals(HtsgetBAMFileReader.HTSGET_SCHEME) ||
+                scheme.equals("https") ||
+                scheme.equals("http");
+    }
+
+    public boolean handlesURI(final IOPath ioPath) {
+        final boolean hasExtension = extensionMap.stream().anyMatch(ext-> ioPath.hasExtension(ext));
+        final boolean hasScheme =matchesScheme(ioPath);
 
         //TODO: does this check for "/reads/" at the start of the path ? should it ?
         final HtsgetRequest htsgetRequest = new HtsgetRequest(ioPath.getURI());
@@ -59,6 +66,9 @@ public abstract class HtsgetBAMCodec implements ReadsCodec {
 
         return hasExtension && hasScheme && matchesRequestType;
     }
+
+    @Override
+    public boolean canDecodeURI(final IOPath ioPath) { return handlesURI(ioPath); }
 
     @Override
     public boolean canDecodeExtension(final Path path) {

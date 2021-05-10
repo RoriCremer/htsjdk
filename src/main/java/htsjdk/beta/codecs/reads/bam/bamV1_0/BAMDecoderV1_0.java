@@ -38,6 +38,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
 
     public BAMDecoderV1_0(final IOPath inputPath) {
         this(inputPath, new ReadsDecoderOptions());
+        throw new IllegalArgumentException("Deprecated");
     }
 
     public BAMDecoderV1_0(final IOPath inputPath, final HtsDecoderOptions decoderOptions) {
@@ -46,6 +47,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
 
         samReader = getSamReader(decoderOptions);
         samFileHeader = samReader.getFileHeader();
+        throw new IllegalArgumentException("Deprecated");
     }
 
     public BAMDecoderV1_0(final Bundle inputBundle, final ReadsDecoderOptions decoderOptions) {
@@ -57,6 +59,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
 
     public BAMDecoderV1_0(final InputStream is, final String displayName) {
         this(is, displayName, new ReadsDecoderOptions());
+        throw new IllegalArgumentException("Deprecated");
     }
 
     public BAMDecoderV1_0(final InputStream is, final String displayName, final HtsDecoderOptions decoderOptions) {
@@ -64,6 +67,7 @@ public class BAMDecoderV1_0 extends BAMDecoder {
         ValidationUtils.nonNull(decoderOptions);
         samReader = getSamReader(decoderOptions);
         samFileHeader = samReader.getFileHeader();
+        throw new IllegalArgumentException("Deprecated");
     }
 
     @Override
@@ -130,49 +134,41 @@ public class BAMDecoderV1_0 extends BAMDecoder {
     private SamReader getSamReader(final HtsDecoderOptions decoderOptions) {
         final ReadsDecoderOptions readsDecoderOptions = (ReadsDecoderOptions) decoderOptions;
 
-        SamReader reader;
-        if (is != null) {
-            //TODO: SamReaderFactory doesn't expose getters for all options (currently most are not exposed),
-            // so this is currently not fully honoring the SAMFileWriterFactory
-
-            //TODO: this BAMFileReader stream constructor required changing the member access to protected...
-            try {
-                final BAMFileReader bamReader = new BAMFileReader(is,
-                        null,
-                        false,
-                        false,
-                        readsDecoderOptions.getSamReaderFactory().validationStringency(),
-                        new DefaultSAMRecordFactory(),
-                        new InflaterFactory());
-                return new PrimitiveSamReaderToSamReaderAdapter(bamReader, SamInputResource.of(is));
-            } catch (IOException e) {
-                throw new RuntimeIOException(e);
-            }
-        } else if (inputPath != null) {
-            reader = readsDecoderOptions.getSamReaderFactory().open(SamInputResource.of(inputPath.toPath()));
-        } else {
-            // use the bundle
-            final Optional<BundleResource> readsInput = inputBundle.get(BundleResourceType.READS);
-            if (!readsInput.isPresent()) {
-                throw new IllegalArgumentException("No source of reads was provided");
-            }
-            final Optional<IOPath> readsPath = readsInput.get().getIOPath();
-            if (!readsPath.isPresent()) {
-                throw new IllegalArgumentException("Currently onlyIOPaths are supported for reads input bundles");
-            }
-            final SamInputResource readsResource = SamInputResource.of(readsPath.get().toPath());
-
-            final Optional<BundleResource> indexInput = inputBundle.get(BundleResourceType.READS_INDEX);
-            if (indexInput.isPresent()) {
-                final Optional<IOPath> indexPath = indexInput.get().getIOPath();
-                if (!indexPath.isPresent()) {
-                    throw new IllegalArgumentException("Currently only IOPaths are supported for index input bundles");
-                }
-                readsResource.index(indexPath.get().toPath());
-            }
-            reader = readsDecoderOptions.getSamReaderFactory().open(readsResource);
+        //TODO: SamReaderFactory doesn't expose getters for all options (currently most are not exposed),
+        // so this is currently not fully honoring the SAMFileWriterFactory
+        final Optional<BundleResource> readsInput = inputBundle.get(BundleResourceType.READS);
+        if (!readsInput.isPresent()) {
+            throw new IllegalArgumentException(String.format(
+                    "No readable (input) reads resource was provided in bundle %s", inputBundle));
+        } else if (!readsInput.get().isInputResource()) {
+            throw new IllegalArgumentException(String.format(
+                    "The provided reads resource is not an input (readable): %s", readsInput.get()));
         }
-        return reader;
+
+        final SamInputResource readsResource = getSamInputResourceFromBundleResource(readsInput.get());
+
+        // add the index if there is one
+        final Optional<BundleResource> indexInput = inputBundle.get(BundleResourceType.READS_INDEX);
+        if (indexInput.isPresent()) {
+            final BundleResource indexResource = indexInput.get();
+            if (indexResource.getIOPath().isPresent()) {
+                readsResource.index(indexResource.getIOPath().get().toPath());
+            } else if (indexResource.getSeekableStream().isPresent()) {
+                readsResource.index(indexResource.getSeekableStream().get());
+            } else if (indexResource.getInputStream().isPresent()) {
+                readsResource.index(indexResource.getInputStream().get());
+            }
+        }
+        return readsDecoderOptions.getSamReaderFactory().open(readsResource);
+    }
+
+    //TODO: move this somewhere with wider access
+    private SamInputResource getSamInputResourceFromBundleResource(final BundleResource bundleResource) {
+        if (bundleResource.isRandomAccessResource()) {
+            return SamInputResource.of(bundleResource.getSeekableStream().get());
+        } else {
+            return SamInputResource.of(bundleResource.getInputStream().get());
+        }
     }
 
 }

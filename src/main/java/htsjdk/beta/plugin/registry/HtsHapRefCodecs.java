@@ -15,7 +15,7 @@ public class HtsHapRefCodecs {
     @SuppressWarnings("unchecked")
     public static HaploidReferenceDecoder getHapRefDecoder(final IOPath inputPath) {
         ValidationUtils.nonNull(inputPath, "Input path must not be null");
-        final Optional<HaploidReferenceCodec> haploidReferenceCodec = haprefCodecs.getCodecForIOPath(inputPath);
+        final Optional<HaploidReferenceCodec> haploidReferenceCodec = haprefCodecs.getCodecForInputIOPathObsolete(inputPath);
 
         return (HaploidReferenceDecoder) (haploidReferenceCodec.map(codec -> codec.getDecoder(inputPath))
                 .orElseThrow(() -> new RuntimeException(String.format(HtsCodecRegistry.NO_CODEC_MSG_FORMAT_STRING, "hapref", inputPath))));

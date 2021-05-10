@@ -3,6 +3,7 @@ package htsjdk.beta.codecs.reads.bam;
 import htsjdk.HtsjdkTest;
 import htsjdk.beta.plugin.bundle.Bundle;
 import htsjdk.beta.plugin.bundle.BundleBuilder;
+import htsjdk.beta.plugin.reads.ReadsBundle;
 import htsjdk.io.HtsPath;
 import htsjdk.io.IOPath;
 import htsjdk.beta.plugin.registry.HtsReadsCodecs;
@@ -209,8 +210,10 @@ public class HtsBAMCodecQueryTest extends HtsjdkTest {
 
     private int runQueryTest(final IOPath bamFile, final String sequence, final int startPos, final int endPos, final HtsQueryRule queryRule) {
         verbose("Testing query " + sequence + ":" + startPos + "-" + endPos + " ...");
-        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsReadsCodecs.getReadsDecoder(bamFile);
-             final BAMDecoder bamDecoder2 = (BAMDecoder) HtsReadsCodecs.getReadsDecoder(bamFile)) {
+
+        final ReadsBundle readsBundleWithIndex = ReadsBundle.resolveIndex(bamFile);
+        try (final BAMDecoder bamDecoder = (BAMDecoder) HtsReadsCodecs.getReadsDecoder(readsBundleWithIndex);
+             final BAMDecoder bamDecoder2 = (BAMDecoder) HtsReadsCodecs.getReadsDecoder(readsBundleWithIndex)) {
             final Iterator<SAMRecord> iter1 = bamDecoder.query(sequence, startPos, endPos, queryRule);
             final Iterator<SAMRecord> iter2 = bamDecoder2.iterator();
             // Compare ordered iterators.

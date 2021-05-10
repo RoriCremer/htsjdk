@@ -74,7 +74,7 @@ public class ReadsBundleTest extends HtsjdkTest {
             final String jsonString,
             final ReadsBundle bundle)  {
         final IOPath jsonFilePath = IOUtils.createTempPath("reads", Bundle.BUNDLE_EXTENSION);
-        IOUtils.writeStringToPath(jsonFilePath, jsonString);
+        IOUtils.writeStringToPath(jsonFilePath, jsonString, false);
         final ReadsBundle bundleFromPath = ReadsBundle.getReadsBundleFromPath(jsonFilePath);
 
         Assert.assertEquals(bundleFromPath, bundle);
